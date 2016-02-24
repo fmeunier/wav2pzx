@@ -67,7 +67,7 @@ public class WAV2PZX {
         final String pzxFileOut = args[1];
         
         if(wavFileIn == null || pzxFileOut == null) {
-            System.out.println("wav2pzx: usage: wav2pzx <infile> <outfile>");
+            System.err.println("wav2pzx: usage: wav2pzx <infile> <outfile>");
             return;
         }
         
