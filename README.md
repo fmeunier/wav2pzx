@@ -9,4 +9,5 @@ The Sinclair ZX Spectrum and related computers primarily stored their software o
 This program translates a recording of a ZX Spectrum tape in WAV format (preferably a mono 8-bit file with maximum volume without clipping the samples) into a PZX file, recognising the standard Spectrum files saved by the ROM routines and preserving any data it doesn't directly support.
 
 It currently expects to be run from the command line and has the following arguments:
-$ wav2pzx.jar <infile.wav> <outfile.pzx>
+
+    $ wav2pzx.jar <infile.wav> <outfile.pzx>
