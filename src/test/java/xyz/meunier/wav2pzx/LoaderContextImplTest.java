@@ -27,6 +27,7 @@ package xyz.meunier.wav2pzx;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -111,11 +112,21 @@ public class LoaderContextImplTest {
     @Test
     public void testAddBit() {
         System.out.println("addBit");
-        int bit = 0;
-        LoaderContextImpl instance = null;
-        instance.addBit(bit);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        int bit = 1;
+        PulseList pulseList = new PulseList(Arrays.asList(200.0), 1);
+        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
+        // add 8 bits to add an entry to data collection, plus one to check current byte
+        for(int i = 0; i < 9; i++) {
+        	instance.addBit(bit);
+        }
+        
+        List<Byte> expResult = Arrays.asList((byte)0xff);
+        List<Byte> result = instance.getData();
+        
+        assertArrayEquals("Check byte was generated", expResult.toArray(), result.toArray());
+        
+        byte result2 = instance.getCurrentByte();
+        assertEquals("Check bit has been handled", (byte)0x01, result2);
     }
 
     /**
@@ -124,10 +135,48 @@ public class LoaderContextImplTest {
     @Test
     public void testResetBlock() {
         System.out.println("resetBlock");
-        LoaderContextImpl instance = null;
+        PulseList pulseList = new PulseList(Arrays.asList(200.0), 1);
+        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
+
+        Double pulseLength = 50.0;
+        instance.addPilotPulse(pulseLength);
+        instance.addZeroPulse(pulseLength, pulseLength);
+        instance.addOnePulse(pulseLength, pulseLength);
+        // add 8 bits to add an entry to data collection
+        for(int i = 0; i < 8; i++) {
+        	instance.addBit(1);
+        }
+        instance.addSync1(pulseLength);
+        instance.addSync2(pulseLength);
+        instance.setTailLength(pulseLength);
+        
         instance.resetBlock();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        
+        double expResult = 0.0;
+        double result = instance.getSync1Length();
+        assertEquals("Check sync1 has been reset", expResult, result, 0.0);
+
+        result = instance.getSync2Length();
+        assertEquals("Check sync2 has been reset", expResult, result, 0.0);
+
+        result = instance.getTailLength();
+        assertEquals("Check tail length has been reset", expResult, result, 0.0);
+        
+        byte result2 = instance.getCurrentByte();
+        assertEquals("Check bit has been reset", (byte)0x00, result2);
+
+        assertEquals("Check number of bits in current byte is 0", 0, instance.getNumBitsInCurrentByte());
+        
+        List<Double> result3 = instance.getPilotPulses();
+        assertTrue("Check no pilot pulse recorded", result3.isEmpty());
+
+        result3 = instance.getZeroPulses();
+        assertTrue("Check no zero pulses recorded", result3.isEmpty());
+
+        result3 = instance.getOnePulses();
+        assertTrue("Check no one pulses recorded", result3.isEmpty());
+        
+        assertTrue("Check no data recorded", instance.getData().isEmpty());
     }
 
     /**
