@@ -68,8 +68,6 @@ public final class LoaderContextImpl implements LoaderContext {
     private byte currentByte;
     private int numBitsInCurrentByte;
     
-    private int numBitsInCurrentDataBlock;
-
     private double sync1Length;
     
     private final PeekingIterator<Double> pulseIterator;
@@ -145,7 +143,6 @@ public final class LoaderContextImpl implements LoaderContext {
 
     @Override
     public void addBit(int bit) {
-        numBitsInCurrentDataBlock++;
         currentByte <<= 1;
         currentByte |= (bit & 0x01);
         if( ++numBitsInCurrentByte == 8 ) {
@@ -164,9 +161,9 @@ public final class LoaderContextImpl implements LoaderContext {
         
         currentByte = 0;
         numBitsInCurrentByte = 0;
-        numBitsInCurrentDataBlock = 0;
         sync1Length = 0;
         sync2Length = 0;
+        tailLength = 0;
     }
 
     /**
@@ -224,7 +221,7 @@ public final class LoaderContextImpl implements LoaderContext {
         
         PZXDataBlock newBlock = 
                 new PZXDataBlock(currentLevel, pulseLengths, tailLength, 
-                                    numBitsInCurrentDataBlock, data);
+                				 numBitsInCurrentByte, data);
         
         System.out.println(newBlock.getSummary());
         loaderResult.add(newBlock);
@@ -387,6 +384,14 @@ public final class LoaderContextImpl implements LoaderContext {
     public byte getCurrentByte() {
         return currentByte;
     }
+    
+    /**
+     * Get the number of bits in the in-progress byte being constructed from the decoded bits
+     * @return the number of bits in the in-progress byte being built
+     */
+    public int getNumBitsInCurrentByte() {
+    	return numBitsInCurrentByte;
+    }
 
     /**
      * Get a copy of the current list of one bit pulses in the block being built
@@ -403,4 +408,14 @@ public final class LoaderContextImpl implements LoaderContext {
     public List<Double> getPilotPulses() {
         return new ArrayList<>(pilotPulses);
     }
+    
+    /**
+     * Get a copy of the current list of data bytes in the block being built
+     * @return a copy of the current list of data bytes
+     */
+    public List<Byte> getData() {
+    	return new ArrayList<>(data);
+    }
+    
+    
 }
