@@ -27,7 +27,6 @@ package xyz.meunier.wav2pzx;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -49,12 +48,13 @@ public class LoaderContextImplTest {
     @Test
     public void testBuildPZXTapeList() {
         System.out.println("buildPZXTapeList");
-        PulseList pulseList = new PulseList(Arrays.asList(200.0), 1);
-        ArrayList<PZXBlock> expResult = null;
+        List<Double> sourcePulses = Arrays.asList(200.0, 200.0, 200.0);
+		PulseList pulseList = new PulseList(sourcePulses, 1);
         List<PZXBlock> result = LoaderContextImpl.buildPZXTapeList(pulseList);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        List<Double> pulses = new ArrayList<>();
+        result.stream().forEach((b) -> {pulses.addAll(b.getPulses());});
+        
+        assertEquals("Pulses from generated tape should match source", sourcePulses, pulses);
     }
 
     /**
