@@ -40,9 +40,9 @@ public class PZXPilotBlockTest {
 
     private PZXPilotBlock instance;
     int firstPulseLevel = 1;
-    Collection<Double> newPulses = Arrays.asList(2168.0, 2168.0);
     double sync1Length = 667.0;
     double sync2Length = 735.0;
+    Collection<Double> newPulses = Arrays.asList(2168.0, 2168.0, sync1Length, sync2Length);
     
     public PZXPilotBlockTest() {
     }
@@ -80,7 +80,7 @@ public class PZXPilotBlockTest {
     @Test
     public void testToString() {
         System.out.println("toString");
-        String expResult = "PZXPilotBlock{first pulse level: 1 pulse count: 2, sync1Length=667.0, sync2Length=735.0}";
+        String expResult = "PZXPilotBlock{first pulse level: 1 pulse count: 4, sync1Length=667.0, sync2Length=735.0}";
         String result = instance.toString();
         assertEquals(expResult, result);
     }
