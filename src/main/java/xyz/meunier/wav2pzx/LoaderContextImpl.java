@@ -190,12 +190,12 @@ public final class LoaderContextImpl implements LoaderContext {
         if(isPilot) {
             newBlock = new PZXPilotBlock(currentLevel, pulseLengths, sync1Length, sync2Length);
             DoubleSummaryStatistics stats = getSummaryStats (pilotPulses);
-            System.out.println(getSummaryText("pilot", PILOT_LENGTH, stats));
+            Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.FINE, getSummaryText("pilot", PILOT_LENGTH, stats));
             // FIXME: use average PILOT_LENGTH pulse length unless idealised length should be used
         } else {
             newBlock = new PZXPulseBlock(currentLevel, pulseLengths);
         }
-        System.out.println( newBlock.getSummary() );
+        Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.FINE, newBlock.getSummary());
         loaderResult.add(newBlock);
         pulseLengths = new ArrayList<>();
         resetBlock();
@@ -219,20 +219,22 @@ public final class LoaderContextImpl implements LoaderContext {
             data.add(currentByte);
         }
         
-        PZXDataBlock newBlock = 
-                new PZXDataBlock(currentLevel, pulseLengths, tailLength, 
-                				 numBitsInCurrentByte, data);
+        int numBitsInLastByte = numBitsInCurrentByte == 0  ? 8 : 0;
         
-        System.out.println(newBlock.getSummary());
+		PZXDataBlock newBlock = 
+                new PZXDataBlock(currentLevel, pulseLengths, tailLength, 
+                				 numBitsInLastByte, data);
+        
+		Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.FINE, newBlock.getSummary());
         loaderResult.add(newBlock);
         pulseLengths = new ArrayList<>();
 
-        DoubleSummaryStatistics stats = getSummaryStats (zeroPulses);
-        System.out.println(getSummaryText("zero", ZERO, stats));
+        DoubleSummaryStatistics stats = getSummaryStats(zeroPulses);
+		Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.FINE, getSummaryText("zero", ZERO, stats));
         // TODO: use average ZERO pulse length unless idealised
         
         stats = getSummaryStats (onePulses);
-        System.out.println(getSummaryText("one", ONE, stats));
+		Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.FINE, getSummaryText("one", ONE, stats));
         // TODO: use average ONE pulse length unless idealised
         
         resetBlock();
