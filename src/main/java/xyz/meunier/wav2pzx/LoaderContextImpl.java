@@ -251,7 +251,7 @@ public final class LoaderContextImpl implements LoaderContext {
         checkState(!loaderResult.isEmpty());
         final int lastIndex = loaderResult.size()-1;
         final PZXBlock lastBlock = loaderResult.remove(lastIndex);
-        List<Double> newPulseLengths = lastBlock.getPulses();
+        List<Double> newPulseLengths = new ArrayList<>(lastBlock.getPulses());
         newPulseLengths.addAll(pulseLengths);
         pulseLengths = newPulseLengths;
         resetBlock();
@@ -359,7 +359,11 @@ public final class LoaderContextImpl implements LoaderContext {
         return this.currentPulse;
     }
 
-    private List<PZXBlock> getPZXTapeList() {
+    /**
+     * Get a copy of the current list of identified PZXBlocks 
+     * @return the current list of identified PZXBlocks
+     */
+    public List<PZXBlock> getPZXTapeList() {
         return new ArrayList<>(this.loaderResult);
     }
     

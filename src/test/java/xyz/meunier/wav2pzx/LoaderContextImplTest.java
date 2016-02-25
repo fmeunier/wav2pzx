@@ -269,10 +269,17 @@ public class LoaderContextImplTest {
     @Test
     public void testRevertCurrentBlock() {
         System.out.println("revertCurrentBlock");
-        LoaderContextImpl instance = null;
+        Double pulseLength = 50.0;
+        PulseList pulseList = new PulseList(Arrays.asList(200.0), 1);
+        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
+        instance.addUnclassifiedPulse(pulseLength);
+        // Add a block with the pulse
+        instance.completePulseBlock(false);
+        int numBlocksStart = instance.getPZXTapeList().size();
+        assertTrue(instance.getPulseLengths().isEmpty());
         instance.revertCurrentBlock();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertEquals(numBlocksStart - 1, instance.getPZXTapeList().size());
+        assertFalse(instance.getPulseLengths().isEmpty());
     }
 
     /**
