@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
  */
 public class PulseListBuilderTest {
     
-    private static final double TOLERANCE = 0.001;
+    private static final double TOLERANCE = 0.1;
 	// Two 238 t state pulses with a trailing 79 t state pulse
     public int[] samples1 = {0, 0, 0, 255, 255, 255, 0};
     public int[] samples2 = {255, 255, 255, 0, 0, 0, 0, 255};
