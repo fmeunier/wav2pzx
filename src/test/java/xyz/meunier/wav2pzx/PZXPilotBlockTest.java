@@ -49,8 +49,7 @@ public class PZXPilotBlockTest {
     
     @Before
     public void setUp() {
-        this.instance = new PZXPilotBlock(this.firstPulseLevel, this.newPulses, 
-                        this.sync1Length, this.sync2Length);
+        this.instance = new PZXPilotBlock(this.firstPulseLevel, this.newPulses);
     }
     
     @After

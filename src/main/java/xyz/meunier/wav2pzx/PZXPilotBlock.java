@@ -27,11 +27,12 @@ package xyz.meunier.wav2pzx;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
+import static com.google.common.base.Preconditions.checkArgument;
 import static xyz.meunier.wav2pzx.PZXEncodeUtils.addPZXBlockHeader;
 import static xyz.meunier.wav2pzx.LoaderContext.SYNC1;
 import static xyz.meunier.wav2pzx.LoaderContext.SYNC2;
-import static xyz.meunier.wav2pzx.PZXPulseBlock.addBytesFor;
 
 /**
  * This is a specialisation of the PULS PZXPulseBlock that is used when we have
@@ -55,16 +56,15 @@ public class PZXPilotBlock extends PZXPulseBlock {
      * Constructor for the PZXPilotBlock.
      * @param firstPulseLevel the initial signal level for the block (0 or 1) 
      * @param newPulses the original tape pulses that have been decoded into this block
-     * @param sync1Length the length of the SYNC1 pulse found on tape
-     * @param sync2Length the length of the SYNC2 pulse found on tape 
      * @throws NullPointerException if newPulses was null
      * @throws IllegalArgumentException if firstPulseLevel is not 0 or 1
      */
-    public PZXPilotBlock(int firstPulseLevel, Collection<Double> newPulses, 
-                        double sync1Length, double sync2Length) {
+    public PZXPilotBlock(int firstPulseLevel, Collection<Double> newPulses) {
         super(firstPulseLevel, newPulses);
-        this.sync1Length = sync1Length;
-        this.sync2Length = sync2Length;
+        checkArgument(newPulses.size() > 2, "newPulses needs at least 3 elements");
+        List<Double> pulses = getPulses();
+		this.sync1Length = pulses.get(pulses.size() - 2);
+        this.sync2Length = pulses.get(pulses.size() - 1);
     }
 
     @Override
@@ -79,7 +79,7 @@ public class PZXPilotBlock extends PZXPulseBlock {
             addBytesFor(0, 1, output);
         }
         
-        addBytesFor(LoaderContext.PILOT_LENGTH, getPulses().size(), output);
+        addBytesFor(LoaderContext.PILOT_LENGTH, getPulses().size() - 2, output);
         addBytesFor(LoaderContext.SYNC1, 1, output);
         addBytesFor(LoaderContext.SYNC2, 1, output);
         

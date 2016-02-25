@@ -87,6 +87,7 @@ public class PZXDataBlock extends PZXPulseBlock {
         super(firstPulseLevel, newPulses);
         checkArgument(firstPulseLevel == 0 || firstPulseLevel == 1, "firstPulseLevel should be 0 or 1");
         checkNotNull(data, "data must not be null");
+        checkArgument(!data.isEmpty(), "data array must not be empty");
         this.tailLength = tailLength;
         this.numBitsInLastByte = numBitsInLastByte;
         this.data = Bytes.toArray(data);
@@ -294,5 +295,19 @@ public class PZXDataBlock extends PZXPulseBlock {
         }
         return true;
     }
+
+	/**
+	 * @return the numer of bits of data in the last data block byte
+	 */
+	public int getNumBitsInLastByte() {
+		return numBitsInLastByte;
+	}
+
+	/**
+	 * @return a copy of the data section of the block
+	 */
+	public byte[] getData() {
+		return Arrays.copyOf(data, data.length);
+	}
     
 }

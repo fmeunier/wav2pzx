@@ -188,7 +188,7 @@ public final class LoaderContextImpl implements LoaderContext {
         
         PZXPulseBlock newBlock;
         if(isPilot) {
-            newBlock = new PZXPilotBlock(currentLevel, pulseLengths, sync1Length, sync2Length);
+            newBlock = new PZXPilotBlock(currentLevel, pulseLengths);
             DoubleSummaryStatistics stats = getSummaryStats (pilotPulses);
             Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.FINE, getSummaryText("pilot", PILOT_LENGTH, stats));
             // FIXME: use average PILOT_LENGTH pulse length unless idealised length should be used
@@ -219,7 +219,7 @@ public final class LoaderContextImpl implements LoaderContext {
             data.add(currentByte);
         }
         
-        int numBitsInLastByte = numBitsInCurrentByte == 0  ? 8 : 0;
+        int numBitsInLastByte = numBitsInCurrentByte == 0  ? 8 : numBitsInCurrentByte;
         
 		PZXDataBlock newBlock = 
                 new PZXDataBlock(currentLevel, pulseLengths, tailLength, 
