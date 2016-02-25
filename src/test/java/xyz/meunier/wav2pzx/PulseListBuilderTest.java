@@ -17,7 +17,8 @@ import static org.junit.Assert.*;
  */
 public class PulseListBuilderTest {
     
-    // Two 238 t state pulses with a trailing 79 t state pulse
+    private static final double TOLERANCE = 0.001;
+	// Two 238 t state pulses with a trailing 79 t state pulse
     public int[] samples1 = {0, 0, 0, 255, 255, 255, 0};
     public int[] samples2 = {255, 255, 255, 0, 0, 0, 0, 255};
     public static final float SAMPLE_RATE = (float) 44100.0;
@@ -105,9 +106,9 @@ public class PulseListBuilderTest {
         PulseList pulseList = instance1.build();
         List<Double> result = pulseList.getPulseLengths();
         
-        assertEquals(238.0, result.get(0), 0.1);
-        assertEquals(238.0, result.get(1), 0.1);
-        assertEquals(79.365, result.get(2), 0.001);
+        assertEquals(238.0, result.get(0), TOLERANCE);
+        assertEquals(238.0, result.get(1), TOLERANCE);
+        assertEquals(79.365, result.get(2), TOLERANCE);
     }
 
     /**
