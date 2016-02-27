@@ -155,7 +155,8 @@ public class PZXPulseBlock implements PZXBlock {
     /**
      * @return the level (0 or 1) for the first pulse in the block
      */
-    protected int getFirstPulseLevel() {
+    @Override
+    public int getFirstPulseLevel() {
         return firstPulseLevel;
     }
 

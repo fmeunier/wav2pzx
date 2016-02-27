@@ -127,6 +127,17 @@ public final class LoaderContextImpl implements LoaderContext {
         resetBlock();
     }
     
+    // First pulse level found in the block (0 or 1), used in block construction
+    private int firstPulseLevel;
+
+    private void addPulse(Double pulseLength) {
+    	if(pulseLengths.isEmpty()) {
+    		firstPulseLevel = currentLevel;
+    	}
+    	
+    	pulseLengths.add(pulseLength);
+    }
+    
     /**
      *
      * @param firstPulseLength the value of firstPulse
@@ -134,8 +145,8 @@ public final class LoaderContextImpl implements LoaderContext {
      */
     @Override
     public void addZeroPulse(Double firstPulseLength, Double secondPulseLength) {
-        pulseLengths.add(firstPulseLength);
-        pulseLengths.add(secondPulseLength);
+        addPulse(firstPulseLength);
+        addPulse(secondPulseLength);
         zeroPulses.add(firstPulseLength);
         zeroPulses.add(secondPulseLength);
         addBit( 0 );
@@ -173,8 +184,8 @@ public final class LoaderContextImpl implements LoaderContext {
      */
     @Override
     public void addOnePulse(Double firstPulseLength, Double secondPulseLength) {
-        pulseLengths.add(firstPulseLength);
-        pulseLengths.add(secondPulseLength);
+        addPulse(firstPulseLength);
+        addPulse(secondPulseLength);
         onePulses.add(firstPulseLength);
         onePulses.add(secondPulseLength);
         addBit( 1 );
@@ -188,12 +199,12 @@ public final class LoaderContextImpl implements LoaderContext {
         
         PZXPulseBlock newBlock;
         if(isPilot) {
-            newBlock = new PZXPilotBlock(currentLevel, pulseLengths);
+            newBlock = new PZXPilotBlock(firstPulseLevel, pulseLengths);
             DoubleSummaryStatistics stats = getSummaryStats (pilotPulses);
             Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.FINE, getSummaryText("pilot", PILOT_LENGTH, stats));
-            // FIXME: use average PILOT_LENGTH pulse length unless idealised length should be used
+            // TODO: use average PILOT_LENGTH pulse length unless idealised length should be used
         } else {
-            newBlock = new PZXPulseBlock(currentLevel, pulseLengths);
+            newBlock = new PZXPulseBlock(firstPulseLevel, pulseLengths);
         }
         Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.FINE, newBlock.getSummary());
         loaderResult.add(newBlock);
@@ -203,7 +214,7 @@ public final class LoaderContextImpl implements LoaderContext {
 
     @Override
     public void addPilotPulse(Double pulseLength) {
-        pulseLengths.add(pulseLength);
+        addPulse(pulseLength);
         pilotPulses.add(pulseLength);
     }
 
@@ -222,7 +233,7 @@ public final class LoaderContextImpl implements LoaderContext {
         int numBitsInLastByte = numBitsInCurrentByte == 0  ? 8 : numBitsInCurrentByte;
         
 		PZXDataBlock newBlock = 
-                new PZXDataBlock(currentLevel, pulseLengths, tailLength, 
+                new PZXDataBlock(firstPulseLevel, pulseLengths, tailLength, 
                 				 numBitsInLastByte, data);
         
 		Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.FINE, newBlock.getSummary());
@@ -242,7 +253,7 @@ public final class LoaderContextImpl implements LoaderContext {
 
     @Override
     public void addUnclassifiedPulse(Double pulseLength) {
-        pulseLengths.add(pulseLength);
+        addPulse(pulseLength);
     }
 
     @Override
@@ -254,6 +265,7 @@ public final class LoaderContextImpl implements LoaderContext {
         List<Double> newPulseLengths = new ArrayList<>(lastBlock.getPulses());
         newPulseLengths.addAll(pulseLengths);
         pulseLengths = newPulseLengths;
+        firstPulseLevel = lastBlock.getFirstPulseLevel();
         resetBlock();
     }
 
@@ -264,19 +276,19 @@ public final class LoaderContextImpl implements LoaderContext {
 
     @Override
     public void addSync1(Double pulseLength) {
-        pulseLengths.add(pulseLength);
+        addPulse(pulseLength);
         sync1Length = pulseLength;
     }
 
     @Override
     public void addSync2(Double pulseLength) {
-        pulseLengths.add(pulseLength);
+        addPulse(pulseLength);
         sync2Length = pulseLength;
     }
 
     @Override
     public void setTailLength(Double pulseLength) {
-        pulseLengths.add(pulseLength);
+        addPulse(pulseLength);
         tailLength = pulseLength;
     }
     

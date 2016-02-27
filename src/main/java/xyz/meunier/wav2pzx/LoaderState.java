@@ -195,14 +195,16 @@ public enum LoaderState {
             double nextPulseLength = context.peekNextPulse();
             
             if( context.getCurrentPulse() + nextPulseLength < LoaderContext.ZERO_THRESHOLD ) {
-                context.addZeroPulse(context.getCurrentPulse(), context.getNextPulse() );
+                context.addZeroPulse(context.getCurrentPulse(), nextPulseLength );
+                context.getNextPulse(); // Defer side effect of calculating next pulse level
                 
                 logTransition(context.getCurrentPulse(), GET_DATA, GET_DATA);
                 return GET_DATA;
             } else if ( context.getCurrentPulse() + nextPulseLength > LoaderContext.DATA_TOTAL_MAX ) {
                 return handleOptionalTailPulse(context);
             } else {
-                context.addOnePulse(context.getCurrentPulse(), context.getNextPulse() );
+                context.addOnePulse(context.getCurrentPulse(), nextPulseLength );
+                context.getNextPulse(); // Defer side effect of calculating next pulse level
                 
                 logTransition(context.getCurrentPulse(), GET_DATA, GET_DATA);
                 return GET_DATA;

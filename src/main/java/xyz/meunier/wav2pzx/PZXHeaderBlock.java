@@ -72,12 +72,18 @@ public class PZXHeaderBlock implements PZXBlock {
 
     @Override
     public List<Double> getPulses() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     @Override
     public String toString() {
         return "PZXHeaderBlock{" + getSummary() + '}';
     }
+
+	@Override
+	public int getFirstPulseLevel() {
+		return 0;
+	}
+
     
 }

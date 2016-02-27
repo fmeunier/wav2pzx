@@ -187,9 +187,9 @@ public class LoaderContextImplTest {
     public void testCompletePulseBlock() {
         System.out.println("completePulseBlock");
         Double pulseLength = 50.0;
-        PulseList pulseList = new PulseList(Arrays.asList(200.0), 1);
+        PulseList pulseList = new PulseList(Arrays.asList(pulseLength), 1);
         LoaderContextImpl instance = new LoaderContextImpl(pulseList);
-        instance.addUnclassifiedPulse(pulseLength);
+        instance.addUnclassifiedPulse(instance.getNextPulse());
         int numBlocksStart = instance.getPZXTapeList().size();
 
         // Add a block with the pulse
@@ -204,20 +204,23 @@ public class LoaderContextImplTest {
         // Check block has been created and added to the list as proper type
         // Non-pilot
         PZXBlock pzxBlock = blockList.get(numBlocksStart);
-		assertSame(pzxBlock.getClass(), PZXPulseBlock.class);
+		assertTrue(pzxBlock instanceof PZXPulseBlock);
 		
 		PZXPulseBlock pzxPulseBlock = (PZXPulseBlock)pzxBlock;
 		
 		// Check pulse in block and initial level is as expected
-		assertEquals(pzxPulseBlock.getFirstPulseLevel(), 0);
+		assertEquals(pzxPulseBlock.getFirstPulseLevel(), 1);
 		List<Double> pulses = pzxPulseBlock.getPulses();
 		assertEquals(pulses.size(), 1);
 		assertEquals(pulseLength, pulses.get(0), TOLERANCE);
         
+        pulseList = new PulseList(Arrays.asList(pulseLength, pulseLength, pulseLength), 0);
+        instance = new LoaderContextImpl(pulseList);
+
         // Pilot
-        instance.addPilotPulse(pulseLength);
-        instance.addSync1(pulseLength);
-        instance.addSync2(pulseLength);
+        instance.addPilotPulse(instance.getNextPulse());
+        instance.addSync1(instance.getNextPulse());
+        instance.addSync2(instance.getNextPulse());
         
         numBlocksStart = instance.getPZXTapeList().size();
 
@@ -231,7 +234,7 @@ public class LoaderContextImplTest {
         // Check block has been created and added to the list as proper type
         // Non-pilot
         pzxBlock = blockList.get(numBlocksStart);
-        assertSame(pzxBlock.getClass(), PZXPilotBlock.class);
+        assertTrue(pzxBlock instanceof PZXPilotBlock);
         
         PZXPilotBlock pzxPilotBlock = (PZXPilotBlock)pzxBlock;
 
@@ -239,9 +242,9 @@ public class LoaderContextImplTest {
 		assertEquals(pzxPilotBlock.getFirstPulseLevel(), 0);
 		pulses = pzxPilotBlock.getPulses();
 		assertEquals(pulses.size(), 3);
-		assertEquals(pulseLength, pulses.get(0), 0.0);
-		assertEquals(pulseLength, pulses.get(1), 0.0);
-		assertEquals(pulseLength, pulses.get(2), 0.0);
+		assertEquals(pulseLength, pulses.get(0), TOLERANCE);
+		assertEquals(pulseLength, pulses.get(1), TOLERANCE);
+		assertEquals(pulseLength, pulses.get(2), TOLERANCE);
     }
 
     /**
@@ -332,7 +335,7 @@ public class LoaderContextImplTest {
         assertTrue("Check one block was added", blockList.size() - numBlocksStart == 1);
 
         pzxBlock = blockList.get(numBlocksStart);
-		assertSame(pzxBlock.getClass(), PZXDataBlock.class);
+		assertTrue(pzxBlock instanceof PZXDataBlock);
         
 		pzxDataBlock = (PZXDataBlock)pzxBlock;
 		
