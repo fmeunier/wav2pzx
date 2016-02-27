@@ -249,7 +249,7 @@ public class PZXDataBlock extends PZXPulseBlock {
 
     @Override
     public String toString() {
-        return "PZXDataBlock{" + super.getSummary() + ", tailLength=" + tailLength + ", numBitsInBlock=" + numBitsInLastByte + ", calculatedChecksum=" + String.format("0x%x", calculatedChecksum) + ", suppliedChecksum=" + String.format("0x%x", suppliedChecksum) + ", isHeader=" + isHeader + ", data=" + Arrays.toString(data) + '}';
+        return "PZXDataBlock{" + super.getSummary() + ", tailLength=" + tailLength + ", numBitsInLastByte=" + numBitsInLastByte + ", calculatedChecksum=" + String.format("0x%x", calculatedChecksum) + ", suppliedChecksum=" + String.format("0x%x", suppliedChecksum) + ", isHeader=" + isHeader + ", data=" + Arrays.toString(data) + '}';
     }
 
     @Override
