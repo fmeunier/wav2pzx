@@ -28,14 +28,13 @@ package xyz.meunier.wav2pzx;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import static com.google.common.base.Preconditions.checkArgument;
 import static xyz.meunier.wav2pzx.PZXEncodeUtils.addPZXBlockHeader;
 import static xyz.meunier.wav2pzx.LoaderContext.SYNC1;
 import static xyz.meunier.wav2pzx.LoaderContext.SYNC2;
 
 /**
- * This is a specialisation of the PULS PZXPulseBlock that is used when we have
+ * This is a specialisation of the PULS PZX data block that is used when we have
  * identified the standard ZX ROM loading pulses.
  * <p>
  * It uses the known timing pulse durations derived from the ROM code to represent
@@ -44,8 +43,11 @@ import static xyz.meunier.wav2pzx.LoaderContext.SYNC2;
  * TODO: add support for optionally using timings derived from provided file
  * @author Fredrick Meunier
  */
-public class PZXPilotBlock extends PZXPulseBlock {
+public class PZXPilotBlock implements PZXBlock {
     
+    // Details of original pulses corresponding to block
+	private final PulseList pulses;
+	
     // The length of the SYNC1 pulse found on tape
     private final double sync1Length;
     
@@ -60,8 +62,8 @@ public class PZXPilotBlock extends PZXPulseBlock {
      * @throws IllegalArgumentException if firstPulseLevel is not 0 or 1
      */
     public PZXPilotBlock(int firstPulseLevel, Collection<Double> newPulses) {
-        super(firstPulseLevel, newPulses);
         checkArgument(newPulses.size() > 2, "newPulses needs at least 3 elements");
+        this.pulses = new PulseList(newPulses, firstPulseLevel);
         List<Double> pulses = getPulses();
 		this.sync1Length = pulses.get(pulses.size() - 2);
         this.sync2Length = pulses.get(pulses.size() - 1);
@@ -76,12 +78,12 @@ public class PZXPilotBlock extends PZXPulseBlock {
         // The pulse level is low at start of the block by default. However initial
         // pulse of zero duration may be easily used to make it high.
         if( getFirstPulseLevel() == 1 ) {
-            addBytesFor(0, 1, output);
+            PZXEncodeUtils.addBytesFor(0, 1, output);
         }
         
-        addBytesFor(LoaderContext.PILOT_LENGTH, getPulses().size() - 2, output);
-        addBytesFor(LoaderContext.SYNC1, 1, output);
-        addBytesFor(LoaderContext.SYNC2, 1, output);
+        PZXEncodeUtils.addBytesFor(LoaderContext.PILOT_LENGTH, getPulses().size() - 2, output);
+        PZXEncodeUtils.addBytesFor(LoaderContext.SYNC1, 1, output);
+        PZXEncodeUtils.addBytesFor(LoaderContext.SYNC2, 1, output);
         
         return addPZXBlockHeader("PULS", output);
     }
@@ -95,50 +97,49 @@ public class PZXPilotBlock extends PZXPulseBlock {
         retval.append("Sync2 pulse:").append(sync2Length).append(" tstates, ")
                 .append((double)sync2Length/SYNC2*100).append("% of expected\n");
 
-        retval.append(super.getSummary());
+        retval.append(pulses.toString());
 
         return retval.toString();
     }
 
     @Override
     public String toString() {
-        return "PZXPilotBlock{" + super.getSummary() + ", sync1Length=" + sync1Length + ", sync2Length=" + sync2Length + '}';
+        return "PZXPilotBlock{" + pulses.toString() + ", sync1Length=" + sync1Length + ", sync2Length=" + sync2Length + '}';
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 5;
-        hash = 67 * hash + (int) (Double.doubleToLongBits(this.sync1Length) ^ (Double.doubleToLongBits(this.sync1Length) >>> 32));
-        hash = 67 * hash + (int) (Double.doubleToLongBits(this.sync2Length) ^ (Double.doubleToLongBits(this.sync2Length) >>> 32));
-        hash = 67 * hash + super.hashCode();
-        return hash;
-    }
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((pulses == null) ? 0 : pulses.hashCode());
+		return result;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final PZXPilotBlock other = (PZXPilotBlock) obj;
-        if (Double.doubleToLongBits(this.sync1Length) != Double.doubleToLongBits(other.sync1Length)) {
-            return false;
-        }
-        if (Double.doubleToLongBits(this.sync2Length) != Double.doubleToLongBits(other.sync2Length)) {
-            return false;
-        }
-        if (this.getFirstPulseLevel() != other.getFirstPulseLevel()) {
-            return false;
-        }
-        if (!Objects.equals(this.getPulses(), other.getPulses())) {
-            return false;
-        }
-        return true;
-    }
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PZXPilotBlock other = (PZXPilotBlock) obj;
+		if (pulses == null) {
+			if (other.pulses != null)
+				return false;
+		} else if (!pulses.equals(other.pulses))
+			return false;
+		return true;
+	}
+
+	@Override
+	public List<Double> getPulses() {
+		return pulses.getPulseLengths();
+	}
+
+	@Override
+	public int getFirstPulseLevel() {
+		return pulses.getFirstPulseLevel();
+	}
     
 }

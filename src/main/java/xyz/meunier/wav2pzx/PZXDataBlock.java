@@ -29,21 +29,22 @@ import com.google.common.primitives.Bytes;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+
 import static xyz.meunier.wav2pzx.PZXEncodeUtils.putUnsignedByte;
 import static xyz.meunier.wav2pzx.PZXEncodeUtils.putUnsignedLittleEndianInt;
 import static xyz.meunier.wav2pzx.PZXEncodeUtils.putUnsignedLittleEndianShort;
 import java.util.Arrays;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import java.util.Objects;
 import static xyz.meunier.wav2pzx.PZXEncodeUtils.addPZXBlockHeader;
 
 /**
  * Represents a PZX data block (DATA). Stores the decoded bytes found on the tape.
  * @author Fredrick Meunier
  */
-public class PZXDataBlock extends PZXPulseBlock {
-    
+public class PZXDataBlock implements PZXBlock {
+   
     // Spectrum ROM marker of header blocks
     private static final int HEADER_FLAG = 0x00;
     
@@ -53,6 +54,9 @@ public class PZXDataBlock extends PZXPulseBlock {
     // Mask for high bit of a 32 bit integer
     private static final int BIT_32_MASK = 0x80000000;
 
+    // Details of original pulses corresponding to block
+    private final PulseList pulses;
+    
     // The length of the tail pulse identified in the source file
     private final double tailLength;
     
@@ -84,10 +88,10 @@ public class PZXDataBlock extends PZXPulseBlock {
     public PZXDataBlock(int firstPulseLevel, Collection<Double> newPulses,
                         double tailLength, int numBitsInLastByte, 
                         Collection<Byte> data) {
-        super(firstPulseLevel, newPulses);
         checkArgument(firstPulseLevel == 0 || firstPulseLevel == 1, "firstPulseLevel should be 0 or 1");
         checkNotNull(data, "data must not be null");
         checkArgument(!data.isEmpty(), "data array must not be empty");
+        this.pulses = new PulseList(newPulses, firstPulseLevel);
         this.tailLength = tailLength;
         this.numBitsInLastByte = numBitsInLastByte;
         this.data = Bytes.toArray(data);
@@ -249,55 +253,47 @@ public class PZXDataBlock extends PZXPulseBlock {
 
     @Override
     public String toString() {
-        return "PZXDataBlock{" + super.getSummary() + ", tailLength=" + tailLength + ", numBitsInLastByte=" + numBitsInLastByte + ", calculatedChecksum=" + String.format("0x%x", calculatedChecksum) + ", suppliedChecksum=" + String.format("0x%x", suppliedChecksum) + ", isHeader=" + isHeader + ", data=" + Arrays.toString(data) + '}';
+        return "PZXDataBlock{" + pulses.toString() + ", tailLength=" + tailLength + ", numBitsInLastByte=" + numBitsInLastByte + ", calculatedChecksum=" + String.format("0x%x", calculatedChecksum) + ", suppliedChecksum=" + String.format("0x%x", suppliedChecksum) + ", isHeader=" + isHeader + ", data=" + Arrays.toString(data) + '}';
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 59 * hash + (int) (Double.doubleToLongBits(this.tailLength) ^ (Double.doubleToLongBits(this.tailLength) >>> 32));
-        hash = 59 * hash + Arrays.hashCode(this.data);
-        hash = 59 * hash + this.numBitsInLastByte;
-        hash = 59 * hash + this.suppliedChecksum;
-        hash = 59 * hash + super.hashCode();
-        return hash;
-    }
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(data);
+		result = prime * result + numBitsInLastByte;
+		result = prime * result + ((pulses == null) ? 0 : pulses.hashCode());
+		long temp;
+		temp = Double.doubleToLongBits(tailLength);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		return result;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final PZXDataBlock other = (PZXDataBlock) obj;
-        if (Double.doubleToLongBits(this.tailLength) != Double.doubleToLongBits(other.tailLength)) {
-            return false;
-        }
-        if (this.numBitsInLastByte != other.numBitsInLastByte) {
-            return false;
-        }
-        if (this.suppliedChecksum != other.suppliedChecksum) {
-            return false;
-        }
-        if (!Arrays.equals(this.data, other.data)) {
-            return false;
-        }
-        if (this.getFirstPulseLevel() != other.getFirstPulseLevel()) {
-            return false;
-        }
-        if (!Objects.equals(this.getPulses(), other.getPulses())) {
-            return false;
-        }
-        return true;
-    }
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PZXDataBlock other = (PZXDataBlock) obj;
+		if (!Arrays.equals(data, other.data))
+			return false;
+		if (numBitsInLastByte != other.numBitsInLastByte)
+			return false;
+		if (pulses == null) {
+			if (other.pulses != null)
+				return false;
+		} else if (!pulses.equals(other.pulses))
+			return false;
+		if (Double.doubleToLongBits(tailLength) != Double.doubleToLongBits(other.tailLength))
+			return false;
+		return true;
+	}
 
 	/**
-	 * @return the numer of bits of data in the last data block byte
+	 * @return the number of bits of data in the last data block byte
 	 */
 	public int getNumBitsInLastByte() {
 		return numBitsInLastByte;
@@ -308,6 +304,16 @@ public class PZXDataBlock extends PZXPulseBlock {
 	 */
 	public byte[] getData() {
 		return Arrays.copyOf(data, data.length);
+	}
+
+	@Override
+	public List<Double> getPulses() {
+		return pulses.getPulseLengths();
+	}
+
+	@Override
+	public int getFirstPulseLevel() {
+		return pulses.getFirstPulseLevel();
 	}
     
 }

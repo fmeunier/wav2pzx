@@ -80,7 +80,7 @@ public class PZXPilotBlockTest {
     @Test
     public void testToString() {
         System.out.println("toString");
-        String expResult = "PZXPilotBlock{first pulse level: 1 pulse count: 4, sync1Length=667.0, sync2Length=735.0}";
+        String expResult = "PZXPilotBlock{PulseList [pulseLengths=[2168.0, 2168.0, 667.0, 735.0], firstPulseLevel=1], sync1Length=667.0, sync2Length=735.0}";
         String result = instance.toString();
         assertEquals(expResult, result);
     }

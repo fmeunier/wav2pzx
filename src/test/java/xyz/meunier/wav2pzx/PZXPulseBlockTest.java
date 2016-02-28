@@ -25,10 +25,8 @@
  */
 package xyz.meunier.wav2pzx;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -99,7 +97,7 @@ public class PZXPulseBlockTest {
     @Test
     public void testToString() {
         System.out.println("toString");
-        String expResult = "PZXPulseBlock{firstPulseLevel=1, pulses=[200.0, 200.0, 300.0]}";
+        String expResult = "PZXPulseBlock [pulseList=PulseList [pulseLengths=[200.0, 200.0, 300.0], firstPulseLevel=1]]";
         String result = pulseBlock.toString();
         assertEquals(expResult, result);
     }
@@ -113,116 +111,6 @@ public class PZXPulseBlockTest {
         int expResult = 1;
         int result = pulseBlock.getFirstPulseLevel();
         assertEquals(expResult, result);
-    }
-
-    /**
-     * Test of addBytesFor method, of class PZXPulseBlock.
-     */
-    @Test
-    public void testAddBytesFor() {
-        System.out.println("addBytesFor");
-        long pulse;
-        ArrayList<Byte> output = new ArrayList<>();
-        List<Byte> expectedResult;
-        
-        // Test one cycle short pulse <= 0x7fff
-        output.clear();
-        pulse = 0x7000L;
-        PZXPulseBlock.addBytesFor(pulse, 1, output);
-        expectedResult = Arrays.asList((byte)0x00, (byte)0x70);
-        assertTrue("Check one cycle short pulse", Arrays.equals(expectedResult.toArray(), output.toArray()));
-        
-        // Test one cycle longer pulse >= 0x8000 < 0x7fffff
-        output.clear();
-        pulse = 0x8100L;
-        PZXPulseBlock.addBytesFor(pulse, 1, output);
-        expectedResult = Arrays.asList((byte)0x01, (byte)0x80, (byte)0x00, (byte)0x80, (byte)0x00, (byte)0x81);
-        assertTrue("Check one cycle pulse >= 0x8000 < 0x7fffff", Arrays.equals(expectedResult.toArray(), output.toArray()));
-
-        // Test multi cycle pulse <= 0x7fff
-        output.clear();
-        pulse = 0x7000L;
-        PZXPulseBlock.addBytesFor(pulse, 2, output);
-        expectedResult = Arrays.asList((byte)0x02, (byte)0x80, (byte)0x00, (byte)0x70);
-        assertTrue("Check multi cycle pulse <= 0x7fff cycles", Arrays.equals(expectedResult.toArray(), output.toArray()));
-
-        // Test multi cycle pulse >= 0x8000 < 0x80000
-        output.clear();
-        pulse = 0x8100L;
-        PZXPulseBlock.addBytesFor(pulse, 2, output);
-        expectedResult = Arrays.asList((byte)0x02, (byte)0x80, (byte)0x00, (byte)0x80, (byte)0x00, (byte)0x81);
-        assertTrue("Check multi cycle pulse >= 0x8000 < 0x80000", Arrays.equals(expectedResult.toArray(), output.toArray()));
-
-        // Test multi cycle pulse >= 0x80000 < 0x7fffff
-        output.clear();
-        pulse = 0x81000L;
-        PZXPulseBlock.addBytesFor(pulse, 2, output);
-        expectedResult = Arrays.asList((byte)0x02, (byte)0x80, (byte)0x08, (byte)0x80, (byte)0x00, (byte)0x10);
-        assertTrue("Check multi cycle pulse >= 0x80000 < 0x7fffff", Arrays.equals(expectedResult.toArray(), output.toArray()));
-        
-        // Test one cycle very long pulse that is multiple of a 0x7fffffff
-        output.clear();
-        pulse = 0x7fffffffL * 2;
-        PZXPulseBlock.addBytesFor(pulse, 1, output);
-        expectedResult = Arrays.asList(
-                (byte)0x01, (byte)0x80, (byte)0xff, (byte)0xff, (byte)0xff, 
-                (byte)0xff, (byte)0x00, (byte)0x00, (byte)0x01, (byte)0x80, 
-                (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff);
-        assertTrue("Check one cycle very long pulse that is a multiple of 0x7fffffff", Arrays.equals(expectedResult.toArray(), output.toArray()));
-
-        // Test one cycle very long pulse that is not a multiple of 0x7fffffff
-        // Note: there are short and long last encoded cycle versions of this
-        // Short
-        output.clear();
-        pulse = 0x7fffffffL * 2 + 1L;
-        PZXPulseBlock.addBytesFor(pulse, 1, output);
-        expectedResult = Arrays.asList(
-                (byte)0x01, (byte)0x80, (byte)0xff, (byte)0xff, (byte)0xff, 
-                (byte)0xff, (byte)0x00, (byte)0x00, (byte)0x01, (byte)0x80, 
-                (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0x00, 
-                (byte)0x00, (byte)0x01, (byte)0x00);
-        assertTrue("Check one cycle very long pulse that is not a multiple of 0x7fffffff, short remainder", Arrays.equals(expectedResult.toArray(), output.toArray()));
-
-        // Long
-        output.clear();
-        pulse = 0x7fffffffL * 2 + 0x8100L;
-        PZXPulseBlock.addBytesFor(pulse, 1, output);
-        expectedResult = Arrays.asList(
-                (byte)0x01, (byte)0x80, (byte)0xff, (byte)0xff, (byte)0xff, 
-                (byte)0xff, (byte)0x00, (byte)0x00, (byte)0x01, (byte)0x80, 
-                (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0x00, 
-                (byte)0x00, (byte)0x01, (byte)0x80, (byte)0x00, (byte)0x80, 
-                (byte)0x00, (byte)0x81);
-        assertTrue("Check one cycle very long pulse that is not a multiple of 0x7fffffff, long remainder", Arrays.equals(expectedResult.toArray(), output.toArray()));
-
-        // Test multi cycle very long pulse that is a multiple of 0x7fffffff
-        output.clear();
-        pulse = 0x7fffffffL * 2;
-        PZXPulseBlock.addBytesFor(pulse, 2, output);
-        expectedResult = Arrays.asList(
-                (byte)0x01, (byte)0x80, (byte)0xff, (byte)0xff, (byte)0xff, 
-                (byte)0xff, (byte)0x00, (byte)0x00, (byte)0x01, (byte)0x80, 
-                (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff,
-                (byte)0x01, (byte)0x80, (byte)0xff, (byte)0xff, (byte)0xff, 
-                (byte)0xff, (byte)0x00, (byte)0x00, (byte)0x01, (byte)0x80, 
-                (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff);
-        assertTrue("Check multi cycle very long pulse that is a multiple of 0x7fffffff", Arrays.equals(expectedResult.toArray(), output.toArray()));
-
-        // Test multi cycle very long pulse that is not a multiple of 0x7fffffff
-        output.clear();
-        pulse = 0x7fffffffL * 2 + 1L;
-        PZXPulseBlock.addBytesFor(pulse, 2, output);
-        expectedResult = Arrays.asList(
-                (byte)0x01, (byte)0x80, (byte)0xff, (byte)0xff, (byte)0xff, 
-                (byte)0xff, (byte)0x00, (byte)0x00, (byte)0x01, (byte)0x80, 
-                (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0x00, 
-                (byte)0x00, (byte)0x01, (byte)0x00,
-                (byte)0x01, (byte)0x80, (byte)0xff, (byte)0xff, (byte)0xff, 
-                (byte)0xff, (byte)0x00, (byte)0x00, (byte)0x01, (byte)0x80, 
-                (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0x00, 
-                (byte)0x00, (byte)0x01, (byte)0x00);
-        assertTrue("Check multi cycle very long pulse that is not a multiple of 0x7fffffff", Arrays.equals(expectedResult.toArray(), output.toArray()));
-
     }
     
 }

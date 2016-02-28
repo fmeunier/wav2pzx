@@ -75,4 +75,38 @@ public class PulseList {
         checkArgument(!pulseLengths.isEmpty(), "pulseLengths cannot be empty");
         this.firstPulseLevel = firstPulseLevel;
     }
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + firstPulseLevel;
+		result = prime * result + ((pulseLengths == null) ? 0 : pulseLengths.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PulseList other = (PulseList) obj;
+		if (firstPulseLevel != other.firstPulseLevel)
+			return false;
+		if (pulseLengths == null) {
+			if (other.pulseLengths != null)
+				return false;
+		} else if (!pulseLengths.equals(other.pulseLengths))
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "PulseList [pulseLengths=" + pulseLengths + ", firstPulseLevel=" + firstPulseLevel + "]";
+	}
+    
 }

@@ -197,7 +197,7 @@ public final class LoaderContextImpl implements LoaderContext {
             return;
         }
         
-        PZXPulseBlock newBlock;
+        PZXBlock newBlock;
         if(isPilot) {
             newBlock = new PZXPilotBlock(firstPulseLevel, pulseLengths);
             DoubleSummaryStatistics stats = getSummaryStats (pilotPulses);
