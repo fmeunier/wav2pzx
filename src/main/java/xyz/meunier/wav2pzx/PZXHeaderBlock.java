@@ -85,5 +85,4 @@ public class PZXHeaderBlock implements PZXBlock {
 		return 0;
 	}
 
-    
 }
