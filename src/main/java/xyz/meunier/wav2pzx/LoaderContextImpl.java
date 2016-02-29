@@ -38,7 +38,7 @@ import static com.google.common.base.Preconditions.checkState;
 /**
  * LoaderContextImpl represents the extrinsic state of the tape processing state
  * machine. The data extracted from the source file will be stored here and
- * @author fred
+ * @author Fredrick Meunier
  */
 public final class LoaderContextImpl implements LoaderContext {
     
@@ -65,13 +65,29 @@ public final class LoaderContextImpl implements LoaderContext {
     // Holds the sequence of bytes decoded from the pulse stream
     private final ArrayList<Byte> data = new ArrayList<>();
 
+    // Holds the in-progress byte being built from the tape bitstream
     private byte currentByte;
+    // Number of bits received so far for the currentByte
     private int numBitsInCurrentByte;
     
+    // Length of the SYNC1 pulse found on the tape
     private double sync1Length;
     
+    // Length of the SYNC2 pulse found on the tape
+    private double sync2Length;
+    
+    // An iterator over the PulseList, allows peeking for a 1 pulse lookahead
     private final PeekingIterator<Double> pulseIterator;
+    
+    // The length of the current pulse being processed
     private double currentPulse;
+    
+    // First pulse level found in the block (0 or 1), used in block construction
+    private int firstPulseLevel;
+    
+    // The data in a ROM block is terminated by an optional pulse of 945 T States,
+    // If found that should be recorded here
+    private double tailLength;
 
     /**
      * Builder method to construct a series of PZXBlocks that represents the data
@@ -108,11 +124,6 @@ public final class LoaderContextImpl implements LoaderContext {
     public double getSync2Length() {
         return sync2Length;
     }
-    private double sync2Length;
-    
-    // The data in a ROM block is terminated by an optional pulse of 945 T States,
-    // If found that should be recorded here
-    private double tailLength;
 
     /**
      * Construct a new LoaderContextImpl
@@ -126,9 +137,6 @@ public final class LoaderContextImpl implements LoaderContext {
         loaderResult.add(new PZXHeaderBlock());
         resetBlock();
     }
-    
-    // First pulse level found in the block (0 or 1), used in block construction
-    private int firstPulseLevel;
 
     private void addPulse(Double pulseLength) {
     	if(pulseLengths.isEmpty()) {
