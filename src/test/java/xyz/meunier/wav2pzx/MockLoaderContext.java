@@ -26,7 +26,7 @@
 package xyz.meunier.wav2pzx;
 
 /**
- *
+ * Mock object for the LoaderContext interface to use in unit tests
  * @author Fredrick Meunier
  */
 public final class MockLoaderContext implements LoaderContext {
