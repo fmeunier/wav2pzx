@@ -26,7 +26,6 @@
 package xyz.meunier.wav2pzx;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
