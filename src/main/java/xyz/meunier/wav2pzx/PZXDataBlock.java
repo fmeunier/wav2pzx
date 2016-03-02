@@ -74,10 +74,9 @@ public class PZXDataBlock implements PZXBlock {
     
     // Was this block a header or data block?
     private final boolean isHeader;
-    
+
     /**
      * Constructs a new PZXDataBlock.
-     * @param firstPulseLevel the initial signal level for the block (0 or 1) 
      * @param newPulses the original tape pulses that have been decoded into this block
      * @param tailLength the length of the tail pulse in the block
      * @param numBitsInLastByte the number of bits used in the last byte of the data collection
@@ -85,13 +84,12 @@ public class PZXDataBlock implements PZXBlock {
      * @throws NullPointerException if newPulses or data is null
      * @throws IllegalArgumentException if firstPulseLevel is not 0 or 1
      */
-    public PZXDataBlock(int firstPulseLevel, Collection<Double> newPulses,
-                        double tailLength, int numBitsInLastByte, 
-                        Collection<Byte> data) {
-        checkArgument(firstPulseLevel == 0 || firstPulseLevel == 1, "firstPulseLevel should be 0 or 1");
+    public PZXDataBlock(PulseList newPulses, double tailLength, int numBitsInLastByte, 
+            			Collection<Byte> data) {
+        checkNotNull(newPulses, "data must not be null");
         checkNotNull(data, "data must not be null");
         checkArgument(!data.isEmpty(), "data array must not be empty");
-        this.pulses = new PulseList(newPulses, firstPulseLevel);
+        this.pulses = newPulses;
         this.tailLength = tailLength;
         this.numBitsInLastByte = numBitsInLastByte;
         this.data = Bytes.toArray(data);

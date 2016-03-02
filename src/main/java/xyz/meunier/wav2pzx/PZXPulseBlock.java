@@ -25,12 +25,10 @@
  */
 package xyz.meunier.wav2pzx;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import static xyz.meunier.wav2pzx.PZXEncodeUtils.addPZXBlockHeader;
 
@@ -48,15 +46,12 @@ public class PZXPulseBlock implements PZXBlock {
     
     /**
      * Constructor for PZXPulseBlock.
-     * @param firstPulseLevel the initial signal level for the block (0 or 1) 
      * @param newPulses the original tape pulses that have been decoded into this block
      * @throws NullPointerException if newPulses was null
-     * @throws IllegalArgumentException if firstPulseLevel is not 0 or 1
      */
-    public PZXPulseBlock(int firstPulseLevel, Collection<Double> newPulses) {
-        checkArgument(firstPulseLevel == 0 || firstPulseLevel == 1, "firstPulseLevel should be 0 or 1");
+    public PZXPulseBlock(PulseList newPulses) {
         checkNotNull(newPulses, "newPulses must not be null");
-        this.pulseList = new PulseList(newPulses, firstPulseLevel);
+        this.pulseList = newPulses;
     }
 
     @Override

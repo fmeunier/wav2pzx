@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static xyz.meunier.wav2pzx.PZXEncodeUtils.addPZXBlockHeader;
 import static xyz.meunier.wav2pzx.LoaderContext.SYNC1;
 import static xyz.meunier.wav2pzx.LoaderContext.SYNC2;
@@ -56,14 +57,14 @@ public class PZXPilotBlock implements PZXBlock {
 
     /**
      * Constructor for the PZXPilotBlock.
-     * @param firstPulseLevel the initial signal level for the block (0 or 1) 
      * @param newPulses the original tape pulses that have been decoded into this block
      * @throws NullPointerException if newPulses was null
      * @throws IllegalArgumentException if firstPulseLevel is not 0 or 1
      */
-    public PZXPilotBlock(int firstPulseLevel, Collection<Double> newPulses) {
-        checkArgument(newPulses.size() > 2, "newPulses needs at least 3 elements");
-        this.pulses = new PulseList(newPulses, firstPulseLevel);
+    public PZXPilotBlock(PulseList newPulses) {
+        checkNotNull(newPulses, "newPulses must not be null");
+        checkArgument(newPulses.getPulseLengths().size() > 2, "newPulses needs at least 3 pulses");
+        this.pulses = newPulses;
         List<Double> pulses = getPulses();
 		this.sync1Length = pulses.get(pulses.size() - 2);
         this.sync2Length = pulses.get(pulses.size() - 1);

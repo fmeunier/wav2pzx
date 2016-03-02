@@ -45,7 +45,7 @@ public class PZXPulseBlockTest {
     
     @Before
     public void setUp() {
-        this.pulseBlock = new PZXPulseBlock(1, Arrays.asList(200.0, 200.0, 300.0));
+        this.pulseBlock = new PZXPulseBlock(new PulseList(Arrays.asList(200.0, 200.0, 300.0), 1));
     }
     
     @After

@@ -185,11 +185,6 @@ public final class LoaderContextImpl implements LoaderContext {
         tailLength = 0;
     }
 
-    /**
-     *
-     * @param firstPulseLength the value of firstPulse
-     * @param secondPulseLength the value of secondPulseLength
-     */
     @Override
     public void addOnePulse(Double firstPulseLength, Double secondPulseLength) {
         addPulse(firstPulseLength);
@@ -207,16 +202,16 @@ public final class LoaderContextImpl implements LoaderContext {
         
         PZXBlock newBlock;
         if(isPilot) {
-            newBlock = new PZXPilotBlock(firstPulseLevel, pulseLengths);
+            newBlock = new PZXPilotBlock(getPulseListForCurrentPulses());
             DoubleSummaryStatistics stats = getSummaryStats (pilotPulses);
             Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.FINE, getSummaryText("pilot", PILOT_LENGTH, stats));
             // TODO: use average PILOT_LENGTH pulse length unless idealised length should be used
         } else {
-            newBlock = new PZXPulseBlock(firstPulseLevel, pulseLengths);
+            newBlock = new PZXPulseBlock(getPulseListForCurrentPulses());
         }
         Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.FINE, newBlock.getSummary());
         loaderResult.add(newBlock);
-        pulseLengths = new ArrayList<>();
+        pulseLengths.clear();
         resetBlock();
     }
 
@@ -241,12 +236,12 @@ public final class LoaderContextImpl implements LoaderContext {
         int numBitsInLastByte = numBitsInCurrentByte == 0  ? 8 : numBitsInCurrentByte;
         
 		PZXDataBlock newBlock = 
-                new PZXDataBlock(firstPulseLevel, pulseLengths, tailLength, 
+                new PZXDataBlock(getPulseListForCurrentPulses(), tailLength, 
                 				 numBitsInLastByte, data);
         
 		Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.FINE, newBlock.getSummary());
         loaderResult.add(newBlock);
-        pulseLengths = new ArrayList<>();
+        pulseLengths.clear();
 
         DoubleSummaryStatistics stats = getSummaryStats(zeroPulses);
 		Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.FINE, getSummaryText("zero", ZERO, stats));
@@ -258,6 +253,10 @@ public final class LoaderContextImpl implements LoaderContext {
         
         resetBlock();
     }
+
+	private PulseList getPulseListForCurrentPulses() {
+		return new PulseList(pulseLengths, firstPulseLevel);
+	}
 
     @Override
     public void addUnclassifiedPulse(Double pulseLength) {
