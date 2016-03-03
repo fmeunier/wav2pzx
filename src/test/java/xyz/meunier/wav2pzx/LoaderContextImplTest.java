@@ -300,7 +300,7 @@ public class LoaderContextImplTest {
         // Check block has been created and added to the list as proper type
         // Non-pilot
         PZXBlock pzxBlock = blockList.get(numBlocksStart);
-		assertSame(pzxBlock.getClass(), PZXDataBlock.class);
+		assertTrue(pzxBlock instanceof PZXDataBlock);
         
 		PZXDataBlock pzxDataBlock = (PZXDataBlock)pzxBlock;
 		
@@ -343,6 +343,36 @@ public class LoaderContextImplTest {
 		assertEquals("Check correct value of partial byte", (byte)0x01, pzxDataBlock.getData()[0]);
 		assertEquals("Check last byte had only one bit", 1, pzxDataBlock.getNumBitsInLastByte());
      
+        checkBlockIsReset(instance);
+        
+        // Check that if we attempt to close a data block with pulses but no data we get a pulse block instead
+        pulseList = new PulseList(Arrays.asList(200.0), 1);
+        instance = new LoaderContextImpl(pulseList);
+        numBlocksStart = instance.getPZXTapeList().size();
+
+        // Add one non-data pulse
+        instance.addUnclassifiedPulse(instance.getNextPulse());
+        
+        instance.completeDataBlock();
+
+        blockList = instance.getPZXTapeList();
+        
+        assertTrue("Check one block was added", blockList.size() - numBlocksStart == 1);
+        
+        // Check block has been created and added to the list as proper type
+        // Non-pilot
+        pzxBlock = blockList.get(numBlocksStart);
+		assertTrue(pzxBlock instanceof PZXPulseBlock);
+        
+		PZXPulseBlock pzxPulseBlock = (PZXPulseBlock)pzxBlock;
+		
+		// Check pulse in block and initial level is as expected
+		assertEquals(pzxPulseBlock.getFirstPulseLevel(), 1);
+		
+		pulses = pzxPulseBlock.getPulses();
+		assertEquals(pulses.size(), 1);
+		assertEquals(200.0, pulses.get(0), TOLERANCE);
+
         checkBlockIsReset(instance);
     }
 

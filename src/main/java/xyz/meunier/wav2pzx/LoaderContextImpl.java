@@ -235,21 +235,26 @@ public final class LoaderContextImpl implements LoaderContext {
         
         int numBitsInLastByte = numBitsInCurrentByte == 0  ? 8 : numBitsInCurrentByte;
         
-		PZXDataBlock newBlock = 
-                new PZXDataBlock(getPulseListForCurrentPulses(), tailLength, 
-                				 numBitsInLastByte, data);
-        
-		Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.FINE, newBlock.getSummary());
-        loaderResult.add(newBlock);
-        pulseLengths.clear();
-
-        DoubleSummaryStatistics stats = getSummaryStats(zeroPulses);
-		Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.FINE, getSummaryText("zero", ZERO, stats));
-        // TODO: use average ZERO pulse length unless idealised
-        
-        stats = getSummaryStats (onePulses);
-		Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.FINE, getSummaryText("one", ONE, stats));
-        // TODO: use average ONE pulse length unless idealised
+        try {
+			PZXDataBlock newBlock = 
+	                new PZXDataBlock(getPulseListForCurrentPulses(), tailLength, 
+	                				 numBitsInLastByte, data);
+	        
+			Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.FINE, newBlock.getSummary());
+	        loaderResult.add(newBlock);
+	        pulseLengths.clear();
+	
+	        DoubleSummaryStatistics stats = getSummaryStats(zeroPulses);
+			Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.FINE, getSummaryText("zero", ZERO, stats));
+	        // TODO: use average ZERO pulse length unless idealised
+	        
+	        stats = getSummaryStats (onePulses);
+			Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.FINE, getSummaryText("one", ONE, stats));
+	        // TODO: use average ONE pulse length unless idealised
+        } catch (IllegalArgumentException e) {
+        	// Something was wrong with this block as a data block, try again to record it as a plain pulse block
+        	completePulseBlock(false);
+        }
         
         resetBlock();
     }
