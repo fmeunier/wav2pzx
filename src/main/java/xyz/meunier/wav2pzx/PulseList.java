@@ -68,8 +68,10 @@ public class PulseList {
      * @param firstPulseLevel the level of the first pulse in the list
      * @throws NullPointerException if the supplied list is null
      * @throws IllegalArgumentException if the supplied list is empty
+     * @throws IllegalArgumentException if firstPulseLevel is not 0 or 1
      */
     public PulseList(Collection<Double> pulseLengths, int firstPulseLevel) {
+        checkNotNull(pulseLengths, "pulseLengths must not be null");
         checkArgument(firstPulseLevel == 0 || firstPulseLevel == 1, "firstPulseLevel must be 0 or 1");
         this.pulseLengths = ImmutableList.copyOf(checkNotNull(pulseLengths));
         checkArgument(!pulseLengths.isEmpty(), "pulseLengths cannot be empty");
