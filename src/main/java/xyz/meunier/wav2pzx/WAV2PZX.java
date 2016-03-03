@@ -81,8 +81,7 @@ public class WAV2PZX {
             Path pzxFile = Paths.get(pzxFileOut);
 
             // Overwrite the destination file with the extracted PZX data
-            try (OutputStream out = new BufferedOutputStream(
-                             Files.newOutputStream(pzxFile))) {
+            try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(pzxFile))) {
                 for(PZXBlock block : pzxTape) {
                     byte[] data = block.getPZXBlockDiskRepresentation();
                     out.write(data, 0, data.length);
