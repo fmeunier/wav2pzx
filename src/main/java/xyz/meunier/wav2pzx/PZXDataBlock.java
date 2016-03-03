@@ -83,11 +83,10 @@ public class PZXDataBlock implements PZXBlock {
      * @param data the decoded data from the tape image
      * @throws NullPointerException if newPulses or data is null
      * @throws IllegalArgumentException if data is empty
-     * @throws IllegalArgumentException if firstPulseLevel is not 0 or 1
      */
     public PZXDataBlock(PulseList newPulses, double tailLength, int numBitsInLastByte, 
             			Collection<Byte> data) {
-        checkNotNull(newPulses, "data must not be null");
+        checkNotNull(newPulses, "newPulses must not be null");
         checkNotNull(data, "data must not be null");
         checkArgument(!data.isEmpty(), "data array must not be empty");
         this.pulses = newPulses;
