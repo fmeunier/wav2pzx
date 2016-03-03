@@ -82,6 +82,7 @@ public class PZXDataBlock implements PZXBlock {
      * @param numBitsInLastByte the number of bits used in the last byte of the data collection
      * @param data the decoded data from the tape image
      * @throws NullPointerException if newPulses or data is null
+     * @throws IllegalArgumentException if data is empty
      * @throws IllegalArgumentException if firstPulseLevel is not 0 or 1
      */
     public PZXDataBlock(PulseList newPulses, double tailLength, int numBitsInLastByte, 
