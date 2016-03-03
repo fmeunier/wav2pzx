@@ -66,13 +66,12 @@ public class AudioFileTape {
             // Process the WAV as a mono 8 bit file to limit memory requirements
             AudioFormat dataFormat = 
                     new AudioFormat(AudioFormat.Encoding.PCM_UNSIGNED, 
-                            inDataFormat.getSampleRate(), 8, 1, 
-                            inDataFormat.getFrameSize(), 
+                            inDataFormat.getSampleRate(), 8, 1, 1, 
                             inDataFormat.getFrameRate(), 
                             inDataFormat.isBigEndian());
             
             if (!AudioSystem.isConversionSupported(dataFormat, inDataFormat)) {
-                throw new UnsupportedAudioFileException("Unsupported WAV audio format " + dataFormat.toString());
+                throw new UnsupportedAudioFileException("Unsupported WAV audio format " + inDataFormat.toString());
             }
 
             AudioInputStream lowResAIS = 
