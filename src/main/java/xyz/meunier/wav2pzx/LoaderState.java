@@ -45,7 +45,7 @@ public enum LoaderState {
         @Override
         public LoaderState nextState(LoaderContext context) {
             if( context.getCurrentPulse() < LoaderContext.PILOT_MAX ) {
-                // Close current pulse block
+                // Close current pulse block - note that this may be empty!
                 context.completePulseBlock(false);
 
                 // Put pulse into new pulse block and pilot pulse stats
