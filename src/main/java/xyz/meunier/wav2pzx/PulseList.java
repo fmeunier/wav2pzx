@@ -32,10 +32,10 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Representation of a sequence of pulses for a tape.
+ * Representation of an immutable sequence of pulses for a tape.
  * @author Fredrick Meunier
  */
-public class PulseList {
+public final class PulseList {
     /**
      * The pulses
      */
@@ -108,7 +108,7 @@ public class PulseList {
 
 	@Override
 	public String toString() {
-		return "PulseList [pulseLengths=" + pulseLengths + ", firstPulseLevel=" + firstPulseLevel + "]";
+		return "PulseList [pulseLengths.size()=" + pulseLengths.size() + ", firstPulseLevel=" + firstPulseLevel + "]";
 	}
     
 }
