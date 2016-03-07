@@ -217,7 +217,7 @@ public class PZXDataBlock implements PZXBlock {
         
         retval.append(String.format("Checksum:%s Read: 0x%x Computed: 0x%x%n",
                             (checkChecksum() ? "PASS" : "FAIL"), this.suppliedChecksum, 
-                            this.suppliedChecksum ) );
+                            this.calculatedChecksum ) );
         
         retval.append("Tail pulse:");
         if(tailLength != 0.0) {
@@ -251,7 +251,7 @@ public class PZXDataBlock implements PZXBlock {
 
     @Override
     public String toString() {
-        return "PZXDataBlock{" + pulses.toString() + ", tailLength=" + tailLength + ", numBitsInLastByte=" + numBitsInLastByte + ", calculatedChecksum=" + String.format("0x%x", calculatedChecksum) + ", suppliedChecksum=" + String.format("0x%x", suppliedChecksum) + ", isHeader=" + isHeader + ", data=" + Arrays.toString(data) + '}';
+        return "PZXDataBlock{" + pulses.toString() + ", tailLength=" + tailLength + ", numBitsInLastByte=" + numBitsInLastByte + ", calculatedChecksum=" + String.format("0x%x", calculatedChecksum) + ", suppliedChecksum=" + String.format("0x%x", suppliedChecksum) + ", isHeader=" + isHeader + ", data.length=" + data.length + '}';
     }
 
 	@Override
