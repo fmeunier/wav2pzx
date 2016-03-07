@@ -58,7 +58,7 @@ public class PZXPilotBlock implements PZXBlock {
      * Constructor for the PZXPilotBlock.
      * @param newPulses the original tape pulses that have been decoded into this block
      * @throws NullPointerException if newPulses was null
-     * @throws IllegalArgumentException if firstPulseLevel is not 0 or 1
+     * @throws IllegalArgumentException if newPulses has fewer than 3 pulses (the initial pilot plus the two sync pulses)
      */
     public PZXPilotBlock(PulseList newPulses) {
         checkNotNull(newPulses, "newPulses must not be null");
