@@ -97,7 +97,7 @@ public class PZXPulseBlockTest {
     @Test
     public void testToString() {
         System.out.println("toString");
-        String expResult = "PZXPulseBlock [pulseList=PulseList [pulseLengths=[200.0, 200.0, 300.0], firstPulseLevel=1]]";
+        String expResult = "PZXPulseBlock [pulseList=PulseList [pulseLengths.size()=3, firstPulseLevel=1]]";
         String result = pulseBlock.toString();
         assertEquals(expResult, result);
     }
