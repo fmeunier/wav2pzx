@@ -74,7 +74,7 @@ public class WAV2PZX {
         try {
             // Read and convert the source WAV file from samples to a list of 0/1 pulses in units of TARGET_HZ
             PulseList pulseList = AudioFileTape.buildPulseList(wavFileIn, TARGET_HZ);
-
+            
             // Analyse the source data and translate into an equivalent list of PZX tape blocks
             List<PZXBlock> pzxTape = LoaderContextImpl.buildPZXTapeList(pulseList);
 
@@ -88,11 +88,11 @@ public class WAV2PZX {
                 }
             } catch (IOException ex) {
                 System.err.println(ex);
-                Logger.getLogger(WAV2PZX.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(WAV2PZX.class.getName()).log(Level.SEVERE, ex.toString(), ex);
             }
         } catch (IOException | UnsupportedAudioFileException e) {
             System.err.println(e);
-            Logger.getLogger(WAV2PZX.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(WAV2PZX.class.getName()).log(Level.SEVERE, e.toString(), e);
         }
     }
 }
