@@ -34,7 +34,7 @@ import static com.google.common.base.Preconditions.checkState;
  * The aim of this class is to take a series of samples from an external source
  * and convert them into an array list of pulse durations in T states
  *
- * @author fred
+ * @author Fredrick Meunier
  */
 public class PulseListBuilder {
 
@@ -46,6 +46,8 @@ public class PulseListBuilder {
     private final double tStatesPerSample;
     private boolean tapeComplete;
     private PulseList pulseList;
+    // TODO Allow selection of Bistable on the command line
+    private Bistable bistable = new SchmittTrigger();
 
     /**
      * Construct a new PulseListBuilder.
@@ -92,8 +94,7 @@ public class PulseListBuilder {
         checkState(!tapeComplete, "Pulse length list has already been marked as complete");
         checkArgument( sample >= 0 & sample <= 255, "Sample out of range, should be 0-255, value: " + sample);
         
-        // TODO smarter options for deciding 0 - 1 and 1 - 0 transitions
-        int newLevel = sample < 128 ? 0 : 1;
+        int newLevel = bistable.getNewLevel(sample);
         
         // Record the level of the first sample, later pulses only record the duration
         // as they are defined by the edge between the levels
@@ -131,7 +132,7 @@ public class PulseListBuilder {
         // Close current pulse and mark list as being complete
         pulseLengths.add(currentPulseDuration);
         tapeComplete = true;
-        pulseList = new PulseList(pulseLengths, firstPulseLevel);
+        pulseList = new PulseList(pulseLengths, firstPulseLevel, tStatesPerSample*2);
         
         return pulseList;
     }

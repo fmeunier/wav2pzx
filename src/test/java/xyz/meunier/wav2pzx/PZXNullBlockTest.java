@@ -25,64 +25,63 @@
  */
 package xyz.meunier.wav2pzx;
 
-import java.util.Arrays;
-import java.util.Collection;
+import static org.junit.Assert.*;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
-/**
- *
- * @author Fredrick Meunier
- */
-public class PZXPilotBlockTest {
+public class PZXNullBlockTest {
 
-    private PZXPilotBlock instance;
-    int firstPulseLevel = 1;
-    double sync1Length = 667.0;
-    double sync2Length = 735.0;
-    Collection<Double> newPulses = Arrays.asList(2168.0, 2168.0, sync1Length, sync2Length);
-    
-    public PZXPilotBlockTest() {
-    }
-    
-    @Before
-    public void setUp() {
-        this.instance = new PZXPilotBlock(new PulseList(this.newPulses, this.firstPulseLevel, 1));
-    }
-    
-    @After
-    public void tearDown() {
-        this.instance = null;
-    }
+	private PZXNullBlock instance;
+	
+	@Before
+	public void setUp() throws Exception {
+        this.instance = new PZXNullBlock();
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		this.instance = null;
+	}
 
     /**
-     * Test of getPZXBlockDiskRepresentation method, of class PZXPilotBlock.
+     * Test of getPZXBlockDiskRepresentation method, of class PZXNullBlock.
      */
     @Test
     public void testGetPZXBlockDiskRepresentation() {
         System.out.println("getPZXBlockDiskRepresentation");
-        byte[] expResult = {(byte)80, (byte)85, (byte)76, (byte)83, /* PULS */
-                            (byte)0x0a, (byte)0x00, (byte)0x00, (byte)0x00, /* Length: 10 bytes */
-                            (byte)0x00, (byte)0x00, /* Initial pulse high */
-                            (byte)0x02, (byte)0x80, /* Repeat count 2 */
-                            (byte)0x78, (byte)0x08, /* Pulse length 2168 */
-                            (byte)0x9b, (byte)0x02, /* Repeat count 1, pulse length 667 */
-                            (byte)0xdf, (byte)0x02};/* Repeat count 1, pulse length 735 */
+        byte[] expResult = {};
         byte[] result = instance.getPZXBlockDiskRepresentation();
         assertArrayEquals(expResult, result);
     }
 
     /**
-     * Test of toString method, of class PZXPilotBlock.
+     * Test of getSummary method, of class PZXNullBlock.
      */
     @Test
-    public void testToString() {
-        System.out.println("toString");
-        String expResult = "PZXPilotBlock{PulseList [pulseLengths.size()=4, firstPulseLevel=1, resolution=1.0], sync1Length=667.0, sync2Length=735.0}";
-        String result = instance.toString();
+    public void testGetSummary() {
+        System.out.println("getSummary");
+        String expResult = "Null PZX block";
+        String result = instance.getSummary();
         assertEquals(expResult, result);
     }
-    
+
+    /**
+     * Test of getPulses method, of class PZXNullBlock.
+     */
+    @Test
+    public void testGetPulses() {
+        System.out.println("getPulses");
+        assertTrue(instance.getPulses().isEmpty());
+	}
+
+    /**
+     * Test of getFirstPulseLevel method, of class PZXNullBlock.
+     */
+	@Test
+	public void testGetFirstPulseLevel() {
+        System.out.println("getFirstPulseLevel");
+        assertEquals(0, instance.getFirstPulseLevel());
+	}
 }

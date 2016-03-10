@@ -45,7 +45,7 @@ public class PZXPulseBlockTest {
     
     @Before
     public void setUp() {
-        this.pulseBlock = new PZXPulseBlock(new PulseList(Arrays.asList(200.0, 200.0, 300.0), 1));
+        this.pulseBlock = new PZXPulseBlock(new PulseList(Arrays.asList(200.0, 200.0, 300.0), 1, 1));
     }
     
     @After
@@ -97,7 +97,7 @@ public class PZXPulseBlockTest {
     @Test
     public void testToString() {
         System.out.println("toString");
-        String expResult = "PZXPulseBlock [pulseList=PulseList [pulseLengths.size()=3, firstPulseLevel=1]]";
+        String expResult = "PZXPulseBlock [pulseList=PulseList [pulseLengths.size()=3, firstPulseLevel=1, resolution=1.0]]";
         String result = pulseBlock.toString();
         assertEquals(expResult, result);
     }

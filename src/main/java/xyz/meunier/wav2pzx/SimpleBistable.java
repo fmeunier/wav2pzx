@@ -25,49 +25,14 @@
  */
 package xyz.meunier.wav2pzx;
 
-import java.util.Arrays;
-import java.util.List;
-import org.junit.Test;
-import static org.junit.Assert.*;
+public class SimpleBistable implements Bistable {
 
-/**
- *
- * @author Fredrick Meunier
- */
-public class PulseListTest {
-    
-    public PulseListTest() {
-    }
+	/* (non-Javadoc)
+	 * @see xyz.meunier.wav2pzx.Bistable#getNewLevel(int)
+	 */
+	@Override
+	public int getNewLevel(int sample) {
+		return sample < 128 ? 0 : 1;
+	}
 
-    /**
-     * Test of getPulseLengths method, of class PulseList.
-     */
-    @Test
-    public void testGetPulseLengths() {
-        System.out.println("getPulseLengths");
-        List<Double> pulses = Arrays.asList(200.0, 300.0);
-        PulseList instance = new PulseList(pulses, 1, 1);
-        List<Double> expResult = pulses;
-        List<Double> result = instance.getPulseLengths();
-        assertEquals(expResult, result);
-    }
-
-    /**
-     * Test of getFirstPulseLevel method, of class PulseList.
-     */
-    @Test
-    public void testGetFirstPulseLevel() {
-        System.out.println("getFirstPulseLevel");
-        List<Double> pulses = Arrays.asList(200.0, 300.0);
-        PulseList instance = new PulseList(pulses, 0, 1);
-        int expResult = 0;
-        int result = instance.getFirstPulseLevel();
-        assertEquals(expResult, result);
-
-        instance = new PulseList(pulses, 1, 1);
-        expResult = 1;
-        result = instance.getFirstPulseLevel();
-        assertEquals(expResult, result);
-    }
-    
 }

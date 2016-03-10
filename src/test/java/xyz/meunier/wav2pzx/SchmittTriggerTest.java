@@ -25,49 +25,46 @@
  */
 package xyz.meunier.wav2pzx;
 
-import java.util.Arrays;
-import java.util.List;
-import org.junit.Test;
 import static org.junit.Assert.*;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 /**
- *
  * @author Fredrick Meunier
+ *
  */
-public class PulseListTest {
-    
-    public PulseListTest() {
-    }
+public class SchmittTriggerTest {
 
-    /**
-     * Test of getPulseLengths method, of class PulseList.
-     */
-    @Test
-    public void testGetPulseLengths() {
-        System.out.println("getPulseLengths");
-        List<Double> pulses = Arrays.asList(200.0, 300.0);
-        PulseList instance = new PulseList(pulses, 1, 1);
-        List<Double> expResult = pulses;
-        List<Double> result = instance.getPulseLengths();
-        assertEquals(expResult, result);
-    }
+	/**
+	 * @throws java.lang.Exception
+	 */
+	@Before
+	public void setUp() throws Exception {
+	}
 
-    /**
-     * Test of getFirstPulseLevel method, of class PulseList.
-     */
-    @Test
-    public void testGetFirstPulseLevel() {
-        System.out.println("getFirstPulseLevel");
-        List<Double> pulses = Arrays.asList(200.0, 300.0);
-        PulseList instance = new PulseList(pulses, 0, 1);
-        int expResult = 0;
-        int result = instance.getFirstPulseLevel();
-        assertEquals(expResult, result);
+	/**
+	 * @throws java.lang.Exception
+	 */
+	@After
+	public void tearDown() throws Exception {
+	}
 
-        instance = new PulseList(pulses, 1, 1);
-        expResult = 1;
-        result = instance.getFirstPulseLevel();
-        assertEquals(expResult, result);
-    }
-    
+	/**
+	 * Test method for {@link xyz.meunier.wav2pzx.SchmittTrigger#getNewLevel(int)}.
+	 */
+	@Test
+	public final void testGetNewLevel() {
+		Bistable instance = new SchmittTrigger();
+		assertEquals(1, instance.getNewLevel(255));
+		assertEquals(0, instance.getNewLevel(0));
+		assertEquals(0, instance.getNewLevel(128));
+		assertEquals(0, instance.getNewLevel(138));
+		assertEquals(1, instance.getNewLevel(148));
+		assertEquals(1, instance.getNewLevel(128));
+		assertEquals(1, instance.getNewLevel(118));
+		assertEquals(0, instance.getNewLevel(98));
+	}
+
 }

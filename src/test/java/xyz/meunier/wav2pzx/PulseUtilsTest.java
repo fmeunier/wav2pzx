@@ -25,49 +25,25 @@
  */
 package xyz.meunier.wav2pzx;
 
-import java.util.Arrays;
-import java.util.List;
-import org.junit.Test;
 import static org.junit.Assert.*;
 
+import org.junit.Test;
+
 /**
- *
+ * 
  * @author Fredrick Meunier
  */
-public class PulseListTest {
-    
-    public PulseListTest() {
-    }
+public class PulseUtilsTest {
 
-    /**
-     * Test of getPulseLengths method, of class PulseList.
-     */
-    @Test
-    public void testGetPulseLengths() {
-        System.out.println("getPulseLengths");
-        List<Double> pulses = Arrays.asList(200.0, 300.0);
-        PulseList instance = new PulseList(pulses, 1, 1);
-        List<Double> expResult = pulses;
-        List<Double> result = instance.getPulseLengths();
-        assertEquals(expResult, result);
-    }
+	/**
+	 * Test method for {@link xyz.meunier.wav2pzx.PulseUtils#equalWithinResoution(double, double, double)}.
+	 */
+	@Test
+	public final void testEqualWithinResoution() {
+		assertTrue("Small average sample pilot pulse from a real tape", PulseUtils.equalWithinResoution(LoaderContext.PILOT_LENGTH, 2058, 76));
+		assertFalse("Upper bound of non-matching pulse", PulseUtils.equalWithinResoution(LoaderContext.PILOT_LENGTH, 2048, 76));
+		assertTrue("Upper bound of a matching pilot pulse", PulseUtils.equalWithinResoution(LoaderContext.PILOT_LENGTH, 2289, 76));
+		assertFalse("Lower bound of non-matching pulse", PulseUtils.equalWithinResoution(LoaderContext.PILOT_LENGTH, 2290, 76));
+	}
 
-    /**
-     * Test of getFirstPulseLevel method, of class PulseList.
-     */
-    @Test
-    public void testGetFirstPulseLevel() {
-        System.out.println("getFirstPulseLevel");
-        List<Double> pulses = Arrays.asList(200.0, 300.0);
-        PulseList instance = new PulseList(pulses, 0, 1);
-        int expResult = 0;
-        int result = instance.getFirstPulseLevel();
-        assertEquals(expResult, result);
-
-        instance = new PulseList(pulses, 1, 1);
-        expResult = 1;
-        result = instance.getFirstPulseLevel();
-        assertEquals(expResult, result);
-    }
-    
 }

@@ -25,49 +25,28 @@
  */
 package xyz.meunier.wav2pzx;
 
-import java.util.Arrays;
-import java.util.List;
-import org.junit.Test;
-import static org.junit.Assert.*;
-
 /**
- *
+ * Some routines for working with pulses.
+ * 
  * @author Fredrick Meunier
  */
-public class PulseListTest {
-    
-    public PulseListTest() {
-    }
+public class PulseUtils {
 
-    /**
-     * Test of getPulseLengths method, of class PulseList.
-     */
-    @Test
-    public void testGetPulseLengths() {
-        System.out.println("getPulseLengths");
-        List<Double> pulses = Arrays.asList(200.0, 300.0);
-        PulseList instance = new PulseList(pulses, 1, 1);
-        List<Double> expResult = pulses;
-        List<Double> result = instance.getPulseLengths();
-        assertEquals(expResult, result);
-    }
+	// The PZX specification suggests that pulses within 2% of each other should be considered equal
+	private static final double ERROR_PERCENTAGE = 0.02;
 
-    /**
-     * Test of getFirstPulseLevel method, of class PulseList.
-     */
-    @Test
-    public void testGetFirstPulseLevel() {
-        System.out.println("getFirstPulseLevel");
-        List<Double> pulses = Arrays.asList(200.0, 300.0);
-        PulseList instance = new PulseList(pulses, 0, 1);
-        int expResult = 0;
-        int result = instance.getFirstPulseLevel();
-        assertEquals(expResult, result);
-
-        instance = new PulseList(pulses, 1, 1);
-        expResult = 1;
-        result = instance.getFirstPulseLevel();
-        assertEquals(expResult, result);
-    }
-    
+	/**
+	 * Compares two pulses sampled from a source and determine whether they are likely to be the same length.
+	 * We can expect to resolve features of up to half the sample rate (based on Nyquist) and also need to allow
+	 * for some error from the Spectrum ROM sample writing and the analogue tape of approximately 2% based on the
+	 * PZX specification.
+	 * @param pulse1 the first pulse to compare
+	 * @param pulse2 the second pulse to compare
+	 * @param resolution the feature resolution in terms of the target clock rate
+	 * @return true if the two pulses are probably equal in duration
+	 */
+	public static boolean equalWithinResoution(double pulse1, double pulse2, double resolution) {
+		double error = Double.max(pulse1, pulse2) * ERROR_PERCENTAGE;
+		return Math.abs(pulse1 - pulse2) < (resolution + error);
+	}
 }

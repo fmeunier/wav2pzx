@@ -25,49 +25,47 @@
  */
 package xyz.meunier.wav2pzx;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
- *
+ * Null block that has no output representation. Used when we need to put a
+ * placeholder block into a tape as we may need to revert it in the future.
  * @author Fredrick Meunier
  */
-public class PulseListTest {
-    
-    public PulseListTest() {
-    }
+public class PZXNullBlock implements PZXBlock {
 
-    /**
-     * Test of getPulseLengths method, of class PulseList.
-     */
-    @Test
-    public void testGetPulseLengths() {
-        System.out.println("getPulseLengths");
-        List<Double> pulses = Arrays.asList(200.0, 300.0);
-        PulseList instance = new PulseList(pulses, 1, 1);
-        List<Double> expResult = pulses;
-        List<Double> result = instance.getPulseLengths();
-        assertEquals(expResult, result);
-    }
+	/* (non-Javadoc)
+	 * @see xyz.meunier.wav2pzx.PZXBlock#getPZXBlockDiskRepresentation()
+	 */
+	@Override
+	public byte[] getPZXBlockDiskRepresentation() {
+		// No disk representation
+		return new byte[0];
+	}
 
-    /**
-     * Test of getFirstPulseLevel method, of class PulseList.
-     */
-    @Test
-    public void testGetFirstPulseLevel() {
-        System.out.println("getFirstPulseLevel");
-        List<Double> pulses = Arrays.asList(200.0, 300.0);
-        PulseList instance = new PulseList(pulses, 0, 1);
-        int expResult = 0;
-        int result = instance.getFirstPulseLevel();
-        assertEquals(expResult, result);
+	/* (non-Javadoc)
+	 * @see xyz.meunier.wav2pzx.PZXBlock#getSummary()
+	 */
+	@Override
+	public String getSummary() {
+        return "Null PZX block";
+	}
 
-        instance = new PulseList(pulses, 1, 1);
-        expResult = 1;
-        result = instance.getFirstPulseLevel();
-        assertEquals(expResult, result);
-    }
-    
+	/* (non-Javadoc)
+	 * @see xyz.meunier.wav2pzx.PZXBlock#getPulses()
+	 */
+	@Override
+	public List<Double> getPulses() {
+		return Collections.emptyList();
+	}
+
+	/* (non-Javadoc)
+	 * @see xyz.meunier.wav2pzx.PZXBlock#getFirstPulseLevel()
+	 */
+	@Override
+	public int getFirstPulseLevel() {
+		return 0;
+	}
+
 }

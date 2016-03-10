@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 
 /**
  * LoaderContextImpl represents the extrinsic state of the tape processing state
@@ -89,6 +88,9 @@ public final class LoaderContextImpl implements LoaderContext {
     // If found that should be recorded here
     private double tailLength;
 
+    // The resolution of the underlying source in units of the target clock rate
+	private double resolution;
+
     /**
      * Builder method to construct a series of PZXBlocks that represents the data
      * in the supplied PulseList.
@@ -134,6 +136,7 @@ public final class LoaderContextImpl implements LoaderContext {
         checkNotNull(pulseList, "pulseList cannot be null");
         this.currentLevel = pulseList.getFirstPulseLevel() == 0 ? 1 : 0; // will be inverted when first pulse is retrieved
         this.pulseIterator = Iterators.peekingIterator(pulseList.getPulseLengths().iterator());
+        this.resolution = pulseList.getResolution();
         loaderResult.add(new PZXHeaderBlock());
         resetBlock();
     }
@@ -196,16 +199,23 @@ public final class LoaderContextImpl implements LoaderContext {
 
     @Override
     public void completePulseBlock(boolean isPilot) {
+        PZXBlock newBlock;
         if(pulseLengths.isEmpty()) {
+        	newBlock = new PZXNullBlock();
+            loaderResult.add(newBlock);
+            Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.INFO, newBlock.getSummary());
             return;
         }
         
-        PZXBlock newBlock;
         if(isPilot) {
             newBlock = new PZXPilotBlock(getPulseListForCurrentPulses());
             DoubleSummaryStatistics stats = getSummaryStats (pilotPulses);
-            Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.FINE, getSummaryText("pilot", PILOT_LENGTH, stats));
-            // TODO: use average PILOT_LENGTH pulse length unless idealised length should be used
+            Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.INFO, getSummaryText("pilot", PILOT_LENGTH, stats));
+            // if average PILOT_LENGTH pulse length is not plausibly the same as standard, record this as a non-pilot block
+            if(!PulseUtils.equalWithinResoution(PILOT_LENGTH, stats.getAverage(), resolution)) {
+	        	completePulseBlock(false);
+	            return;
+            }
         } else {
             newBlock = new PZXPulseBlock(getPulseListForCurrentPulses());
         }
@@ -235,32 +245,38 @@ public final class LoaderContextImpl implements LoaderContext {
         
         int numBitsInLastByte = numBitsInCurrentByte == 0  ? 8 : numBitsInCurrentByte;
         
-        try {
-			PZXDataBlock newBlock = 
-	                new PZXDataBlock(getPulseListForCurrentPulses(), tailLength, 
-	                				 numBitsInLastByte, data);
-	        
-			Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.FINE, newBlock.getSummary());
-	        loaderResult.add(newBlock);
-	        pulseLengths.clear();
-	
-	        DoubleSummaryStatistics stats = getSummaryStats(zeroPulses);
-			Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.FINE, getSummaryText("zero", ZERO, stats));
-	        // TODO: use average ZERO pulse length unless idealised
-	        
-	        stats = getSummaryStats (onePulses);
-			Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.FINE, getSummaryText("one", ONE, stats));
-	        // TODO: use average ONE pulse length unless idealised
-        } catch (IllegalArgumentException e) {
+        DoubleSummaryStatistics zeroStats = getSummaryStats(zeroPulses);
+		Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.INFO, getSummaryText("zero", ZERO, zeroStats));
+        DoubleSummaryStatistics oneStats = getSummaryStats (onePulses);
+		Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.INFO, getSummaryText("one", ONE, oneStats));
+
+		// TODO: use average ZERO pulse length unless idealised, actually - only create data block if average zero pulse
+		// credibly resembles the standard zero pulse, the recognition routines seem to be close to handling standard
+		// speed loaders where the standard routines just have shorter timing constants than the standard ROM routines
+        if(data.isEmpty() ||
+        	(!PulseUtils.equalWithinResoution(ZERO, zeroStats.getAverage(), resolution) && zeroStats.getCount() != 0) ||
+        
+        // TODO: use average ONE pulse length unless idealised, actually - only create data block if average one pulse
+		// credibly resembles the standard one pulse, the recognition routines seem to be close to handling standard
+		// speed loaders where the standard routines just have shorter timing constants than the standard ROM routines
+            (!PulseUtils.equalWithinResoution(ONE, oneStats.getAverage(), resolution) && oneStats.getCount() != 0)) {
         	// Something was wrong with this block as a data block, try again to record it as a plain pulse block
         	completePulseBlock(false);
-        }
+            return;
+		}
+
+		PZXDataBlock newBlock = 
+                new PZXDataBlock(getPulseListForCurrentPulses(), tailLength, 
+                				 numBitsInLastByte, data);
         
+		Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.INFO, newBlock.getSummary());
+        loaderResult.add(newBlock);
+        pulseLengths.clear();
         resetBlock();
     }
 
 	private PulseList getPulseListForCurrentPulses() {
-		return new PulseList(pulseLengths, firstPulseLevel);
+		return new PulseList(pulseLengths, firstPulseLevel, resolution);
 	}
 
     @Override
@@ -270,10 +286,11 @@ public final class LoaderContextImpl implements LoaderContext {
 
     @Override
     public void revertCurrentBlock() {
-        // Check loaderResult is not empty
-        checkState(!loaderResult.isEmpty());
+        // Check loaderResult is not just the header block added by default
+    	if(loaderResult.size() < 2) return;
         final int lastIndex = loaderResult.size()-1;
         final PZXBlock lastBlock = loaderResult.remove(lastIndex);
+		Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.FINE, "reverting block: " + lastBlock.getSummary() + "\n");
         List<Double> newPulseLengths = new ArrayList<>(lastBlock.getPulses());
         newPulseLengths.addAll(pulseLengths);
         pulseLengths = newPulseLengths;

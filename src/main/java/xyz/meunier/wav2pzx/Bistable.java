@@ -25,49 +25,20 @@
  */
 package xyz.meunier.wav2pzx;
 
-import java.util.Arrays;
-import java.util.List;
-import org.junit.Test;
-import static org.junit.Assert.*;
-
 /**
- *
+ * Interface defining the interface for detecting when a sample should be interpreted
+ * as a 1 or 0
  * @author Fredrick Meunier
  */
-public class PulseListTest {
-    
-    public PulseListTest() {
-    }
+public interface Bistable {
 
-    /**
-     * Test of getPulseLengths method, of class PulseList.
-     */
-    @Test
-    public void testGetPulseLengths() {
-        System.out.println("getPulseLengths");
-        List<Double> pulses = Arrays.asList(200.0, 300.0);
-        PulseList instance = new PulseList(pulses, 1, 1);
-        List<Double> expResult = pulses;
-        List<Double> result = instance.getPulseLengths();
-        assertEquals(expResult, result);
-    }
+	/**
+	 * Evaluate the unsigned byte sample provided and return whether it should be
+	 * considered a logical 0 or 1. Will be called for all samples in the source
+	 * in order.
+	 * @param sample the unsigned byte (0-255) value for the sample
+	 * @return 0 or 1
+	 */
+	int getNewLevel(int sample);
 
-    /**
-     * Test of getFirstPulseLevel method, of class PulseList.
-     */
-    @Test
-    public void testGetFirstPulseLevel() {
-        System.out.println("getFirstPulseLevel");
-        List<Double> pulses = Arrays.asList(200.0, 300.0);
-        PulseList instance = new PulseList(pulses, 0, 1);
-        int expResult = 0;
-        int result = instance.getFirstPulseLevel();
-        assertEquals(expResult, result);
-
-        instance = new PulseList(pulses, 1, 1);
-        expResult = 1;
-        result = instance.getFirstPulseLevel();
-        assertEquals(expResult, result);
-    }
-    
 }

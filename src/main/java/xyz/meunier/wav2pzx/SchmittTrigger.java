@@ -25,49 +25,30 @@
  */
 package xyz.meunier.wav2pzx;
 
-import java.util.Arrays;
-import java.util.List;
-import org.junit.Test;
-import static org.junit.Assert.*;
-
 /**
+ * The Schmitt Trigger switches from a value of 1 to 0 when the sample passes the midpoint
+ * by a defined threshold and from 0 to 1 when the sample passes the midpoint by a threshold.
  *
  * @author Fredrick Meunier
  */
-public class PulseListTest {
-    
-    public PulseListTest() {
-    }
+public class SchmittTrigger implements Bistable {
+	
+	// The threshold to pass the zero level by to switch price level
+	private final int THRESHOLD = 20;
+	
+	// The current level of the output
+	private int currentLevel = 0;
 
-    /**
-     * Test of getPulseLengths method, of class PulseList.
-     */
-    @Test
-    public void testGetPulseLengths() {
-        System.out.println("getPulseLengths");
-        List<Double> pulses = Arrays.asList(200.0, 300.0);
-        PulseList instance = new PulseList(pulses, 1, 1);
-        List<Double> expResult = pulses;
-        List<Double> result = instance.getPulseLengths();
-        assertEquals(expResult, result);
-    }
+	@Override
+	public int getNewLevel(int sample) {
+		int currentThreshold = 128;
+		if(currentLevel == 0) {
+			currentThreshold += THRESHOLD;
+		} else {
+			currentThreshold -= THRESHOLD;
+		}
+		currentLevel = (sample < currentThreshold) ? 0 : 1;
+		return currentLevel;
+	}
 
-    /**
-     * Test of getFirstPulseLevel method, of class PulseList.
-     */
-    @Test
-    public void testGetFirstPulseLevel() {
-        System.out.println("getFirstPulseLevel");
-        List<Double> pulses = Arrays.asList(200.0, 300.0);
-        PulseList instance = new PulseList(pulses, 0, 1);
-        int expResult = 0;
-        int result = instance.getFirstPulseLevel();
-        assertEquals(expResult, result);
-
-        instance = new PulseList(pulses, 1, 1);
-        expResult = 1;
-        result = instance.getFirstPulseLevel();
-        assertEquals(expResult, result);
-    }
-    
 }

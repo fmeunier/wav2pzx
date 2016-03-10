@@ -74,6 +74,8 @@ public class AudioFileTape {
                 throw new UnsupportedAudioFileException("Unsupported WAV audio format " + inDataFormat.toString());
             }
 
+            System.out.println("Using WAV format " + dataFormat.toString());
+            
             AudioInputStream lowResAIS = 
                     AudioSystem.getAudioInputStream(dataFormat, audioInputStream);
 
@@ -100,7 +102,7 @@ public class AudioFileTape {
             }
 
             Logger.getLogger(AudioFileTape.class.getName())
-                    .log(Level.FINE, "Processed %s samples", totalFramesRead);
+                    .log(Level.FINE, String.format("Processed %s samples", totalFramesRead));
             
             return pulseListBuilder.build();
         }

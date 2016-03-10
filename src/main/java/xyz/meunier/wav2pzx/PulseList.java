@@ -47,6 +47,11 @@ public final class PulseList {
     private final int firstPulseLevel;
 
     /**
+     * The resolution of each pulse in T-states (error is up to 2 samples)
+     */
+    private final double resolution;
+    
+    /**
      * Get the list of pulses that comprise the tape
      * @return an immutable list of the pulses for the tape
      */
@@ -62,20 +67,26 @@ public final class PulseList {
         return firstPulseLevel;
     }
     
-    /**
+    public double getResolution() {
+		return resolution;
+	}
+
+	/**
      * Constructor for a new PulseList
      * @param pulseLengths a non-empty list of pulses for a tape
      * @param firstPulseLevel the level of the first pulse in the list
+     * @param resolution the resolution of each pulse in T-states (error is up to 2 samples)
      * @throws NullPointerException if the supplied list is null
      * @throws IllegalArgumentException if the supplied list is empty
      * @throws IllegalArgumentException if firstPulseLevel is not 0 or 1
      */
-    public PulseList(Collection<Double> pulseLengths, int firstPulseLevel) {
+    public PulseList(Collection<Double> pulseLengths, int firstPulseLevel, double resolution) {
         checkNotNull(pulseLengths, "pulseLengths must not be null");
         checkArgument(firstPulseLevel == 0 || firstPulseLevel == 1, "firstPulseLevel must be 0 or 1");
         this.pulseLengths = ImmutableList.copyOf(checkNotNull(pulseLengths));
         checkArgument(!pulseLengths.isEmpty(), "pulseLengths cannot be empty");
         this.firstPulseLevel = firstPulseLevel;
+        this.resolution = resolution;
     }
 
 	@Override
@@ -108,7 +119,8 @@ public final class PulseList {
 
 	@Override
 	public String toString() {
-		return "PulseList [pulseLengths.size()=" + pulseLengths.size() + ", firstPulseLevel=" + firstPulseLevel + "]";
+		return "PulseList [pulseLengths.size()=" + pulseLengths.size() + ", firstPulseLevel=" + firstPulseLevel + ", resolution="
+				+ resolution + "]";
 	}
     
 }

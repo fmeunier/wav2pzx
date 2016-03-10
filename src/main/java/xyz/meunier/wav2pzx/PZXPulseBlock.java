@@ -52,6 +52,10 @@ public class PZXPulseBlock implements PZXBlock {
     public PZXPulseBlock(PulseList newPulses) {
         checkNotNull(newPulses, "newPulses must not be null");
         this.pulseList = newPulses;
+        // TODO: Scan pulses placing them into buckets of effectively equal lengths, when
+        // we have a reasonable amount of pulses in a bucket, replace pulses in the source list 
+        // with the average value from the bucket. This would be to try and optimise the storage
+        // of the source pulses - should be optional.
     }
 
     @Override

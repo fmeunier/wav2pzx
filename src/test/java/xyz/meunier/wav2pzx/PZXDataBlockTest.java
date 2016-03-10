@@ -71,7 +71,7 @@ public class PZXDataBlockTest {
     @Test
     public void testGetPZXBlockDiskRepresentation() {
         System.out.println("getPZXBlockDiskRepresentation");
-        PZXDataBlock instance = new PZXDataBlock(new PulseList(newPulses, firstPulseLevel),
+        PZXDataBlock instance = new PZXDataBlock(new PulseList(newPulses, firstPulseLevel, 1),
                                                     tailLength, numBitsInLastByte, data);
         byte[] expResult = {(byte)0x44, (byte)0x41, (byte)0x54, (byte)0x41, /* DATA */
                             (byte)0x13, (byte)0x00, (byte)0x00, (byte)0x00, /* size */
@@ -92,7 +92,7 @@ public class PZXDataBlockTest {
     @Test
     public void testIsHeader() {
         System.out.println("isHeader");
-        PulseList newPulses2 = new PulseList(newPulses, firstPulseLevel);
+        PulseList newPulses2 = new PulseList(newPulses, firstPulseLevel, 1);
 		PZXDataBlock instance =  new PZXDataBlock(newPulses2, tailLength, numBitsInLastByte, data);
         boolean expResult = false;
         boolean result = instance.isHeader();
@@ -138,14 +138,14 @@ public class PZXDataBlockTest {
     @Test
     public void testCheckChecksum() {
         System.out.println("checkChecksum");
-        PZXDataBlock instance = new PZXDataBlock(new PulseList(newPulses, firstPulseLevel),
+        PZXDataBlock instance = new PZXDataBlock(new PulseList(newPulses, firstPulseLevel, 1),
                                                     tailLength, numBitsInLastByte, data);
         boolean expResult = true;
         boolean result = instance.checkChecksum();
         assertEquals(expResult, result);
         
         Collection<Byte> badChecksum = Arrays.asList((byte)0x10, (byte)0x20, (byte)0x33);
-        instance = new PZXDataBlock(new PulseList(newPulses, firstPulseLevel),
+        instance = new PZXDataBlock(new PulseList(newPulses, firstPulseLevel, 1),
                                     tailLength, numBitsInLastByte, badChecksum);
         expResult = false;
         result = instance.checkChecksum();
