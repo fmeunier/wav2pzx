@@ -39,12 +39,12 @@ public interface LoaderContext {
     /**
      * The longest valid length of two pulses to be considered as a bit in the data block
      */
-    final int DATA_TOTAL_MAX = 5044;
+    final int DATA_TOTAL_MAX = 3700; // TODO: check this - loading two edges with a timing constant of 0xb0 for a bit implies 4450 as the total?
     
     /**
      * The maximum length of a tail pulse
      */
-    final int MAX_TAIL_PULSE = 1050;
+    final int MAX_TAIL_PULSE = 1700;
     
     /**
      * The minimum number of pilot pulses before a sync1 pulse can occur
@@ -62,7 +62,7 @@ public interface LoaderContext {
     final int PILOT_LENGTH = 2168;
     
     /**
-     * The maximim valid length of a pilot pulse
+     * The maximum valid length of a pilot pulse
      */
     final int PILOT_MAX = 3000;
     
@@ -190,7 +190,8 @@ public interface LoaderContext {
      * If a last block completed was being provisionally treated as a certain 
      * type but subsequent data shows that is not correct, this method removes 
      * the last classified block and adds its pulses to the beginning of the
-     * pulses from the current block in progress.
+     * pulses from the current block in progress. If no pulse blocks have been
+     * added, has no effect.
      */
     void revertCurrentBlock();
 
