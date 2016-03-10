@@ -39,7 +39,7 @@ public interface LoaderContext {
     /**
      * The longest valid length of two pulses to be considered as a bit in the data block
      */
-    final int DATA_TOTAL_MAX = 3700; // TODO: check this - loading two edges with a timing constant of 0xb0 for a bit implies 4450 as the total?
+    final int DATA_TOTAL_MAX = 3950; // TODO: check this - loading two edges with a timing constant of 0xb0 for a bit implies 4450 as the total?
     
     /**
      * The maximum length of a tail pulse
@@ -226,4 +226,10 @@ public interface LoaderContext {
      * @param pulseLength the tail pulse
      */
     void setTailLength(Double pulseLength);
+    
+    /**
+     * Get the resolution of each pulse in T-states (error is up to 2 samples)
+     * @return the resolution of each pulse in T-states (error is up to 2 samples)
+     */
+    double getResolution();
 }

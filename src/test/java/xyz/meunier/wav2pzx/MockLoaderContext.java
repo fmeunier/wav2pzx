@@ -265,4 +265,9 @@ public final class MockLoaderContext implements LoaderContext {
     public double getNextPulse() {
         return this.nextPulseLevel;
     }
+
+	@Override
+	public double getResolution() {
+		return 1;
+	}
 }

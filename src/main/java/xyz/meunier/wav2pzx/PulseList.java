@@ -67,6 +67,10 @@ public final class PulseList {
         return firstPulseLevel;
     }
     
+    /**
+     * Get the resolution of each pulse in T-states (error is up to 2 samples)
+     * @return the resolution of each pulse in T-states (error is up to 2 samples)
+     */
     public double getResolution() {
 		return resolution;
 	}

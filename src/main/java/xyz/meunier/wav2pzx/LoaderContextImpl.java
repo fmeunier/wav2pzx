@@ -463,6 +463,10 @@ public final class LoaderContextImpl implements LoaderContext {
     public List<Byte> getData() {
     	return new ArrayList<>(data);
     }
-    
+
+	@Override
+	public double getResolution() {
+		return this.resolution;
+	}    
     
 }

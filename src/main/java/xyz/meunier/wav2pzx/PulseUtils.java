@@ -32,8 +32,8 @@ package xyz.meunier.wav2pzx;
  */
 public class PulseUtils {
 
-	// The PZX specification suggests that pulses within 2% of each other should be considered equal
-	private static final double ERROR_PERCENTAGE = 0.02;
+	// The PZX specification suggests that pulses within 27% of each other should be considered equal
+	private static final double ERROR_PERCENTAGE = 0.27;
 
 	/**
 	 * Compares two pulses sampled from a source and determine whether they are likely to be the same length.
@@ -48,5 +48,20 @@ public class PulseUtils {
 	public static boolean equalWithinResoution(double pulse1, double pulse2, double resolution) {
 		double error = Double.max(pulse1, pulse2) * ERROR_PERCENTAGE;
 		return Math.abs(pulse1 - pulse2) < (resolution + error);
+	}
+	
+	/**
+	 * Compares two pulses sampled from a source and determine whether one is likely to be less than the length of the other.
+	 * We can expect to resolve features of up to half the sample rate (based on Nyquist) and also need to allow
+	 * for some error from the Spectrum ROM sample writing and the analogue tape of approximately 2% based on the
+	 * PZX specification.
+	 * @param pulse1 the first pulse to compare
+	 * @param pulse2 the second pulse to compare
+	 * @param resolution the feature resolution in terms of the target clock rate
+	 * @return true if pulse1 is probably less than pulse2 in duration
+	 */
+	public static boolean lessThanWithinResoution(double pulse1, double pulse2, double resolution) {
+		double error = Double.max(pulse1, pulse2) * ERROR_PERCENTAGE;
+		return pulse1 < pulse2 + resolution + error;
 	}
 }

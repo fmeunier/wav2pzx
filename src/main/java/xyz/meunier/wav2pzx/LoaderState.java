@@ -194,20 +194,23 @@ public enum LoaderState {
             
             double nextPulseLength = context.peekNextPulse();
             
-            if( context.getCurrentPulse() + nextPulseLength < LoaderContext.ZERO_THRESHOLD ) {
+            if( PulseUtils.lessThanWithinResoution(context.getCurrentPulse(), LoaderContext.ZERO, context.getResolution()) &&
+            	 PulseUtils.lessThanWithinResoution(nextPulseLength, LoaderContext.ZERO, context.getResolution())) {
                 context.addZeroPulse(context.getCurrentPulse(), nextPulseLength );
                 context.getNextPulse(); // Defer side effect of calculating next pulse level
                 
                 logTransition(context.getCurrentPulse(), GET_DATA, GET_DATA);
                 return GET_DATA;
-            } else if ( context.getCurrentPulse() + nextPulseLength > LoaderContext.DATA_TOTAL_MAX ) {
-                return handleOptionalTailPulse(context);
-            } else {
+            } else if (PulseUtils.lessThanWithinResoution(context.getCurrentPulse(), LoaderContext.ONE, context.getResolution()) &&
+               	 PulseUtils.lessThanWithinResoution(nextPulseLength, LoaderContext.ONE, context.getResolution())) {
+            	
                 context.addOnePulse(context.getCurrentPulse(), nextPulseLength );
                 context.getNextPulse(); // Defer side effect of calculating next pulse level
                 
                 logTransition(context.getCurrentPulse(), GET_DATA, GET_DATA);
                 return GET_DATA;
+            } else {
+                return handleOptionalTailPulse(context);
             }
         }
 
@@ -216,7 +219,7 @@ public enum LoaderState {
          * @param context the value of context
          */
         private LoaderState handleOptionalTailPulse(LoaderContext context) {
-            final boolean wasTailPulse = context.getCurrentPulse() < LoaderContext.MAX_TAIL_PULSE;
+            final boolean wasTailPulse = PulseUtils.equalWithinResoution(context.getCurrentPulse(), LoaderContext.TAIL, context.getResolution());
             if( wasTailPulse ) {
                 context.setTailLength( context.getCurrentPulse() );
                 
@@ -264,6 +267,6 @@ public enum LoaderState {
      */
     protected void logTransition(Double currentPulse, LoaderState fromState, LoaderState toState) {
         String message = String.format("%12s -> %12s: %f", fromState, toState, currentPulse);
-        Logger.getLogger(LoaderState.class.getName()).log(Level.FINE, message);
+        Logger.getLogger(LoaderState.class.getName()).log(Level.INFO, message);
     }
 }
