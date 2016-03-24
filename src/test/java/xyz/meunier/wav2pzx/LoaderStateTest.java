@@ -88,7 +88,7 @@ public class LoaderStateTest {
         MockLoaderContext context = new MockLoaderContext();
 
         //logTransition(pulseLength, INITIAL, FIND_PILOT);
-        context.setCurrentPulse(2500.0);
+        context.setCurrentPulse(2100.0);
         LoaderState instance = LoaderState.INITIAL;
         LoaderState expResult = LoaderState.FIND_PILOT;
         LoaderState result = instance.nextState(context);
@@ -120,7 +120,7 @@ public class LoaderStateTest {
         //logTransition(pulseLength, FIND_PILOT, FIND_SYNC1);
         context.resetFields();
         context.setNumPilotPulses(LoaderContext.MIN_PILOT_COUNT);
-        context.setCurrentPulse(2500.0);
+        context.setCurrentPulse(2100.0);
         instance = LoaderState.FIND_PILOT;
         expResult = LoaderState.FIND_SYNC1;
         result = instance.nextState(context);
@@ -131,7 +131,7 @@ public class LoaderStateTest {
         //logTransition(pulseLength, FIND_PILOT, FIND_PILOT);
         context.resetFields();
         context.setNumPilotPulses(1);
-        context.setCurrentPulse(2500.0);
+        context.setCurrentPulse(2100.0);
         instance = LoaderState.FIND_PILOT;
         expResult = LoaderState.FIND_PILOT;
         result = instance.nextState(context);
@@ -146,7 +146,7 @@ public class LoaderStateTest {
         expResult = LoaderState.INITIAL;
         result = instance.nextState(context);
         assertEquals(expResult, result);
-        assertTrue(context.isCalledCompletePulseBlock());
+        assertTrue("Block was reverted", context.isCalledRevertCurrentBlock());
         assertFalse(context.isLastIsPilot());
         assertEquals(context.getCurrentPulse(), context.getLastUnclassifiedPulse(), TOLERANCE);
         assertNotEquals(context.getCurrentPulse(), context.getLastPilotPulse(), TOLERANCE);        
@@ -189,8 +189,8 @@ public class LoaderStateTest {
         expResult = LoaderState.INITIAL;
         result = instance.nextState(context);
         assertEquals(expResult, result);
-        assertTrue(context.isCalledCompletePulseBlock());
-        assertTrue(context.isLastIsPilot());
+        assertTrue("Failure to get SYNC2 results in block being reverted", context.isCalledRevertCurrentBlock());
+        assertFalse("Block is expected to be a plain pulse block, not a pilot block", context.isLastIsPilot());
         assertNotEquals(context.getCurrentPulse(), context.getSync2Length(), TOLERANCE);
         assertEquals(context.getCurrentPulse(), context.getLastUnclassifiedPulse(), TOLERANCE);
 

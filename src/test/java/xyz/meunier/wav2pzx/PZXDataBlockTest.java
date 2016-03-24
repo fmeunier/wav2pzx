@@ -84,6 +84,25 @@ public class PZXDataBlockTest {
                             (byte)0x10, (byte)0x20, (byte)0x30 /* data */};
         byte[] result = instance.getPZXBlockDiskRepresentation();
         assertArrayEquals(expResult, result);
+        
+        // Checksum doesn't match, should result in PULS block rather than data block
+        Collection<Byte> badData = Arrays.asList((byte)0x10, (byte)0x20, (byte)0x33);
+        instance = new PZXDataBlock(new PulseList(newPulses, firstPulseLevel, 1),
+		                tailLength, numBitsInLastByte, badData);
+        byte[] expResult2 = {(byte)80, (byte)85, (byte)76, (byte)83, /* PULS */
+                (byte)0x06, (byte)0x00, (byte)0x00, (byte)0x00, /* Length: 6 bytes */
+                (byte)0x00, (byte)0x00, /* Initial pulse high */
+                (byte)0x02, (byte)0x80, /* Repeat count 2 */
+                (byte)0xc8, (byte)0x00};/* Pulse length 200 */
+		result = instance.getPZXBlockDiskRepresentation();
+		assertArrayEquals(expResult2, result);
+
+        // Checksum matches but not all bits are present in the last byte,
+		// should result in PULS block rather than data block
+        instance = new PZXDataBlock(new PulseList(newPulses, firstPulseLevel, 1),
+		                tailLength, 1, badData);
+		result = instance.getPZXBlockDiskRepresentation();
+		assertArrayEquals(expResult2, result);
     }
 
     /**

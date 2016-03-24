@@ -44,7 +44,7 @@ public enum LoaderState {
     INITIAL {
         @Override
         public LoaderState nextState(LoaderContext context) {
-            if( context.getCurrentPulse() < LoaderContext.PILOT_MAX ) {
+            if( PulseUtils.equalWithinResoution(context.getCurrentPulse(), LoaderContext.PILOT_LENGTH, context.getResolution()) ) {
                 // Close current pulse block - note that this may be empty!
                 context.completePulseBlock(false);
 
@@ -74,7 +74,7 @@ public enum LoaderState {
     FIND_PILOT {
         @Override
         public LoaderState nextState(LoaderContext context) {
-            if( context.getCurrentPulse() >= LoaderContext.PILOT_MAX ) {
+            if( !PulseUtils.equalWithinResoution(context.getCurrentPulse(), LoaderContext.PILOT_LENGTH, context.getResolution()) ) {
                 // Not really a new pulse sequence, dump pulses into existing block
                 context.revertCurrentBlock();
                 context.addUnclassifiedPulse(context.getCurrentPulse());
@@ -114,12 +114,10 @@ public enum LoaderState {
         public LoaderState nextState(LoaderContext context) {
             // look for pulse no longer than SYNC_TOTAL_MAX, but less than SYNC1_MAX
             if( context.getCurrentPulse() > LoaderContext.SYNC_TOTAL_MAX ) {
-                // what is the best encoding approach here? If we have been 
-                // accumulating pulses that appear to be a series of pilot tones 
-                // until now, it may be desirable to keep this as a distinct
-                // block for later editing
-                context.completePulseBlock(false);
-    
+                // Not really a new pulse sequence, dump pulses into existing block
+                context.revertCurrentBlock();
+                context.addUnclassifiedPulse(context.getCurrentPulse());
+                
                 // go back to looking for pilot tones, but re-process this pulse
                 // in the new state
                 logTransition(context.getCurrentPulse(), FIND_SYNC1, INITIAL);
@@ -161,10 +159,12 @@ public enum LoaderState {
                 logTransition(context.getCurrentPulse(), GET_SYNC2, GET_DATA);
                 return GET_DATA;
             } else {
-                // keep the suspiciously organised pulse block and go back to
-                // looking for pilot tones starting with this pulse
-                context.completePulseBlock(true);
+                // Not really a new pulse sequence, dump pulses into existing block
+                context.revertCurrentBlock();
+                context.addUnclassifiedPulse(context.getCurrentPulse());
                 
+                // go back to looking for pilot tones, but re-process this pulse
+                // in the new state
                 logTransition(context.getCurrentPulse(), GET_SYNC2, INITIAL);
                 return INITIAL.nextState(context);
             }
@@ -194,15 +194,15 @@ public enum LoaderState {
             
             double nextPulseLength = context.peekNextPulse();
             
-            if( PulseUtils.lessThanWithinResoution(context.getCurrentPulse(), LoaderContext.ZERO, context.getResolution()) &&
-            	 PulseUtils.lessThanWithinResoution(nextPulseLength, LoaderContext.ZERO, context.getResolution())) {
+            if( PulseUtils.equalWithinResoution(context.getCurrentPulse(), LoaderContext.ZERO, context.getResolution()) &&
+            	 PulseUtils.equalWithinResoution(nextPulseLength, LoaderContext.ZERO, context.getResolution())) {
                 context.addZeroPulse(context.getCurrentPulse(), nextPulseLength );
                 context.getNextPulse(); // Defer side effect of calculating next pulse level
                 
                 logTransition(context.getCurrentPulse(), GET_DATA, GET_DATA);
                 return GET_DATA;
-            } else if (PulseUtils.lessThanWithinResoution(context.getCurrentPulse(), LoaderContext.ONE, context.getResolution()) &&
-               	 PulseUtils.lessThanWithinResoution(nextPulseLength, LoaderContext.ONE, context.getResolution())) {
+            } else if (PulseUtils.equalWithinResoution(context.getCurrentPulse(), LoaderContext.ONE, context.getResolution()) &&
+               	 PulseUtils.equalWithinResoution(nextPulseLength, LoaderContext.ONE, context.getResolution())) {
             	
                 context.addOnePulse(context.getCurrentPulse(), nextPulseLength );
                 context.getNextPulse(); // Defer side effect of calculating next pulse level

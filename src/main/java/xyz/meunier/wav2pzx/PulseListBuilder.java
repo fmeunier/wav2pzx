@@ -132,7 +132,7 @@ public class PulseListBuilder {
         // Close current pulse and mark list as being complete
         pulseLengths.add(currentPulseDuration);
         tapeComplete = true;
-        pulseList = new PulseList(pulseLengths, firstPulseLevel, tStatesPerSample*2);
+        pulseList = new PulseList(pulseLengths, firstPulseLevel, tStatesPerSample*8);
         
         return pulseList;
     }

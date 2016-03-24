@@ -65,11 +65,20 @@ public class PZXPulseBlock implements PZXBlock {
 
     @Override
     public byte[] getPZXBlockDiskRepresentation() {
-        // iterate through the pulse array doing a run length encoding of the number of repeated values
-        PeekingIterator<Double> iterator = Iterators.peekingIterator(getPulses().iterator());
+        return getPZXBlockDiskRepresentation(pulseList);
+    }
+
+	/**
+     * Return the on-disk PZX format data for the supplied PulseList
+	 * @param pulseList the PulseList to encode into the disk representation
+     * @return the byte[] with the PZX disk format data
+   	 */
+	public static byte[] getPZXBlockDiskRepresentation(PulseList pulseList) {
+		// iterate through the pulse array doing a run length encoding of the number of repeated values
+        PeekingIterator<Double> iterator = Iterators.peekingIterator(pulseList.getPulseLengths().iterator());
         int count;
         // We will probably have a similar number of bytes output as source pulses * 2 16 bit values
-        ArrayList<Byte> output = new ArrayList<>(getPulses().size()*4);
+        ArrayList<Byte> output = new ArrayList<>(pulseList.getPulseLengths().size()*4);
 
         // The pulse level is low at start of the block by default. However initial
         // pulse of zero duration may be easily used to make it high.
@@ -91,7 +100,7 @@ public class PZXPulseBlock implements PZXBlock {
         }
         
         return addPZXBlockHeader("PULS", output);
-    }
+	}
 
     @Override
     public String getSummary() {

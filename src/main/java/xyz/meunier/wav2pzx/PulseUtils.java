@@ -32,8 +32,8 @@ package xyz.meunier.wav2pzx;
  */
 public class PulseUtils {
 
-	// The PZX specification suggests that pulses within 27% of each other should be considered equal
-	private static final double ERROR_PERCENTAGE = 0.27;
+	// Allow pulses within 5% of each other to be considered equal
+	private static final double ERROR_PERCENTAGE = 0.05;
 
 	/**
 	 * Compares two pulses sampled from a source and determine whether they are likely to be the same length.

@@ -115,7 +115,13 @@ public class PZXDataBlock implements PZXBlock {
 
     @Override
     public byte[] getPZXBlockDiskRepresentation() {
-        /*  DATA - Data block
+    	// If the checksum has failed or we have an incomplete last byte than the block decoding has
+    	// failed and we should return a pulse block disk representation instead
+    	if(numBitsInLastByte != 8 || suppliedChecksum != calculatedChecksum) {
+    		return PZXPulseBlock.getPZXBlockDiskRepresentation(pulses);
+    	}
+
+    	/*  DATA - Data block
             -----------------
 
             offset      type             name  meaning

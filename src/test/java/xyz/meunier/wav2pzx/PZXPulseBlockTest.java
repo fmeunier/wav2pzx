@@ -38,14 +38,15 @@ import static org.junit.Assert.*;
  */
 public class PZXPulseBlockTest {
 
-    private PZXPulseBlock pulseBlock;
+    private static final PulseList PULSES = new PulseList(Arrays.asList(200.0, 200.0, 300.0), 1, 1);
+	private PZXPulseBlock pulseBlock;
     
     public PZXPulseBlockTest() {
     }
     
     @Before
     public void setUp() {
-        this.pulseBlock = new PZXPulseBlock(new PulseList(Arrays.asList(200.0, 200.0, 300.0), 1, 1));
+        this.pulseBlock = new PZXPulseBlock(PULSES);
     }
     
     @After
@@ -77,6 +78,22 @@ public class PZXPulseBlockTest {
                             (byte)0xc8, (byte)0x00, /* Pulse length 200 */
                             (byte)0x2c, (byte)0x01};/* Repeat count 1, pulse length 300 */
         byte[] result = pulseBlock.getPZXBlockDiskRepresentation();
+        assertArrayEquals(expResult, result); 
+    }
+
+	/**
+	 * Test method for {@link xyz.meunier.wav2pzx.PZXPulseBlock#equalWithinResoution(double, double, double)}.
+	 */
+    @Test
+    public void testGetPZXBlockDiskRepresentation_PulseList() {
+        System.out.println("getPZXBlockDiskRepresentation");
+        byte[] expResult = {(byte)80, (byte)85, (byte)76, (byte)83, /* PULS */
+                            (byte)0x08, (byte)0x00, (byte)0x00, (byte)0x00, /* Length: 8 bytes */
+                            (byte)0x00, (byte)0x00, /* Initial pulse high */
+                            (byte)0x02, (byte)0x80, /* Repeat count 2 */
+                            (byte)0xc8, (byte)0x00, /* Pulse length 200 */
+                            (byte)0x2c, (byte)0x01};/* Repeat count 1, pulse length 300 */
+        byte[] result = PZXPulseBlock.getPZXBlockDiskRepresentation(PULSES);
         assertArrayEquals(expResult, result); 
     }
 
