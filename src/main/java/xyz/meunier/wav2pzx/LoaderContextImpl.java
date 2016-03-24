@@ -262,6 +262,7 @@ public final class LoaderContextImpl implements LoaderContext {
             (!PulseUtils.equalWithinResoution(ONE, oneStats.getAverage(), resolution) && oneStats.getCount() != 0)) {
         	// Something was wrong with this block as a data block, try again to record it as a plain pulse block
         	completePulseBlock(false);
+        	
             return;
 		}
 
