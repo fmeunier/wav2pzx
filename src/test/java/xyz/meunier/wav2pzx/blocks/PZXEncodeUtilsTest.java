@@ -23,13 +23,16 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package xyz.meunier.wav2pzx;
+package xyz.meunier.wav2pzx.blocks;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import org.junit.Test;
+
+import xyz.meunier.wav2pzx.blocks.PZXEncodeUtils;
+
 import static org.junit.Assert.*;
 
 /**

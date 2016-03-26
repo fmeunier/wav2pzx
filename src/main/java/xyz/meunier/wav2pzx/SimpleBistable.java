@@ -25,7 +25,12 @@
  */
 package xyz.meunier.wav2pzx;
 
-public class SimpleBistable implements Bistable {
+/**
+ * The SimpleBistable switches between a value of 1 and 0 when the sample passes the midpoint.
+ *
+ * @author Fredrick Meunier
+ */
+public final class SimpleBistable implements Bistable {
 
 	/* (non-Javadoc)
 	 * @see xyz.meunier.wav2pzx.Bistable#getNewLevel(int)

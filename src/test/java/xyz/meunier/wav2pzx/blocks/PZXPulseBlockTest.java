@@ -23,13 +23,17 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package xyz.meunier.wav2pzx;
+package xyz.meunier.wav2pzx.blocks;
 
 import java.util.Arrays;
 import java.util.Collection;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import xyz.meunier.wav2pzx.PulseList;
+import xyz.meunier.wav2pzx.blocks.PZXPulseBlock;
+
 import static org.junit.Assert.*;
 
 /**
@@ -82,7 +86,7 @@ public class PZXPulseBlockTest {
     }
 
 	/**
-	 * Test method for {@link xyz.meunier.wav2pzx.PZXPulseBlock#equalWithinResoution(double, double, double)}.
+	 * Test method for {@link xyz.meunier.wav2pzx.blocks.PZXPulseBlock#equalWithinResoution(double, double, double)}.
 	 */
     @Test
     public void testGetPZXBlockDiskRepresentation_PulseList() {

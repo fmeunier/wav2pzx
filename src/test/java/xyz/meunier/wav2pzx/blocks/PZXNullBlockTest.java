@@ -23,68 +23,67 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package xyz.meunier.wav2pzx;
+package xyz.meunier.wav2pzx.blocks;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import org.junit.Test;
 import static org.junit.Assert.*;
 
-/**
- *
- * @author Fredrick Meunier
- */
-public class PZXHeaderBlockTest {
-    
-    public PZXHeaderBlockTest() {
-    }
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import xyz.meunier.wav2pzx.blocks.PZXNullBlock;
+
+public class PZXNullBlockTest {
+
+	private PZXNullBlock instance;
+	
+	@Before
+	public void setUp() throws Exception {
+        this.instance = new PZXNullBlock();
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		this.instance = null;
+	}
 
     /**
-     * Test of getPZXBlockDiskRepresentation method, of class PZXHeaderBlock.
+     * Test of getPZXBlockDiskRepresentation method, of class PZXNullBlock.
      */
     @Test
     public void testGetPZXBlockDiskRepresentation() {
         System.out.println("getPZXBlockDiskRepresentation");
-        PZXHeaderBlock instance = new PZXHeaderBlock();
-        byte[] expResult = {(byte)0x50, (byte)0x5a, (byte)0x58, (byte)0x54, (byte)0x02, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x01, (byte)0x00};
+        byte[] expResult = {};
         byte[] result = instance.getPZXBlockDiskRepresentation();
         assertArrayEquals(expResult, result);
     }
 
     /**
-     * Test of getSummary method, of class PZXHeaderBlock.
+     * Test of getSummary method, of class PZXNullBlock.
      */
     @Test
     public void testGetSummary() {
         System.out.println("getSummary");
-        PZXHeaderBlock instance = new PZXHeaderBlock();
-        String expResult = "PZX major version: 1 minor version: 0";
+        String expResult = "Null PZX block";
         String result = instance.getSummary();
         assertEquals(expResult, result);
     }
 
     /**
-     * Test of getPulses method, of class PZXHeaderBlock.
+     * Test of getPulses method, of class PZXNullBlock.
      */
     @Test
     public void testGetPulses() {
         System.out.println("getPulses");
-        PZXHeaderBlock instance = new PZXHeaderBlock();
-        Collection<Double> expResult = new ArrayList<>();
-        Collection<Double> result = instance.getPulses();
-        assertEquals(expResult, result);
-    }
+        assertTrue(instance.getPulses().isEmpty());
+	}
 
     /**
-     * Test of toString method, of class PZXHeaderBlock.
+     * Test of getFirstPulseLevel method, of class PZXNullBlock.
      */
-    @Test
-    public void testToString() {
-        System.out.println("toString");
-        PZXHeaderBlock instance = new PZXHeaderBlock();
-        String expResult = "PZXHeaderBlock{PZX major version: 1 minor version: 0}";
-        String result = instance.toString();
-        assertEquals(expResult, result);
-    }
-    
+	@Test
+	public void testGetFirstPulseLevel() {
+        System.out.println("getFirstPulseLevel");
+        assertEquals(0, instance.getFirstPulseLevel());
+	}
 }

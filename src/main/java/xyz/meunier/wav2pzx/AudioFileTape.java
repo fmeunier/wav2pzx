@@ -40,7 +40,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  * PulseList format. The source data represents logical 0 and 1 level pulse values.
  * @author Fredrick Meunier
  */
-public class AudioFileTape {
+public final class AudioFileTape {
     
     /**
      * Processes the samples in the named file and converts them to a PulseList

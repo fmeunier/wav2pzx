@@ -31,7 +31,7 @@ package xyz.meunier.wav2pzx;
  *
  * @author Fredrick Meunier
  */
-public class SchmittTrigger implements Bistable {
+public final class SchmittTrigger implements Bistable {
 	
 	// The threshold to pass the zero level by to switch price level
 	private final int THRESHOLD = 12;

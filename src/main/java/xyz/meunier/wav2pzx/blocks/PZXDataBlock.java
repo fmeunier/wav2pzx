@@ -23,27 +23,30 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package xyz.meunier.wav2pzx;
+package xyz.meunier.wav2pzx.blocks;
 
 import com.google.common.primitives.Bytes;
+
+import xyz.meunier.wav2pzx.LoaderContext;
+import xyz.meunier.wav2pzx.PulseList;
+
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import static xyz.meunier.wav2pzx.PZXEncodeUtils.putUnsignedByte;
-import static xyz.meunier.wav2pzx.PZXEncodeUtils.putUnsignedLittleEndianInt;
-import static xyz.meunier.wav2pzx.PZXEncodeUtils.putUnsignedLittleEndianShort;
 import java.util.Arrays;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static xyz.meunier.wav2pzx.PZXEncodeUtils.addPZXBlockHeader;
+import static xyz.meunier.wav2pzx.blocks.PZXEncodeUtils.addPZXBlockHeader;
+import static xyz.meunier.wav2pzx.blocks.PZXEncodeUtils.putUnsignedByte;
+import static xyz.meunier.wav2pzx.blocks.PZXEncodeUtils.putUnsignedLittleEndianInt;
+import static xyz.meunier.wav2pzx.blocks.PZXEncodeUtils.putUnsignedLittleEndianShort;
 
 /**
  * Represents a PZX data block (DATA). Stores the decoded bytes found on the tape.
  * @author Fredrick Meunier
  */
-public class PZXDataBlock implements PZXBlock {
+public final class PZXDataBlock implements PZXBlock {
    
     // Spectrum ROM marker of header blocks
     private static final int HEADER_FLAG = 0x00;
@@ -161,8 +164,8 @@ public class PZXDataBlock implements PZXBlock {
         
         putUnsignedLittleEndianInt(count, output);
         
-        // use standard duration tail pulse after last bit of the block
-        putUnsignedLittleEndianShort(LoaderContext.TAIL, output);
+        // use standard duration tail pulse after last bit of the block if we found one
+        putUnsignedLittleEndianShort(tailLength == 0.0 ? 0 : LoaderContext.TAIL, output);
         
         putUnsignedByte((byte)2, output); // number of pulses encoding bit equal to 0.
         putUnsignedByte((byte)2, output); // number of pulses encoding bit equal to 1.

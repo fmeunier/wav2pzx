@@ -27,6 +27,14 @@ package xyz.meunier.wav2pzx;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
+
+import xyz.meunier.wav2pzx.blocks.PZXBlock;
+import xyz.meunier.wav2pzx.blocks.PZXDataBlock;
+import xyz.meunier.wav2pzx.blocks.PZXHeaderBlock;
+import xyz.meunier.wav2pzx.blocks.PZXNullBlock;
+import xyz.meunier.wav2pzx.blocks.PZXPilotBlock;
+import xyz.meunier.wav2pzx.blocks.PZXPulseBlock;
+
 import java.util.ArrayList;
 import java.util.DoubleSummaryStatistics;
 import java.util.List;

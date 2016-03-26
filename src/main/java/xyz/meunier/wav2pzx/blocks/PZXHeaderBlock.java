@@ -23,12 +23,13 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package xyz.meunier.wav2pzx;
+package xyz.meunier.wav2pzx.blocks;
+
+import static xyz.meunier.wav2pzx.blocks.PZXEncodeUtils.addPZXBlockHeader;
 
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.List;
-import static xyz.meunier.wav2pzx.PZXEncodeUtils.addPZXBlockHeader;
 
 /**
  * Represents the header block (PZXT) at the beginning of all valid PZX files.
@@ -36,7 +37,7 @@ import static xyz.meunier.wav2pzx.PZXEncodeUtils.addPZXBlockHeader;
  * Currently hardcoded for PZX 1.0
  * @author Fredrick Meunier
  */
-public class PZXHeaderBlock implements PZXBlock {
+public final class PZXHeaderBlock implements PZXBlock {
     /*
      * PZXT - PZX header block
      * -----------------------

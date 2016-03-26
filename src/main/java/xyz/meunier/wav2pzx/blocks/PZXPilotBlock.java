@@ -23,15 +23,19 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package xyz.meunier.wav2pzx;
+package xyz.meunier.wav2pzx.blocks;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import xyz.meunier.wav2pzx.LoaderContext;
+import xyz.meunier.wav2pzx.PulseList;
+
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static xyz.meunier.wav2pzx.PZXEncodeUtils.addPZXBlockHeader;
 import static xyz.meunier.wav2pzx.LoaderContext.SYNC1;
 import static xyz.meunier.wav2pzx.LoaderContext.SYNC2;
+import static xyz.meunier.wav2pzx.blocks.PZXEncodeUtils.addPZXBlockHeader;
 
 /**
  * This is a specialisation of the PULS PZX data block that is used when we have
@@ -43,7 +47,7 @@ import static xyz.meunier.wav2pzx.LoaderContext.SYNC2;
  * TODO: add support for optionally using timings derived from provided file
  * @author Fredrick Meunier
  */
-public class PZXPilotBlock implements PZXBlock {
+public final class PZXPilotBlock implements PZXBlock {
     
     // Details of original pulses corresponding to block
 	private final PulseList pulses;

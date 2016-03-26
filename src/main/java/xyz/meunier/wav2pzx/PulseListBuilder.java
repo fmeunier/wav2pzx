@@ -36,7 +36,7 @@ import static com.google.common.base.Preconditions.checkState;
  *
  * @author Fredrick Meunier
  */
-public class PulseListBuilder {
+public final class PulseListBuilder {
 
     private final Collection<Double> pulseLengths;
     private int firstPulseLevel;

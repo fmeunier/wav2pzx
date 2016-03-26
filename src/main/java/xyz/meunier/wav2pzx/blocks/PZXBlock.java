@@ -23,49 +23,36 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package xyz.meunier.wav2pzx;
+package xyz.meunier.wav2pzx.blocks;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
- * Null block that has no output representation. Used when we need to put a
- * placeholder block into a tape as we may need to revert it in the future.
+ * Common interface to all types of PZX tape block
  * @author Fredrick Meunier
  */
-public class PZXNullBlock implements PZXBlock {
+public interface PZXBlock {
 
-	/* (non-Javadoc)
-	 * @see xyz.meunier.wav2pzx.PZXBlock#getPZXBlockDiskRepresentation()
-	 */
-	@Override
-	public byte[] getPZXBlockDiskRepresentation() {
-		// No disk representation
-		return new byte[0];
-	}
+    /**
+     * Return the on-disk PZX format data for this block
+     * @return the byte[] with the PZX disk format data
+     */
+    byte[] getPZXBlockDiskRepresentation();
 
-	/* (non-Javadoc)
-	 * @see xyz.meunier.wav2pzx.PZXBlock#getSummary()
-	 */
-	@Override
-	public String getSummary() {
-        return "Null PZX block";
-	}
+    /**
+     * Dump a user-readable summary of the block to a string
+     * @return the user-readable summary of the tape block
+     */
+    String getSummary();
 
-	/* (non-Javadoc)
-	 * @see xyz.meunier.wav2pzx.PZXBlock#getPulses()
-	 */
-	@Override
-	public List<Double> getPulses() {
-		return Collections.emptyList();
-	}
+    /**
+     * Return a sequence of pulses corresponding to the tape block
+     * @return A sequence of pulses corresponding to the tape block
+     */
+    List<Double> getPulses();
 
-	/* (non-Javadoc)
-	 * @see xyz.meunier.wav2pzx.PZXBlock#getFirstPulseLevel()
-	 */
-	@Override
-	public int getFirstPulseLevel() {
-		return 0;
-	}
-
+    /**
+     * @return the level (0 or 1) for the first pulse in the block
+     */
+    int getFirstPulseLevel();
 }

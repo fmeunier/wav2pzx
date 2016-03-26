@@ -23,14 +23,18 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package xyz.meunier.wav2pzx;
+package xyz.meunier.wav2pzx.blocks;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static xyz.meunier.wav2pzx.blocks.PZXEncodeUtils.addPZXBlockHeader;
+
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
+
+import xyz.meunier.wav2pzx.PulseList;
+
 import java.util.ArrayList;
 import java.util.List;
-import static xyz.meunier.wav2pzx.PZXEncodeUtils.addPZXBlockHeader;
 
 /**
  * Represents a PZX pulse block (PULS).
@@ -39,7 +43,7 @@ import static xyz.meunier.wav2pzx.PZXEncodeUtils.addPZXBlockHeader;
  * disk format.
  * @author Fredrick Meunier
  */
-public class PZXPulseBlock implements PZXBlock {
+public final class PZXPulseBlock implements PZXBlock {
     
     // Details of original pulses corresponding to block
     private final PulseList pulseList;

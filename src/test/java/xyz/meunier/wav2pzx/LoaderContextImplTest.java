@@ -29,6 +29,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
+
+import xyz.meunier.wav2pzx.blocks.PZXBlock;
+import xyz.meunier.wav2pzx.blocks.PZXDataBlock;
+import xyz.meunier.wav2pzx.blocks.PZXNullBlock;
+import xyz.meunier.wav2pzx.blocks.PZXPilotBlock;
+import xyz.meunier.wav2pzx.blocks.PZXPulseBlock;
+
 import static org.junit.Assert.*;
 
 /**

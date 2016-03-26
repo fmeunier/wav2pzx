@@ -23,7 +23,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package xyz.meunier.wav2pzx;
+package xyz.meunier.wav2pzx.blocks;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.primitives.Bytes;
@@ -38,7 +38,7 @@ import java.util.List;
  * of PZX files
  * @author Fredrick Meunier
  */
-public class PZXEncodeUtils {
+public final class PZXEncodeUtils {
 
 	// High bit of a 32 bit integer
 	static private final long BIT_32_MASK =      0x80000000L;

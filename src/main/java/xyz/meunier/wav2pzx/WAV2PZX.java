@@ -36,6 +36,8 @@ import java.nio.file.Files;
 import java.util.List;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import xyz.meunier.wav2pzx.blocks.PZXBlock;
+
 /**
  * Classic 8 bit Sinclair computers like the ZX Spectrum store program data on
  * cassette tapes using square waves forming sequences of pulses.

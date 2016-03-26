@@ -30,7 +30,7 @@ package xyz.meunier.wav2pzx;
  * 
  * @author Fredrick Meunier
  */
-public class PulseUtils {
+public final class PulseUtils {
 
 	// Allow pulses within 5% of each other to be considered equal
 	private static final double ERROR_PERCENTAGE = 0.05;

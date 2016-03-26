@@ -28,8 +28,6 @@ package xyz.meunier.wav2pzx;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableList;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * Representation of an immutable sequence of pulses for a tape.
@@ -39,7 +37,7 @@ public final class PulseList {
     /**
      * The pulses
      */
-    private final List<Double> pulseLengths;
+    private final ImmutableList<Double> pulseLengths;
     
     /**
      * The level of the first pulse of the sequence
@@ -55,7 +53,7 @@ public final class PulseList {
      * Get the list of pulses that comprise the tape
      * @return an immutable list of the pulses for the tape
      */
-    public List<Double> getPulseLengths() {
+    public ImmutableList<Double> getPulseLengths() {
         return pulseLengths;
     }
 
@@ -77,18 +75,18 @@ public final class PulseList {
 
 	/**
      * Constructor for a new PulseList
-     * @param pulseLengths a non-empty list of pulses for a tape
+     * @param pulseLengths a non-empty Iterable of pulses for a tape
      * @param firstPulseLevel the level of the first pulse in the list
      * @param resolution the resolution of each pulse in T-states (error is up to 2 samples)
      * @throws NullPointerException if the supplied list is null
      * @throws IllegalArgumentException if the supplied list is empty
      * @throws IllegalArgumentException if firstPulseLevel is not 0 or 1
      */
-    public PulseList(Collection<Double> pulseLengths, int firstPulseLevel, double resolution) {
+    public PulseList(Iterable<Double> pulseLengths, int firstPulseLevel, double resolution) {
         checkNotNull(pulseLengths, "pulseLengths must not be null");
         checkArgument(firstPulseLevel == 0 || firstPulseLevel == 1, "firstPulseLevel must be 0 or 1");
         this.pulseLengths = ImmutableList.copyOf(checkNotNull(pulseLengths));
-        checkArgument(!pulseLengths.isEmpty(), "pulseLengths cannot be empty");
+        checkArgument(!this.pulseLengths.isEmpty(), "pulseLengths cannot be empty");
         this.firstPulseLevel = firstPulseLevel;
         this.resolution = resolution;
     }
