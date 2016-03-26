@@ -267,6 +267,6 @@ public enum LoaderState {
      */
     protected void logTransition(Double currentPulse, LoaderState fromState, LoaderState toState) {
         String message = String.format("%12s -> %12s: %f", fromState, toState, currentPulse);
-        Logger.getLogger(LoaderState.class.getName()).log(Level.INFO, message);
+        Logger.getLogger(LoaderState.class.getName()).log(Level.FINE, message);
     }
 }
