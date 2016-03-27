@@ -114,31 +114,31 @@ public interface LoaderContext {
      * @param firstPulseLength the value of firstPulse
      * @param secondPulseLength the value of secondPulseLength
      */
-    void addOnePulse(Double firstPulseLength, Double secondPulseLength);
+    void addOnePulse(Long firstPulseLength, Long secondPulseLength);
 
     /**
      * Add an identified pilot pulse to the block in progress.
      * @param pulseLength the pilot pulse
      */
-    void addPilotPulse(Double pulseLength);
+    void addPilotPulse(Long pulseLength);
 
     /**
      * Add an identified sync1 pulse to the block in progress
      * @param pulseLength the sync1 pulse
      */
-    void addSync1(Double pulseLength);
+    void addSync1(Long pulseLength);
 
     /**
      * Add an identified sync2 pulse to the block in progress
      * @param pulseLength the sync2 pulse
      */
-    void addSync2(Double pulseLength);
+    void addSync2(Long pulseLength);
 
     /**
      * Add an unclassified pulse to the current block in progress
      * @param pulseLength the unclassified pulse
      */
-    void addUnclassifiedPulse(Double pulseLength);
+    void addUnclassifiedPulse(Long pulseLength);
 
     /**
      * Add the two "zero" pulses that have been identified as a "zero" bit to the
@@ -146,7 +146,7 @@ public interface LoaderContext {
      * @param firstPulseLength the value of firstPulse
      * @param secondPulseLength the value of secondPulseLength
      */
-    void addZeroPulse(Double firstPulseLength, Double secondPulseLength);
+    void addZeroPulse(Long firstPulseLength, Long secondPulseLength);
 
     /**
      * All the required components of a data block have been processed, so complete
@@ -169,17 +169,17 @@ public interface LoaderContext {
     /**
      * @return the duration of the sync1 pulse in the current block
      */
-    double getSync1Length();
+    long getSync1Length();
 
     /**
      * @return the duration of the sync2 pulse in the current block
      */
-    double getSync2Length();
+    long getSync2Length();
 
     /**
      * @return the duration of the tail pulse in the current block
      */
-    double getTailLength();
+    long getTailLength();
 
     /**
      * Reset the state of the current block to the initial state
@@ -199,7 +199,7 @@ public interface LoaderContext {
      * @return the length of the next pulse in the tape
      * @throws NoSuchElementException if there are no more pulses
      */
-    Double peekNextPulse();
+    Long peekNextPulse();
     
     /**
      * @return true if there is another pulse to process after the current one
@@ -209,7 +209,7 @@ public interface LoaderContext {
     /**
      * @return the current pulse being processed
      */
-    double getCurrentPulse();
+    long getCurrentPulse();
     
     /**
      * @return the level (0 or 1) of the current pulse
@@ -219,17 +219,17 @@ public interface LoaderContext {
     /**
      * @return the next pulse to be processed
      */
-    double getNextPulse();
+    long getNextPulse();
             
     /**
      * Add an identified tail pulse to the block in progress
      * @param pulseLength the tail pulse
      */
-    void setTailLength(Double pulseLength);
+    void setTailLength(Long pulseLength);
     
     /**
      * Get the resolution of each pulse in T-states (error is up to 2 samples)
      * @return the resolution of each pulse in T-states (error is up to 2 samples)
      */
-    double getResolution();
+    long getResolution();
 }
