@@ -55,10 +55,10 @@ public class LoaderContextImplTest {
     @Test
     public void testBuildPZXTapeList() {
         System.out.println("buildPZXTapeList");
-        List<Double> sourcePulses = Arrays.asList(200.0, 200.0, 200.0);
+        List<Long> sourcePulses = Arrays.asList(200L, 200L, 200L);
 		PulseList pulseList = new PulseList(sourcePulses, 1, 1);
         List<PZXBlock> result = LoaderContextImpl.buildPZXTapeList(pulseList);
-        List<Double> pulses = new ArrayList<>();
+        List<Long> pulses = new ArrayList<>();
         result.stream().forEach((b) -> {pulses.addAll(b.getPulses());});
         
         assertEquals("Pulses from generated tape should match source", sourcePulses, pulses);
@@ -70,12 +70,12 @@ public class LoaderContextImplTest {
     @Test
     public void testGetSync1Length() {
         System.out.println("getSync1Length");
-        PulseList pulseList = new PulseList(Arrays.asList(200.0), 1, 1);
+        PulseList pulseList = new PulseList(Arrays.asList(200L), 1, 1);
         LoaderContextImpl instance = new LoaderContextImpl(pulseList);
-        instance.addSync1(100.0);
-        double expResult = 100.0;
-        double result = instance.getSync1Length();
-        assertEquals(expResult, result, TOLERANCE);
+        instance.addSync1(100L);
+        long expResult = 100;
+        long result = instance.getSync1Length();
+        assertEquals(expResult, result);
     }
 
     /**
@@ -84,12 +84,12 @@ public class LoaderContextImplTest {
     @Test
     public void testGetSync2Length() {
         System.out.println("getSync2Length");
-        PulseList pulseList = new PulseList(Arrays.asList(200.0), 1, 1);
+        PulseList pulseList = new PulseList(Arrays.asList(200L), 1, 1);
         LoaderContextImpl instance = new LoaderContextImpl(pulseList);
-        instance.addSync2(100.0);
-        double expResult = 100.0;
-        double result = instance.getSync2Length();
-        assertEquals(expResult, result, TOLERANCE);
+        instance.addSync2(100L);
+        long expResult = 100;
+        long result = instance.getSync2Length();
+        assertEquals(expResult, result);
     }
 
     /**
@@ -98,17 +98,17 @@ public class LoaderContextImplTest {
     @Test
     public void testAddZeroPulse() {
         System.out.println("addZeroPulse");
-        Double firstPulseLength = 50.0;
-        Double secondPulseLength = 50.0;
-        PulseList pulseList = new PulseList(Arrays.asList(200.0), 1, 1);
+        Long firstPulseLength = 50L;
+        Long secondPulseLength = 50L;
+        PulseList pulseList = new PulseList(Arrays.asList(200L), 1, 1);
         LoaderContextImpl instance = new LoaderContextImpl(pulseList);
         instance.addZeroPulse(firstPulseLength, secondPulseLength);
 
-        List<Double> result2 = instance.getPulseLengths();
-        List<Double> expResult2 = Arrays.asList(50.0, 50.0);
+        List<Long> result2 = instance.getPulseLengths();
+        List<Long> expResult2 = Arrays.asList(50L, 50L);
         assertArrayEquals("Check current block pulses recorded", expResult2.toArray(), result2.toArray());
 
-        List<Double> result3 = instance.getZeroPulses();
+        List<Long> result3 = instance.getZeroPulses();
         assertArrayEquals("Check zero pulses recorded", expResult2.toArray(), result3.toArray());
 
         byte result4 = instance.getCurrentByte();
@@ -122,7 +122,7 @@ public class LoaderContextImplTest {
     public void testAddBit() {
         System.out.println("addBit");
         int bit = 1;
-        PulseList pulseList = new PulseList(Arrays.asList(200.0), 1, 1);
+        PulseList pulseList = new PulseList(Arrays.asList(200L), 1, 1);
         LoaderContextImpl instance = new LoaderContextImpl(pulseList);
         // add 8 bits to add an entry to data collection, plus one to check current byte
         for(int i = 0; i < 9; i++) {
@@ -144,10 +144,10 @@ public class LoaderContextImplTest {
     @Test
     public void testResetBlock() {
         System.out.println("resetBlock");
-        PulseList pulseList = new PulseList(Arrays.asList(200.0), 1, 1);
+        PulseList pulseList = new PulseList(Arrays.asList(200L), 1, 1);
         LoaderContextImpl instance = new LoaderContextImpl(pulseList);
 
-        Double pulseLength = 50.0;
+        Long pulseLength = 50L;
         instance.addPilotPulse(pulseLength);
         instance.addZeroPulse(pulseLength, pulseLength);
         instance.addOnePulse(pulseLength, pulseLength);
@@ -170,17 +170,17 @@ public class LoaderContextImplTest {
     @Test
     public void testAddOnePulse() {
         System.out.println("addOnePulse");
-        Double firstPulseLength = 50.0;
-        Double secondPulseLength = 50.0;
-        PulseList pulseList = new PulseList(Arrays.asList(200.0), 1, 1);
+        Long firstPulseLength = 50L;
+        Long secondPulseLength = 50L;
+        PulseList pulseList = new PulseList(Arrays.asList(200L), 1, 1);
         LoaderContextImpl instance = new LoaderContextImpl(pulseList);
         instance.addOnePulse(firstPulseLength, secondPulseLength);
 
-        List<Double> result2 = instance.getPulseLengths();
-        List<Double> expResult2 = Arrays.asList(50.0, 50.0);
+        List<Long> result2 = instance.getPulseLengths();
+        List<Long> expResult2 = Arrays.asList(50L, 50L);
         assertArrayEquals("Check current block pulses recorded", expResult2.toArray(), result2.toArray());
 
-        List<Double> result3 = instance.getOnePulses();
+        List<Long> result3 = instance.getOnePulses();
         assertArrayEquals("Check one pulses recorded", expResult2.toArray(), result3.toArray());
 
         byte result4 = instance.getCurrentByte();
@@ -193,7 +193,7 @@ public class LoaderContextImplTest {
     @Test
     public void testCompletePulseBlock() {
         System.out.println("completePulseBlock");
-        Double pulseLength = (double) LoaderContext.PILOT_LENGTH;
+        Long pulseLength = (long) LoaderContext.PILOT_LENGTH;
         PulseList pulseList = new PulseList(Arrays.asList(pulseLength), 1, 1);
         LoaderContextImpl instance = new LoaderContextImpl(pulseList);
         int numBlocksStart = instance.getPZXTapeList().size();
@@ -231,11 +231,11 @@ public class LoaderContextImplTest {
 		
 		// Check pulse in block and initial level is as expected
 		assertEquals(pzxPulseBlock.getFirstPulseLevel(), 1);
-		List<Double> pulses = pzxPulseBlock.getPulses();
+		List<Long> pulses = pzxPulseBlock.getPulses();
 		assertEquals(pulses.size(), 1);
-		assertEquals(pulseLength, pulses.get(0), TOLERANCE);
+		assertEquals(pulseLength, pulses.get(0));
         
-        pulseList = new PulseList(Arrays.asList(10.0, pulseLength, pulseLength), 0, 1);
+        pulseList = new PulseList(Arrays.asList(10L, pulseLength, pulseLength), 0, 1);
         instance = new LoaderContextImpl(pulseList);
 
         // Pulses not sufficiently similar to pilot pulses
@@ -305,17 +305,17 @@ public class LoaderContextImplTest {
     @Test
     public void testAddPilotPulse() {
         System.out.println("addPilotPulse");
-        Double pulseLength = 50.0;
-        PulseList pulseList = new PulseList(Arrays.asList(200.0), 1, 1);
+        Long pulseLength = 50L;
+        PulseList pulseList = new PulseList(Arrays.asList(200L), 1, 1);
         LoaderContextImpl instance = new LoaderContextImpl(pulseList);
         instance.addPilotPulse(pulseLength);
 
-        List<Double> result = instance.getPulseLengths();
-        List<Double> expResult = Arrays.asList(50.0);
+        List<Long> result = instance.getPulseLengths();
+        List<Long> expResult = Arrays.asList(50L);
         assertArrayEquals("Check current block pulse recorded", expResult.toArray(), result.toArray());
 
-        List<Double> result2 = instance.getPilotPulses();
-        List<Double> expResult2 = Arrays.asList(50.0);
+        List<Long> result2 = instance.getPilotPulses();
+        List<Long> expResult2 = Arrays.asList(50L);
         assertArrayEquals("Check pilot pulse recorded", expResult2.toArray(), result2.toArray());
     }
 
@@ -325,7 +325,7 @@ public class LoaderContextImplTest {
     @Test
     public void testCompleteDataBlock() {
         System.out.println("completeDataBlock");
-        PulseList pulseList = new PulseList(Arrays.asList(200.0), 1, 1);
+        PulseList pulseList = new PulseList(Arrays.asList(200L), 1, 1);
         LoaderContextImpl instance = new LoaderContextImpl(pulseList);
         int numBlocksStart = instance.getPZXTapeList().size();
 
@@ -338,7 +338,7 @@ public class LoaderContextImplTest {
         
         // Add 8 one bits and a tail
         for(int i = 0; i < 8; i++) {
-        	instance.addOnePulse((double)LoaderContext.ONE, (double)LoaderContext.ONE);
+        	instance.addOnePulse( (long)LoaderContext.ONE, (long)LoaderContext.ONE);
         }
         
         instance.completeDataBlock();
@@ -359,10 +359,10 @@ public class LoaderContextImplTest {
 		// Check pulse in block and initial level is as expected
 		assertEquals(pzxDataBlock.getFirstPulseLevel(), 0);
 
-		List<Double> pulses = pzxDataBlock.getPulses();
+		List<Long> pulses = pzxDataBlock.getPulses();
 		assertEquals(pulses.size(), 16);
 		pulses.stream().forEach((d) -> {
-			assertEquals((double)LoaderContext.ONE, d, TOLERANCE);
+			assertEquals(Long.valueOf(LoaderContext.ONE), d);
 		});
 
         // if there is no partially accumulated byte the num bits in last byte should be 8
@@ -374,7 +374,7 @@ public class LoaderContextImplTest {
         assertEquals((byte)0xff, pzxDataBlock.getData()[0]);
 
         // any partially accumulated byte should be added to the data collection
-    	instance.addOnePulse((double)LoaderContext.ONE, (double)LoaderContext.ONE);
+    	instance.addOnePulse( (long)LoaderContext.ONE, (long)LoaderContext.ONE);
     	
         numBlocksStart = instance.getPZXTapeList().size();
 
@@ -398,7 +398,7 @@ public class LoaderContextImplTest {
         checkBlockIsReset(instance);
         
         // Check that if we attempt to close a data block with pulses but no data we get a pulse block instead
-        pulseList = new PulseList(Arrays.asList(200.0), 1, 1);
+        pulseList = new PulseList(Arrays.asList(200L), 1, 1);
         instance = new LoaderContextImpl(pulseList);
         numBlocksStart = instance.getPZXTapeList().size();
 
@@ -423,7 +423,7 @@ public class LoaderContextImplTest {
 		
 		pulses = pzxPulseBlock.getPulses();
 		assertEquals(pulses.size(), 1);
-		assertEquals(200.0, pulses.get(0), TOLERANCE);
+		assertEquals(200L, pulses.get(0).longValue());
 
         checkBlockIsReset(instance);
         
@@ -435,7 +435,7 @@ public class LoaderContextImplTest {
         
         // Add 8 one bits and a tail
         for(int i = 0; i < 8; i++) {
-        	instance.addOnePulse((double)LoaderContext.ZERO, (double)LoaderContext.ZERO);
+        	instance.addOnePulse( (long)LoaderContext.ZERO, (long)LoaderContext.ZERO );
         }
         
         instance.completeDataBlock();
@@ -453,7 +453,7 @@ public class LoaderContextImplTest {
         
         // Add 8 zero bits and a tail
         for(int i = 0; i < 8; i++) {
-        	instance.addZeroPulse((double)LoaderContext.ONE, (double)LoaderContext.ONE);
+        	instance.addZeroPulse( (long)LoaderContext.ONE, (long)LoaderContext.ONE );
         }
         
         instance.completeDataBlock();
@@ -467,22 +467,22 @@ public class LoaderContextImplTest {
     }
 
 	private void checkBlockIsReset(LoaderContextImpl instance) {
-        double expResult = 0.0;
-        double result = instance.getSync1Length();
-        assertEquals("Check sync1 has been reset", expResult, result, TOLERANCE);
+        long expResult = 0;
+        long result = instance.getSync1Length();
+        assertEquals("Check sync1 has been reset", expResult, result);
 
         result = instance.getSync2Length();
-        assertEquals("Check sync2 has been reset", expResult, result, TOLERANCE);
+        assertEquals("Check sync2 has been reset", expResult, result);
 
         result = instance.getTailLength();
-        assertEquals("Check tail length has been reset", expResult, result, TOLERANCE);
+        assertEquals("Check tail length has been reset", expResult, result);
         
         byte result2 = instance.getCurrentByte();
         assertEquals("Check bit has been reset", (byte)0x00, result2);
 
         assertEquals("Check number of bits in current byte is 0", 0, instance.getNumBitsInCurrentByte());
         
-        List<Double> result3 = instance.getPilotPulses();
+        List<Long> result3 = instance.getPilotPulses();
         assertTrue("Check no pilot pulse recorded", result3.isEmpty());
 
         result3 = instance.getZeroPulses();
@@ -500,13 +500,13 @@ public class LoaderContextImplTest {
     @Test
     public void testAddUnclassifiedPulse() {
         System.out.println("addUnclassifiedPulse");
-        Double pulseLength = 50.0;
-        PulseList pulseList = new PulseList(Arrays.asList(200.0), 1, 1);
+        Long pulseLength = 50L;
+        PulseList pulseList = new PulseList(Arrays.asList(200L), 1, 1);
         LoaderContextImpl instance = new LoaderContextImpl(pulseList);
         instance.addUnclassifiedPulse(pulseLength);
 
-        List<Double> result = instance.getPulseLengths();
-        List<Double> expResult = Arrays.asList(50.0);
+        List<Long> result = instance.getPulseLengths();
+        List<Long> expResult = Arrays.asList(50L);
         assertArrayEquals("Check current block pulse recorded", expResult.toArray(), result.toArray());
     }
 
@@ -516,8 +516,8 @@ public class LoaderContextImplTest {
     @Test
     public void testRevertCurrentBlock() {
         System.out.println("revertCurrentBlock");
-        Double pulseLength = 50.0;
-        PulseList pulseList = new PulseList(Arrays.asList(200.0), 1, 1);
+        Long pulseLength = 50L;
+        PulseList pulseList = new PulseList(Arrays.asList(200L), 1, 1);
         LoaderContextImpl instance = new LoaderContextImpl(pulseList);
         int numBlocksStart = instance.getPZXTapeList().size();
         // Reverting an empty list should leave the list unchanged
@@ -541,8 +541,8 @@ public class LoaderContextImplTest {
     public void testGetNumPilotPulses() {
         System.out.println("getNumPilotPulses");
         
-        Double pulseLength = 50.0;
-        PulseList pulseList = new PulseList(Arrays.asList(200.0), 1, 1);
+        Long pulseLength = 50L;
+        PulseList pulseList = new PulseList(Arrays.asList(200L), 1, 1);
         LoaderContextImpl instance = new LoaderContextImpl(pulseList);
         instance.addPilotPulse(pulseLength);
 
@@ -560,15 +560,15 @@ public class LoaderContextImplTest {
 
         // addSync1 has two effects, filing the sync1 pulse and adding the pulse
         // to the pulse list
-        PulseList pulseList = new PulseList(Arrays.asList(200.0), 1, 1);
+        PulseList pulseList = new PulseList(Arrays.asList(200L), 1, 1);
         LoaderContextImpl instance = new LoaderContextImpl(pulseList);
-        instance.addSync1(100.0);
-        double expResult = 100.0;
-        double result = instance.getSync1Length();
-        assertEquals(expResult, result, TOLERANCE);
+        instance.addSync1(100L);
+        long expResult = 100;
+        long result = instance.getSync1Length();
+        assertEquals(expResult, result);
         
-        List<Double> result2 = instance.getPulseLengths();
-        List<Double> expResult2 = Arrays.asList(100.0);
+        List<Long> result2 = instance.getPulseLengths();
+        List<Long> expResult2 = Arrays.asList(100L);
         assertArrayEquals(expResult2.toArray(), result2.toArray());
     }
 
@@ -581,15 +581,15 @@ public class LoaderContextImplTest {
 
         // addSync1 has two effects, filing the sync1 pulse and adding the pulse
         // to the pulse list
-        PulseList pulseList = new PulseList(Arrays.asList(200.0), 1, 1);
+        PulseList pulseList = new PulseList(Arrays.asList(200L), 1, 1);
         LoaderContextImpl instance = new LoaderContextImpl(pulseList);
-        instance.addSync2(100.0);
-        double expResult = 100.0;
-        double result = instance.getSync2Length();
-        assertEquals(expResult, result, TOLERANCE);
+        instance.addSync2(100L);
+        long expResult = 100L;
+        long result = instance.getSync2Length();
+        assertEquals(expResult, result);
         
-        List<Double> result2 = instance.getPulseLengths();
-        List<Double> expResult2 = Arrays.asList(100.0);
+        List<Long> result2 = instance.getPulseLengths();
+        List<Long> expResult2 = Arrays.asList(100L);
         assertArrayEquals(expResult2.toArray(), result2.toArray());
     }
 
@@ -599,16 +599,16 @@ public class LoaderContextImplTest {
     @Test
     public void testSetTailLength() {
         System.out.println("setTailLength");
-        Double pulseLength = 50.0;
-        PulseList pulseList = new PulseList(Arrays.asList(200.0), 1, 1);
+        Long pulseLength = 50L;
+        PulseList pulseList = new PulseList(Arrays.asList(200L), 1, 1);
         LoaderContextImpl instance = new LoaderContextImpl(pulseList);
         instance.setTailLength(pulseLength);
-        double expResult = 50.0;
-        double result = instance.getTailLength();
-        assertEquals(expResult, result, TOLERANCE);
+        long expResult = 50L;
+        long result = instance.getTailLength();
+        assertEquals(expResult, result);
         
-        List<Double> result2 = instance.getPulseLengths();
-        List<Double> expResult2 = Arrays.asList(50.0);
+        List<Long> result2 = instance.getPulseLengths();
+        List<Long> expResult2 = Arrays.asList(50L);
         assertArrayEquals(expResult2.toArray(), result2.toArray());
     }
 
@@ -618,13 +618,13 @@ public class LoaderContextImplTest {
     @Test
     public void testGetTailLength() {
         System.out.println("getTailLength");
-        Double pulseLength = 50.0;
-        PulseList pulseList = new PulseList(Arrays.asList(200.0), 1, 1);
+        Long pulseLength = 50L;
+        PulseList pulseList = new PulseList(Arrays.asList(200L), 1, 1);
         LoaderContextImpl instance = new LoaderContextImpl(pulseList);
         instance.setTailLength(pulseLength);
-        double expResult = 50.0;
-        double result = instance.getTailLength();
-        assertEquals(expResult, result, TOLERANCE);
+        long expResult = 50L;
+        long result = instance.getTailLength();
+        assertEquals(expResult, result);
     }
 
     /**
@@ -633,7 +633,7 @@ public class LoaderContextImplTest {
     @Test
     public void testHasNextPulse() {
         System.out.println("hasNextPulse");
-        PulseList pulseList = new PulseList(Arrays.asList(200.0), 1, 1);
+        PulseList pulseList = new PulseList(Arrays.asList(200L), 1, 1);
         LoaderContextImpl instance = new LoaderContextImpl(pulseList);
         boolean expResult = true;
         boolean result = instance.hasNextPulse();
@@ -651,11 +651,11 @@ public class LoaderContextImplTest {
     @Test
     public void testPeekNextPulse() {
         System.out.println("peekNextPulse");
-        PulseList pulseList = new PulseList(Arrays.asList(200.0), 1, 1);
+        PulseList pulseList = new PulseList(Arrays.asList(200L), 1, 1);
         LoaderContextImpl instance = new LoaderContextImpl(pulseList);
-        double expResult = 200.0;
-        double result = instance.peekNextPulse();
-        assertEquals(expResult, result, TOLERANCE);
+        long expResult = 200L;
+        long result = instance.peekNextPulse();
+        assertEquals(expResult, result);
     }
 
     /**
@@ -664,12 +664,12 @@ public class LoaderContextImplTest {
     @Test
     public void testGetCurrentPulse() {
         System.out.println("getCurrentPulse");
-        PulseList pulseList = new PulseList(Arrays.asList(200.0), 1, 1);
+        PulseList pulseList = new PulseList(Arrays.asList(200L), 1, 1);
         LoaderContextImpl instance = new LoaderContextImpl(pulseList);
         instance.getNextPulse();
-        double expResult = 200.0;
-        double result = instance.getCurrentPulse();
-        assertEquals(expResult, result, TOLERANCE);
+        long expResult = 200L;
+        long result = instance.getCurrentPulse();
+        assertEquals(expResult, result);
     }
 
     /**
@@ -678,7 +678,7 @@ public class LoaderContextImplTest {
     @Test
     public void testGetCurrentPulseLevel() {
         System.out.println("getCurrentPulseLevel");
-        PulseList pulseList = new PulseList(Arrays.asList(200.0), 1, 1);
+        PulseList pulseList = new PulseList(Arrays.asList(200L), 1, 1);
         LoaderContextImpl instance = new LoaderContextImpl(pulseList);
         instance.getNextPulse();
         int expResult = 1;
@@ -692,11 +692,11 @@ public class LoaderContextImplTest {
     @Test
     public void testGetNextPulse() {
         System.out.println("getNextPulse");
-        PulseList pulseList = new PulseList(Arrays.asList(200.0), 1, 1);
+        PulseList pulseList = new PulseList(Arrays.asList(200L), 1, 1);
         LoaderContextImpl instance = new LoaderContextImpl(pulseList);
-        double expResult = 200.0;
-        double result = instance.getNextPulse();
-        assertEquals(expResult, result, TOLERANCE);
+        long expResult = 200L;
+        long result = instance.getNextPulse();
+        assertEquals(expResult, result);
     }
 
 }

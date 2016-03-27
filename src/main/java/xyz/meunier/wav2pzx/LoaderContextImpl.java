@@ -36,8 +36,8 @@ import xyz.meunier.wav2pzx.blocks.PZXPilotBlock;
 import xyz.meunier.wav2pzx.blocks.PZXPulseBlock;
 
 import java.util.ArrayList;
-import java.util.DoubleSummaryStatistics;
 import java.util.List;
+import java.util.LongSummaryStatistics;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -51,7 +51,7 @@ public final class LoaderContextImpl implements LoaderContext {
     
     // Holds the current pulses under consideration, will be transformed to a
     // suitable PULS or DATA block in the resulting PZX file
-    private List<Double> pulseLengths = new ArrayList<>();
+    private List<Long> pulseLengths = new ArrayList<>();
     
     // Holds the results of processing the data input, a series of blocks of 
     // pulses suitable for storing in PZX format blocks
@@ -60,14 +60,14 @@ public final class LoaderContextImpl implements LoaderContext {
     // The current binary signal level
     private int currentLevel;
     
-    // Holds all the detected pilot pulses from the source for thi block
-    private final ArrayList<Double> pilotPulses = new ArrayList<>();
+    // Holds all the detected pilot pulses from the source for this block
+    private final ArrayList<Long> pilotPulses = new ArrayList<>();
     
     // Holds all the detected 0 bit pulses from the source
-    private final ArrayList<Double> zeroPulses = new ArrayList<>();
+    private final ArrayList<Long> zeroPulses = new ArrayList<>();
     
     // Holds all the detected 1 bit pulses from the source
-    private final ArrayList<Double> onePulses = new ArrayList<>();
+    private final ArrayList<Long> onePulses = new ArrayList<>();
     
     // Holds the sequence of bytes decoded from the pulse stream
     private final ArrayList<Byte> data = new ArrayList<>();
@@ -78,26 +78,26 @@ public final class LoaderContextImpl implements LoaderContext {
     private int numBitsInCurrentByte;
     
     // Length of the SYNC1 pulse found on the tape
-    private double sync1Length;
+    private long sync1Length;
     
     // Length of the SYNC2 pulse found on the tape
-    private double sync2Length;
+    private long sync2Length;
     
     // An iterator over the PulseList, allows peeking for a 1 pulse lookahead
-    private final PeekingIterator<Double> pulseIterator;
+    private final PeekingIterator<Long> pulseIterator;
     
     // The length of the current pulse being processed
-    private double currentPulse;
+    private long currentPulse;
     
     // First pulse level found in the block (0 or 1), used in block construction
     private int firstPulseLevel;
     
     // The data in a ROM block is terminated by an optional pulse of 945 T States,
     // If found that should be recorded here
-    private double tailLength;
+    private long tailLength;
 
     // The resolution of the underlying source in units of the target clock rate
-	private double resolution;
+	private long resolution;
 
     /**
      * Builder method to construct a series of PZXBlocks that represents the data
@@ -126,12 +126,12 @@ public final class LoaderContextImpl implements LoaderContext {
     }
 
     @Override
-    public double getSync1Length() {
+    public long getSync1Length() {
         return sync1Length;
     }
 
     @Override
-    public double getSync2Length() {
+    public long getSync2Length() {
         return sync2Length;
     }
 
@@ -149,7 +149,7 @@ public final class LoaderContextImpl implements LoaderContext {
         resetBlock();
     }
 
-    private void addPulse(Double pulseLength) {
+    private void addPulse(Long pulseLength) {
     	if(pulseLengths.isEmpty()) {
     		firstPulseLevel = currentLevel;
     	}
@@ -163,7 +163,7 @@ public final class LoaderContextImpl implements LoaderContext {
      * @param secondPulseLength the value of secondPulseLength
      */
     @Override
-    public void addZeroPulse(Double firstPulseLength, Double secondPulseLength) {
+    public void addZeroPulse(Long firstPulseLength, Long secondPulseLength) {
         addPulse(firstPulseLength);
         addPulse(secondPulseLength);
         zeroPulses.add(firstPulseLength);
@@ -197,7 +197,7 @@ public final class LoaderContextImpl implements LoaderContext {
     }
 
     @Override
-    public void addOnePulse(Double firstPulseLength, Double secondPulseLength) {
+    public void addOnePulse(Long firstPulseLength, Long secondPulseLength) {
         addPulse(firstPulseLength);
         addPulse(secondPulseLength);
         onePulses.add(firstPulseLength);
@@ -217,7 +217,7 @@ public final class LoaderContextImpl implements LoaderContext {
         
         if(isPilot) {
             newBlock = new PZXPilotBlock(getPulseListForCurrentPulses());
-            DoubleSummaryStatistics stats = getSummaryStats (pilotPulses);
+            LongSummaryStatistics stats = getSummaryStats (pilotPulses);
             Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.INFO, getSummaryText("pilot", PILOT_LENGTH, stats));
             // if average PILOT_LENGTH pulse length is not plausibly the same as standard, record this as a non-pilot block
             if(!PulseUtils.equalWithinResoution(PILOT_LENGTH, stats.getAverage(), resolution)) {
@@ -234,7 +234,7 @@ public final class LoaderContextImpl implements LoaderContext {
     }
 
     @Override
-    public void addPilotPulse(Double pulseLength) {
+    public void addPilotPulse(Long pulseLength) {
         addPulse(pulseLength);
         pilotPulses.add(pulseLength);
     }
@@ -253,9 +253,9 @@ public final class LoaderContextImpl implements LoaderContext {
         
         int numBitsInLastByte = numBitsInCurrentByte == 0  ? 8 : numBitsInCurrentByte;
         
-        DoubleSummaryStatistics zeroStats = getSummaryStats(zeroPulses);
+        LongSummaryStatistics zeroStats = getSummaryStats(zeroPulses);
 		Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.INFO, getSummaryText("zero", ZERO, zeroStats));
-        DoubleSummaryStatistics oneStats = getSummaryStats (onePulses);
+        LongSummaryStatistics oneStats = getSummaryStats (onePulses);
 		Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.INFO, getSummaryText("one", ONE, oneStats));
 
 		// TODO: use average ZERO pulse length unless idealised, actually - only create data block if average zero pulse
@@ -289,7 +289,7 @@ public final class LoaderContextImpl implements LoaderContext {
 	}
 
     @Override
-    public void addUnclassifiedPulse(Double pulseLength) {
+    public void addUnclassifiedPulse(Long pulseLength) {
         addPulse(pulseLength);
     }
 
@@ -300,7 +300,7 @@ public final class LoaderContextImpl implements LoaderContext {
         final int lastIndex = loaderResult.size()-1;
         final PZXBlock lastBlock = loaderResult.remove(lastIndex);
 		Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.FINE, "reverting block: " + lastBlock.getSummary() + "\n");
-        List<Double> newPulseLengths = new ArrayList<>(lastBlock.getPulses());
+        List<Long> newPulseLengths = new ArrayList<>(lastBlock.getPulses());
         newPulseLengths.addAll(pulseLengths);
         pulseLengths = newPulseLengths;
         firstPulseLevel = lastBlock.getFirstPulseLevel();
@@ -313,25 +313,25 @@ public final class LoaderContextImpl implements LoaderContext {
     }
 
     @Override
-    public void addSync1(Double pulseLength) {
+    public void addSync1(Long pulseLength) {
         addPulse(pulseLength);
         sync1Length = pulseLength;
     }
 
     @Override
-    public void addSync2(Double pulseLength) {
+    public void addSync2(Long pulseLength) {
         addPulse(pulseLength);
         sync2Length = pulseLength;
     }
 
     @Override
-    public void setTailLength(Double pulseLength) {
+    public void setTailLength(Long pulseLength) {
         addPulse(pulseLength);
         tailLength = pulseLength;
     }
     
     @Override
-    public double getTailLength() {
+    public long getTailLength() {
         return tailLength;
     }
     
@@ -340,8 +340,8 @@ public final class LoaderContextImpl implements LoaderContext {
      * @param data the value of data
      * @return the java.util.DoubleSummaryStatistics
      */
-    private DoubleSummaryStatistics getSummaryStats(ArrayList<Double> data) {
-        return data.stream().mapToDouble(x -> x).summaryStatistics();
+    private LongSummaryStatistics getSummaryStats(ArrayList<Long> data) {
+        return data.stream().mapToLong(x -> x).summaryStatistics();
     }
 
     /**
@@ -351,20 +351,20 @@ public final class LoaderContextImpl implements LoaderContext {
      * @param stats the value of stats
      * @return the String
      */
-    private String getSummaryText(String type, int standardPulse, DoubleSummaryStatistics stats) {
+    private String getSummaryText(String type, int standardPulse, LongSummaryStatistics stats) {
         StringBuilder retval = new StringBuilder();
-        double low = stats.getMin();
-        double high = stats.getMax();
+        long low = stats.getMin();
+        long high = stats.getMax();
         double average = stats.getAverage();
         retval.append("shortest ").append(type).append(" pulse:").append(low)
                 .append(" tstates, longest ").append(type).append(" pulse:")
                 .append(high).append(" tstates\n");
         retval.append("shortest ").append(type).append(" pulse ")
-                .append((double)low/standardPulse*100)
+                .append(String.format("%.2f", (double)low/standardPulse*100.0))
                 .append("% of expected, longest ").append(type)
-                .append(" pulse ").append((double)high/standardPulse*100)
+                .append(" pulse ").append(String.format("%.2f", (double)high/standardPulse*100.0))
                 .append("% of expected\n");
-        retval.append("average ").append(type).append(" pulse:").append(average)
+        retval.append("average ").append(type).append(" pulse:").append(String.format("%.2f", average))
                 .append("\n");
         return retval.toString();
     }
@@ -388,12 +388,12 @@ public final class LoaderContextImpl implements LoaderContext {
     }
 
     @Override
-    public Double peekNextPulse() {
+    public Long peekNextPulse() {
         return this.pulseIterator.peek();
     }
 
     @Override
-    public double getCurrentPulse() {
+    public long getCurrentPulse() {
         return this.currentPulse;
     }
 
@@ -403,7 +403,7 @@ public final class LoaderContextImpl implements LoaderContext {
     }
 
     @Override
-    public double getNextPulse() {
+    public long getNextPulse() {
         this.currentPulse = this.pulseIterator.next();
         this.currentLevel = this.currentLevel == 0 ? 1 : 0;
         return this.currentPulse;
@@ -421,7 +421,7 @@ public final class LoaderContextImpl implements LoaderContext {
      * Get a copy of the current list of pulses in the block being built
      * @return a copy of the current list of pulses
      */
-    public List<Double> getPulseLengths() {
+    public List<Long> getPulseLengths() {
         return new ArrayList<>(pulseLengths);
     }
 
@@ -429,7 +429,7 @@ public final class LoaderContextImpl implements LoaderContext {
      * Get a copy of the current list of zero bit pulses in the block being built
      * @return a copy of the current list of zero bit pulses
      */
-    public List<Double> getZeroPulses() {
+    public List<Long> getZeroPulses() {
         return new ArrayList<>(zeroPulses);
     }
 
@@ -453,7 +453,7 @@ public final class LoaderContextImpl implements LoaderContext {
      * Get a copy of the current list of one bit pulses in the block being built
      * @return a copy of the current list of zero bit pulses
      */
-    public List<Double> getOnePulses() {
+    public List<Long> getOnePulses() {
         return new ArrayList<>(onePulses);
     }
 
@@ -461,7 +461,7 @@ public final class LoaderContextImpl implements LoaderContext {
      * Get a copy of the current list of pilot pulses in the block being built
      * @return a copy of the current list of pilot pulses
      */
-    public List<Double> getPilotPulses() {
+    public List<Long> getPilotPulses() {
         return new ArrayList<>(pilotPulses);
     }
     
@@ -474,7 +474,7 @@ public final class LoaderContextImpl implements LoaderContext {
     }
 
 	@Override
-	public double getResolution() {
+	public long getResolution() {
 		return this.resolution;
 	}    
     

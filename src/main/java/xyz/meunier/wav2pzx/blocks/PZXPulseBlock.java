@@ -63,7 +63,7 @@ public final class PZXPulseBlock implements PZXBlock {
     }
 
     @Override
-    public List<Double> getPulses() {
+    public List<Long> getPulses() {
         return pulseList.getPulseLengths();
     }
 
@@ -79,7 +79,7 @@ public final class PZXPulseBlock implements PZXBlock {
    	 */
 	public static byte[] getPZXBlockDiskRepresentation(PulseList pulseList) {
 		// iterate through the pulse array doing a run length encoding of the number of repeated values
-        PeekingIterator<Double> iterator = Iterators.peekingIterator(pulseList.getPulseLengths().iterator());
+        PeekingIterator<Long> iterator = Iterators.peekingIterator(pulseList.getPulseLengths().iterator());
         int count;
         // We will probably have a similar number of bytes output as source pulses * 2 16 bit values
         ArrayList<Byte> output = new ArrayList<>(pulseList.getPulseLengths().size()*4);
@@ -92,9 +92,9 @@ public final class PZXPulseBlock implements PZXBlock {
 
         // RLE the pulses found in the block for encoding
         while(iterator.hasNext()) {
-            long pulse = Math.round(iterator.next());
+            long pulse = iterator.next();
             count = 1;
-            while(iterator.hasNext() && Math.round(iterator.peek()) == pulse) { 
+            while(iterator.hasNext() && iterator.peek() == pulse) { 
                 iterator.next();
                 count += 1;
             }

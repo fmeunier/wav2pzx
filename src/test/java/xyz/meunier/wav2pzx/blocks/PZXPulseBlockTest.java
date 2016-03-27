@@ -42,7 +42,7 @@ import static org.junit.Assert.*;
  */
 public class PZXPulseBlockTest {
 
-    private static final PulseList PULSES = new PulseList(Arrays.asList(200.0, 200.0, 300.0), 1, 1);
+    private static final PulseList PULSES = new PulseList(Arrays.asList(200L, 200L, 300L), 1, 1);
 	private PZXPulseBlock pulseBlock;
     
     public PZXPulseBlockTest() {
@@ -64,8 +64,8 @@ public class PZXPulseBlockTest {
     @Test
     public void testGetPulses() {
         System.out.println("getPulses");
-        Collection<Double> expResult = Arrays.asList(200.0, 200.0, 300.0);
-        Collection<Double> result = pulseBlock.getPulses();
+        Collection<Long> expResult = Arrays.asList(200L, 200L, 300L);
+        Collection<Long> result = pulseBlock.getPulses();
         assertEquals(expResult, result);
     }
 
@@ -118,7 +118,7 @@ public class PZXPulseBlockTest {
     @Test
     public void testToString() {
         System.out.println("toString");
-        String expResult = "PZXPulseBlock [pulseList=PulseList [pulseLengths.size()=3, firstPulseLevel=1, resolution=1.0]]";
+        String expResult = "PZXPulseBlock [pulseList=PulseList [pulseLengths.size()=3, firstPulseLevel=1, resolution=1]]";
         String result = pulseBlock.toString();
         assertEquals(expResult, result);
     }

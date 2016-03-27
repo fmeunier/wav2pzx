@@ -32,25 +32,25 @@ package xyz.meunier.wav2pzx;
 public final class MockLoaderContext implements LoaderContext {
 
     private int bit;
-    private Double lastSecondOnePulse;
-    private Double lastPilotPulse;
-    private Double lastSync1Length;
-    private Double lastSync2Length;
-    private Double lastUnclassifiedPulse;
-    private Double lastSecondZeroPulse;
+    private Long lastSecondOnePulse;
+    private Long lastPilotPulse;
+    private Long lastSync1Length;
+    private Long lastSync2Length;
+    private Long lastUnclassifiedPulse;
+    private Long lastSecondZeroPulse;
     private boolean calledCompleteDataBlock;
     private boolean lastIsPilot;
     private boolean calledCompletePulseBlock;
     private int lastNumPilotPulses;
-    private double lastTailLength;
+    private Long lastTailLength;
     private boolean calledResetBlock;
     private boolean calledRevertCurrentBlock;
-    private double currentPulse;
+    private Long currentPulse;
     private int currentPulseLevel;
-    private Double nextPulseLevel;
+    private Long nextPulseLevel;
     private boolean hasNextPulse;
-    private Double lastFirstZeroPulse;
-    private Double lastFirstOnePulse;
+    private Long lastFirstZeroPulse;
+    private Long lastFirstOnePulse;
 
     public MockLoaderContext() {
         resetFields();
@@ -58,24 +58,24 @@ public final class MockLoaderContext implements LoaderContext {
 
     public void resetFields() {
         this.bit = 0;
-        this.lastFirstOnePulse = Double.NaN;
-        this.lastSecondOnePulse = Double.NaN;
-        this.lastPilotPulse = Double.NaN;
-        this.lastSync1Length = Double.NaN;
-        this.lastSync2Length = Double.NaN;
-        this.lastUnclassifiedPulse = Double.NaN;
-        this.lastFirstZeroPulse = Double.NaN;
-        this.lastSecondZeroPulse = Double.NaN;
+        this.lastFirstOnePulse = Long.MIN_VALUE;
+        this.lastSecondOnePulse = Long.MIN_VALUE;
+        this.lastPilotPulse = Long.MIN_VALUE;
+        this.lastSync1Length = Long.MIN_VALUE;
+        this.lastSync2Length = Long.MIN_VALUE;
+        this.lastUnclassifiedPulse = Long.MIN_VALUE;
+        this.lastFirstZeroPulse = Long.MIN_VALUE;
+        this.lastSecondZeroPulse = Long.MIN_VALUE;
         this.calledCompleteDataBlock = false;
         this.lastIsPilot = false;
         this.calledCompletePulseBlock = false;
         this.lastNumPilotPulses = Integer.MIN_VALUE;
-        this.lastTailLength = Double.NaN;
+        this.lastTailLength = Long.MIN_VALUE;
         this.calledResetBlock = false;
         this.calledRevertCurrentBlock = false;
-        this.currentPulse = Double.NaN;
+        this.currentPulse = Long.MIN_VALUE;
         this.currentPulseLevel = Integer.MIN_VALUE;
-        this.nextPulseLevel = Double.NaN;
+        this.nextPulseLevel = Long.MIN_VALUE;
         this.hasNextPulse = false;
     }
 
@@ -83,27 +83,27 @@ public final class MockLoaderContext implements LoaderContext {
         return bit;
     }
 
-    public Double getLastFirstOnePulse() {
+    public Long getLastFirstOnePulse() {
         return lastFirstOnePulse;
     }
 
-    public Double getLastSecondOnePulse() {
+    public Long getLastSecondOnePulse() {
         return lastSecondOnePulse;
     }
 
-    public Double getLastPilotPulse() {
+    public Long getLastPilotPulse() {
         return lastPilotPulse;
     }
 
-    public Double getLastUnclassifiedPulse() {
+    public Long getLastUnclassifiedPulse() {
         return lastUnclassifiedPulse;
     }
 
-    public Double getLastFirstZeroPulse() {
+    public Long getLastFirstZeroPulse() {
         return lastFirstZeroPulse;
     }
 
-    public Double getLastSecondZeroPulse() {
+    public Long getLastSecondZeroPulse() {
         return lastSecondZeroPulse;
     }
 
@@ -134,29 +134,29 @@ public final class MockLoaderContext implements LoaderContext {
      * @param secondPulseLength the value of secondPulseLength
      */
     @Override
-    public void addOnePulse(Double firstPulseLength, Double secondPulseLength) {
+    public void addOnePulse(Long firstPulseLength, Long secondPulseLength) {
         this.lastFirstOnePulse = firstPulseLength;
         this.lastSecondOnePulse = secondPulseLength;
 
     }
 
     @Override
-    public void addPilotPulse(Double pulseLength) {
+    public void addPilotPulse(Long pulseLength) {
         this.lastPilotPulse = pulseLength;
     }
 
     @Override
-    public void addSync1(Double pulseLength) {
+    public void addSync1(Long pulseLength) {
         this.lastSync1Length = pulseLength;
     }
 
     @Override
-    public void addSync2(Double pulseLength) {
+    public void addSync2(Long pulseLength) {
         this.lastSync2Length = pulseLength;
     }
 
     @Override
-    public void addUnclassifiedPulse(Double pulseLength) {
+    public void addUnclassifiedPulse(Long pulseLength) {
         this.lastUnclassifiedPulse = pulseLength;
     }
 
@@ -166,7 +166,7 @@ public final class MockLoaderContext implements LoaderContext {
      * @param secondPulseLength the value of secondPulseLength
      */
     @Override
-    public void addZeroPulse(Double firstPulseLength, Double secondPulseLength) {
+    public void addZeroPulse(Long firstPulseLength, Long secondPulseLength) {
         this.lastFirstZeroPulse = firstPulseLength;
         this.lastSecondZeroPulse = secondPulseLength;
     }
@@ -188,17 +188,17 @@ public final class MockLoaderContext implements LoaderContext {
     }
 
     @Override
-    public double getSync1Length() {
+    public long getSync1Length() {
         return this.lastSync1Length;
     }
 
     @Override
-    public double getSync2Length() {
+    public long getSync2Length() {
         return this.lastSync2Length;
     }
 
     @Override
-    public double getTailLength() {
+    public long getTailLength() {
         return this.lastTailLength;
     }
 
@@ -213,7 +213,7 @@ public final class MockLoaderContext implements LoaderContext {
     }
 
     @Override
-    public void setTailLength(Double pulseLength) {
+    public void setTailLength(Long pulseLength) {
         this.lastTailLength = pulseLength;
     }
     
@@ -226,11 +226,11 @@ public final class MockLoaderContext implements LoaderContext {
     }
 
     @Override
-    public double getCurrentPulse() {
+    public long getCurrentPulse() {
         return this.currentPulse;
     }
 
-    public void setCurrentPulse(double currentPulse) {
+    public void setCurrentPulse(long currentPulse) {
         this.currentPulse = currentPulse;
     }
     
@@ -244,11 +244,11 @@ public final class MockLoaderContext implements LoaderContext {
     }
     
     @Override
-    public Double peekNextPulse() {
+    public Long peekNextPulse() {
         return this.nextPulseLevel;
     }
 
-    public void setNextPulse(Double nextPulseLevel) {
+    public void setNextPulse(Long nextPulseLevel) {
         this.nextPulseLevel = nextPulseLevel;
     }
     
@@ -262,12 +262,12 @@ public final class MockLoaderContext implements LoaderContext {
     }
     
     @Override
-    public double getNextPulse() {
+    public long getNextPulse() {
         return this.nextPulseLevel;
     }
 
 	@Override
-	public double getResolution() {
+	public long getResolution() {
 		return 1;
 	}
 }

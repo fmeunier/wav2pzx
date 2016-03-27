@@ -192,7 +192,7 @@ public enum LoaderState {
                 return handleOptionalTailPulse(context);
             }
             
-            double nextPulseLength = context.peekNextPulse();
+            long nextPulseLength = context.peekNextPulse();
             
             if( PulseUtils.equalWithinResoution(context.getCurrentPulse(), LoaderContext.ZERO, context.getResolution()) &&
             	 PulseUtils.equalWithinResoution(nextPulseLength, LoaderContext.ZERO, context.getResolution())) {
@@ -265,8 +265,8 @@ public enum LoaderState {
      * @param fromState the initial state
      * @param toState the terminal state
      */
-    protected void logTransition(Double currentPulse, LoaderState fromState, LoaderState toState) {
-        String message = String.format("%12s -> %12s: %f", fromState, toState, currentPulse);
+    protected void logTransition(Long currentPulse, LoaderState fromState, LoaderState toState) {
+        String message = String.format("%12s -> %12s: %d", fromState, toState, currentPulse);
         Logger.getLogger(LoaderState.class.getName()).log(Level.FINE, message);
     }
 }

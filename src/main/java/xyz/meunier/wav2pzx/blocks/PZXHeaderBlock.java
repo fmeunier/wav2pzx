@@ -72,7 +72,7 @@ public final class PZXHeaderBlock implements PZXBlock {
     }
 
     @Override
-    public List<Double> getPulses() {
+    public List<Long> getPulses() {
         return Collections.emptyList();
     }
 

@@ -37,7 +37,7 @@ public final class PulseList {
     /**
      * The pulses
      */
-    private final ImmutableList<Double> pulseLengths;
+    private final ImmutableList<Long> pulseLengths;
     
     /**
      * The level of the first pulse of the sequence
@@ -47,13 +47,13 @@ public final class PulseList {
     /**
      * The resolution of each pulse in T-states (error is up to 2 samples)
      */
-    private final double resolution;
+    private final long resolution;
     
     /**
      * Get the list of pulses that comprise the tape
      * @return an immutable list of the pulses for the tape
      */
-    public ImmutableList<Double> getPulseLengths() {
+    public ImmutableList<Long> getPulseLengths() {
         return pulseLengths;
     }
 
@@ -69,7 +69,7 @@ public final class PulseList {
      * Get the resolution of each pulse in T-states (error is up to 2 samples)
      * @return the resolution of each pulse in T-states (error is up to 2 samples)
      */
-    public double getResolution() {
+    public long getResolution() {
 		return resolution;
 	}
 
@@ -82,7 +82,7 @@ public final class PulseList {
      * @throws IllegalArgumentException if the supplied list is empty
      * @throws IllegalArgumentException if firstPulseLevel is not 0 or 1
      */
-    public PulseList(Iterable<Double> pulseLengths, int firstPulseLevel, double resolution) {
+    public PulseList(Iterable<Long> pulseLengths, int firstPulseLevel, long resolution) {
         checkNotNull(pulseLengths, "pulseLengths must not be null");
         checkArgument(firstPulseLevel == 0 || firstPulseLevel == 1, "firstPulseLevel must be 0 or 1");
         this.pulseLengths = ImmutableList.copyOf(checkNotNull(pulseLengths));

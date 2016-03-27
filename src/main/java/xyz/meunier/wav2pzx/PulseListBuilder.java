@@ -38,7 +38,7 @@ import static com.google.common.base.Preconditions.checkState;
  */
 public final class PulseListBuilder {
 
-    private final Collection<Double> pulseLengths;
+    private final Collection<Long> pulseLengths;
     private int firstPulseLevel;
     private int lastSampleLevel;
     private boolean gotFirstSample;
@@ -110,7 +110,7 @@ public final class PulseListBuilder {
             currentPulseDuration += tStatesPerSample;
         } else {
             // Close current pulse and start accumulating new pulse
-            pulseLengths.add(currentPulseDuration);
+            pulseLengths.add(Math.round(currentPulseDuration));
             currentPulseDuration = tStatesPerSample;
             lastSampleLevel = newLevel;
         }
@@ -130,9 +130,9 @@ public final class PulseListBuilder {
         }
         
         // Close current pulse and mark list as being complete
-        pulseLengths.add(currentPulseDuration);
+        pulseLengths.add(Math.round(currentPulseDuration));
         tapeComplete = true;
-        pulseList = new PulseList(pulseLengths, firstPulseLevel, tStatesPerSample*8);
+        pulseList = new PulseList(pulseLengths, firstPulseLevel, Math.round(tStatesPerSample*8));
         
         return pulseList;
     }

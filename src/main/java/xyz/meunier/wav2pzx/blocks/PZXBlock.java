@@ -49,7 +49,7 @@ public interface PZXBlock {
      * Return a sequence of pulses corresponding to the tape block
      * @return A sequence of pulses corresponding to the tape block
      */
-    List<Double> getPulses();
+    List<Long> getPulses();
 
     /**
      * @return the level (0 or 1) for the first pulse in the block

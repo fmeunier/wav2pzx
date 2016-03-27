@@ -73,8 +73,8 @@ public class PZXHeaderBlockTest {
     public void testGetPulses() {
         System.out.println("getPulses");
         PZXHeaderBlock instance = new PZXHeaderBlock();
-        Collection<Double> expResult = new ArrayList<>();
-        Collection<Double> result = instance.getPulses();
+        Collection<Long> expResult = new ArrayList<>();
+        Collection<Long> result = instance.getPulses();
         assertEquals(expResult, result);
     }
 

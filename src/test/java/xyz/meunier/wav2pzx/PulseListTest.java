@@ -45,10 +45,10 @@ public class PulseListTest {
     @Test
     public void testGetPulseLengths() {
         System.out.println("getPulseLengths");
-        List<Double> pulses = Arrays.asList(200.0, 300.0);
+        List<Long> pulses = Arrays.asList(200L, 300L);
         PulseList instance = new PulseList(pulses, 1, 1);
-        List<Double> expResult = pulses;
-        List<Double> result = instance.getPulseLengths();
+        List<Long> expResult = pulses;
+        List<Long> result = instance.getPulseLengths();
         assertEquals(expResult, result);
     }
 
@@ -58,7 +58,7 @@ public class PulseListTest {
     @Test
     public void testGetFirstPulseLevel() {
         System.out.println("getFirstPulseLevel");
-        List<Double> pulses = Arrays.asList(200.0, 300.0);
+        List<Long> pulses = Arrays.asList(200L, 300L);
         PulseList instance = new PulseList(pulses, 0, 1);
         int expResult = 0;
         int result = instance.getFirstPulseLevel();

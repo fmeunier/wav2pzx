@@ -27,6 +27,7 @@ package xyz.meunier.wav2pzx.blocks;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.LongSummaryStatistics;
 
 import xyz.meunier.wav2pzx.LoaderContext;
 import xyz.meunier.wav2pzx.PulseList;
@@ -53,10 +54,10 @@ public final class PZXPilotBlock implements PZXBlock {
 	private final PulseList pulses;
 	
     // The length of the SYNC1 pulse found on tape
-    private final double sync1Length;
+    private final long sync1Length;
     
     // The length of the SYNC2 pulse found on tape
-    private final double sync2Length;
+    private final long sync2Length;
 
     /**
      * Constructor for the PZXPilotBlock.
@@ -68,7 +69,7 @@ public final class PZXPilotBlock implements PZXBlock {
         checkNotNull(newPulses, "newPulses must not be null");
         checkArgument(newPulses.getPulseLengths().size() > 2, "newPulses needs at least 3 pulses");
         this.pulses = newPulses;
-        List<Double> pulses = getPulses();
+        List<Long> pulses = getPulses();
 		this.sync1Length = pulses.get(pulses.size() - 2);
         this.sync2Length = pulses.get(pulses.size() - 1);
     }
@@ -96,10 +97,18 @@ public final class PZXPilotBlock implements PZXBlock {
     public String getSummary() {
         StringBuilder retval = new StringBuilder();
 
+        LongSummaryStatistics stats = 
+        		pulses.getPulseLengths()
+        			.subList(0, pulses.getPulseLengths().size() - 2)
+        			.stream().mapToLong(x -> x).summaryStatistics();
+        
+        retval.append("Average pilot pulse:").append(Math.round(stats.getAverage())).append(" tstates, ")
+        		.append(String.format("%.2f", stats.getAverage()/LoaderContext.PILOT_LENGTH*100.0)).append("% of expected\n");
+        
         retval.append("Sync1 pulse:").append(sync1Length).append(" tstates, ")
-                .append((double)sync1Length/SYNC1*100).append("% of expected\n");
+                .append(String.format("%.2f", (double)sync1Length/SYNC1*100.0)).append("% of expected\n");
         retval.append("Sync2 pulse:").append(sync2Length).append(" tstates, ")
-                .append((double)sync2Length/SYNC2*100).append("% of expected\n");
+                .append(String.format("%.2f", (double)sync2Length/SYNC2*100.0)).append("% of expected\n");
 
         retval.append(pulses.toString());
 
@@ -137,7 +146,7 @@ public final class PZXPilotBlock implements PZXBlock {
 	}
 
 	@Override
-	public List<Double> getPulses() {
+	public List<Long> getPulses() {
 		return pulses.getPulseLengths();
 	}
 

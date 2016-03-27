@@ -34,7 +34,6 @@ import static xyz.meunier.wav2pzx.LoaderState.*;
  * @author Fredrick Meunier
  */
 public class LoaderStateTest {
-    private static final double TOLERANCE = 0.001;
 
     public LoaderStateTest() {
     }
@@ -88,194 +87,194 @@ public class LoaderStateTest {
         MockLoaderContext context = new MockLoaderContext();
 
         //logTransition(pulseLength, INITIAL, FIND_PILOT);
-        context.setCurrentPulse(2100.0);
+        context.setCurrentPulse(2100);
         LoaderState instance = LoaderState.INITIAL;
         LoaderState expResult = LoaderState.FIND_PILOT;
         LoaderState result = instance.nextState(context);
         assertEquals(expResult, result);
         assertTrue(context.isCalledCompletePulseBlock());
         assertFalse(context.isLastIsPilot());
-        assertEquals(context.getCurrentPulse(), context.getLastPilotPulse(), TOLERANCE);
+        assertEquals(context.getCurrentPulse(), context.getLastPilotPulse().longValue());
 
         //logTransition(pulseLength, INITIAL, INITIAL);
         context.resetFields();
-        context.setCurrentPulse(3500.0);
+        context.setCurrentPulse(3500);
         instance = LoaderState.INITIAL;
         expResult = LoaderState.INITIAL;
         result = instance.nextState(context);
         assertEquals(expResult, result);
         assertFalse(context.isCalledCompletePulseBlock());
-        assertEquals(context.getCurrentPulse(), context.getLastUnclassifiedPulse(), TOLERANCE);
+        assertEquals(context.getCurrentPulse(), context.getLastUnclassifiedPulse().longValue());
         
         //logTransition(pulseLength, FIND_PILOT, INITIAL);
         context.resetFields();
-        context.setCurrentPulse(3500.0);
+        context.setCurrentPulse(3500);
         instance = LoaderState.FIND_PILOT;
         expResult = LoaderState.INITIAL;
         result = instance.nextState(context);
         assertEquals(expResult, result);
         assertTrue(context.isCalledRevertCurrentBlock());
-        assertEquals(context.getCurrentPulse(), context.getLastUnclassifiedPulse(), TOLERANCE);
+        assertEquals(context.getCurrentPulse(), context.getLastUnclassifiedPulse().longValue());
         
         //logTransition(pulseLength, FIND_PILOT, FIND_SYNC1);
         context.resetFields();
         context.setNumPilotPulses(LoaderContext.MIN_PILOT_COUNT);
-        context.setCurrentPulse(2100.0);
+        context.setCurrentPulse(2100);
         instance = LoaderState.FIND_PILOT;
         expResult = LoaderState.FIND_SYNC1;
         result = instance.nextState(context);
         assertEquals(expResult, result);
         assertFalse(context.isCalledRevertCurrentBlock());
-        assertEquals(context.getCurrentPulse(), context.getLastPilotPulse(), TOLERANCE);
+        assertEquals(context.getCurrentPulse(), context.getLastPilotPulse().longValue());
         
         //logTransition(pulseLength, FIND_PILOT, FIND_PILOT);
         context.resetFields();
         context.setNumPilotPulses(1);
-        context.setCurrentPulse(2100.0);
+        context.setCurrentPulse(2100L);
         instance = LoaderState.FIND_PILOT;
         expResult = LoaderState.FIND_PILOT;
         result = instance.nextState(context);
         assertEquals(expResult, result);
-        assertEquals(context.getCurrentPulse(), context.getLastPilotPulse(), TOLERANCE);        
+        assertEquals(context.getCurrentPulse(), context.getLastPilotPulse().longValue());        
         
         //logTransition(pulseLength, FIND_SYNC1, INITIAL);
         context.resetFields();
         context.setNumPilotPulses(1);
-        context.setCurrentPulse(LoaderContextImpl.SYNC_TOTAL_MAX + 1.0);
+        context.setCurrentPulse(LoaderContextImpl.SYNC_TOTAL_MAX + 1);
         instance = LoaderState.FIND_SYNC1;
         expResult = LoaderState.INITIAL;
         result = instance.nextState(context);
         assertEquals(expResult, result);
         assertTrue("Block was reverted", context.isCalledRevertCurrentBlock());
         assertFalse(context.isLastIsPilot());
-        assertEquals(context.getCurrentPulse(), context.getLastUnclassifiedPulse(), TOLERANCE);
-        assertNotEquals(context.getCurrentPulse(), context.getLastPilotPulse(), TOLERANCE);        
+        assertEquals(context.getCurrentPulse(), context.getLastUnclassifiedPulse().longValue());
+        assertNotEquals(context.getCurrentPulse(), context.getLastPilotPulse().longValue());        
         
         //logTransition(pulseLength, FIND_SYNC1, GET_SYNC2);
         context.resetFields();
-        context.setCurrentPulse((double)LoaderContextImpl.SYNC1_MAX);
+        context.setCurrentPulse(LoaderContextImpl.SYNC1_MAX);
         instance = LoaderState.FIND_SYNC1;
         expResult = LoaderState.GET_SYNC2;
         result = instance.nextState(context);
         assertEquals(expResult, result);
         assertFalse(context.isCalledCompletePulseBlock());
-        assertEquals(context.getCurrentPulse(), context.getSync1Length(), TOLERANCE);
+        assertEquals(context.getCurrentPulse(), context.getSync1Length());
         
         //logTransition(pulseLength, FIND_SYNC1, FIND_SYNC1);
         context.resetFields();
-        context.setCurrentPulse(2500.0);
+        context.setCurrentPulse(2500);
         instance = LoaderState.FIND_SYNC1;
         expResult = LoaderState.FIND_SYNC1;
         result = instance.nextState(context);
         assertEquals(expResult, result);
         assertFalse(context.isCalledCompletePulseBlock());
-        assertEquals(context.getCurrentPulse(), context.getLastPilotPulse(), TOLERANCE);
+        assertEquals(context.getCurrentPulse(), context.getLastPilotPulse().longValue());
 
         //logTransition(pulseLength, GET_SYNC2, GET_DATA);
         context.resetFields();
-        context.addSync1((double)LoaderContext.SYNC1);
-        context.setCurrentPulse((double)LoaderContext.SYNC2);
+        context.addSync1((long)LoaderContext.SYNC1);
+        context.setCurrentPulse((long)LoaderContext.SYNC2);
         instance = LoaderState.GET_SYNC2;
         expResult = LoaderState.GET_DATA;
         result = instance.nextState(context);
         assertEquals(expResult, result);
-        assertEquals(context.getCurrentPulse(), context.getSync2Length(), TOLERANCE);
+        assertEquals(context.getCurrentPulse(), context.getSync2Length());
 
         //logTransition(pulseLength, GET_SYNC2, INITIAL);
         context.resetFields();
-        context.addSync1((double)LoaderContext.SYNC1);
-        context.setCurrentPulse((double)LoaderContext.SYNC_TOTAL_MAX);
+        context.addSync1((long)LoaderContext.SYNC1);
+        context.setCurrentPulse((long)LoaderContext.SYNC_TOTAL_MAX);
         instance = LoaderState.GET_SYNC2;
         expResult = LoaderState.INITIAL;
         result = instance.nextState(context);
         assertEquals(expResult, result);
         assertTrue("Failure to get SYNC2 results in block being reverted", context.isCalledRevertCurrentBlock());
         assertFalse("Block is expected to be a plain pulse block, not a pilot block", context.isLastIsPilot());
-        assertNotEquals(context.getCurrentPulse(), context.getSync2Length(), TOLERANCE);
-        assertEquals(context.getCurrentPulse(), context.getLastUnclassifiedPulse(), TOLERANCE);
+        assertNotEquals(context.getCurrentPulse(), context.getSync2Length());
+        assertEquals(context.getCurrentPulse(), context.getLastUnclassifiedPulse().longValue());
 
         //logTransition(pulseLength, GET_DATA, GET_DATA);
         // Seven cases:
         // 1: the current pulse was not a tail pulse and there is no next pulse
         context.resetFields();
-        context.setCurrentPulse(LoaderContext.PILOT_MAX + 1.0);
+        context.setCurrentPulse(LoaderContext.PILOT_MAX + 1);
         context.setHasNextPulse(false);
         instance = LoaderState.GET_DATA;
         expResult = LoaderState.INITIAL;
         result = instance.nextState(context);
         assertEquals(expResult, result);
-        assertEquals(context.getCurrentPulse(), context.getLastUnclassifiedPulse(), TOLERANCE);
+        assertEquals(context.getCurrentPulse(), context.getLastUnclassifiedPulse().longValue());
         assertTrue(context.isCalledCompleteDataBlock());
 
         // 2: the current pulse was not a tail pulse and there is no next pulse
         context.resetFields();
-        context.setCurrentPulse(LoaderContext.PILOT_MAX + 1.0);
+        context.setCurrentPulse(LoaderContext.PILOT_MAX + 1);
         context.setHasNextPulse(false);
         instance = LoaderState.GET_DATA;
         expResult = LoaderState.INITIAL;
         result = instance.nextState(context);
         assertEquals(expResult, result);
-        assertEquals(context.getCurrentPulse(), context.getLastUnclassifiedPulse(), TOLERANCE);
+        assertEquals(context.getCurrentPulse(), context.getLastUnclassifiedPulse().longValue());
         assertTrue(context.isCalledCompleteDataBlock());
 
         // 3: current pulse is a zero pulse and next pulse is also a zero pulse so we have a zero bit
         context.resetFields();
-        context.setNextPulse((double)LoaderContext.ZERO);
+        context.setNextPulse((long)LoaderContext.ZERO);
         context.setHasNextPulse(true);
-        context.setCurrentPulse((double)LoaderContext.ZERO);
+        context.setCurrentPulse((long)LoaderContext.ZERO);
         instance = LoaderState.GET_DATA;
         expResult = LoaderState.GET_DATA;
         result = instance.nextState(context);
         assertEquals(expResult, result);
-        assertEquals(context.getCurrentPulse(), context.getLastFirstZeroPulse(), TOLERANCE);
-        assertEquals(context.getNextPulse(), context.getLastSecondZeroPulse(), TOLERANCE);
+        assertEquals(context.getCurrentPulse(), context.getLastFirstZeroPulse().longValue());
+        assertEquals(context.getNextPulse(), context.getLastSecondZeroPulse().longValue());
 
         // 4: current pulse is a one pulse and next pulse is also a one pulse so we have a one bit
         context.resetFields();
-        context.setNextPulse((double)LoaderContext.ONE);
+        context.setNextPulse((long)LoaderContext.ONE);
         context.setHasNextPulse(true);
-        context.setCurrentPulse((double)LoaderContext.ONE);
+        context.setCurrentPulse((long)LoaderContext.ONE);
         instance = LoaderState.GET_DATA;
         expResult = LoaderState.GET_DATA;
         result = instance.nextState(context);
         assertEquals(expResult, result);
-        assertEquals(context.getCurrentPulse(), context.getLastFirstOnePulse(), TOLERANCE);
-        assertEquals(context.getNextPulse(), context.getLastSecondOnePulse(), TOLERANCE);
+        assertEquals(context.getCurrentPulse(), context.getLastFirstOnePulse().longValue());
+        assertEquals(context.getNextPulse(), context.getLastSecondOnePulse().longValue());
         
         // 5: the current pulse was not a tail pulse and the next was a pilot pulse
         context.resetFields();
-        context.setCurrentPulse(LoaderContext.PILOT_MAX + 1.0);
+        context.setCurrentPulse(LoaderContext.PILOT_MAX + 1);
         context.setHasNextPulse(true);
-        context.setNextPulse(2500.0);
+        context.setNextPulse(2500L);
         instance = LoaderState.GET_DATA;
         expResult = LoaderState.INITIAL;
         result = instance.nextState(context);
         assertEquals(expResult, result);
-        assertEquals(context.getCurrentPulse(), context.getLastUnclassifiedPulse(), TOLERANCE);
+        assertEquals(context.getCurrentPulse(), context.getLastUnclassifiedPulse().longValue());
         assertTrue(context.isCalledCompleteDataBlock());
 
         // 6: the current pulse was not a tail pulse and the next was not a pilot pulse
         context.resetFields();
-        context.setCurrentPulse(LoaderContext.PILOT_MAX + 1.0);
+        context.setCurrentPulse(LoaderContext.PILOT_MAX + 1);
         context.setHasNextPulse(true);
-        context.setNextPulse(LoaderContext.PILOT_MAX + 1.0);
+        context.setNextPulse(LoaderContext.PILOT_MAX + 1L);
         instance = LoaderState.GET_DATA;
         expResult = LoaderState.INITIAL;
         result = instance.nextState(context);
         assertEquals(expResult, result);
-        assertEquals(context.getCurrentPulse(), context.getLastUnclassifiedPulse(), TOLERANCE);
+        assertEquals(context.getCurrentPulse(), context.getLastUnclassifiedPulse().longValue());
         assertTrue(context.isCalledCompleteDataBlock());
 
         // 7: the current pulse was a tail pulse
         context.resetFields();
         context.setCurrentPulse(LoaderContext.TAIL);
         context.setHasNextPulse(true);
-        context.setNextPulse((double)LoaderContext.DATA_TOTAL_MAX + 1.0);
+        context.setNextPulse(LoaderContext.DATA_TOTAL_MAX + 1L);
         instance = LoaderState.GET_DATA;
         expResult = LoaderState.INITIAL;
         result = instance.nextState(context);
         assertEquals(expResult, result);
-        assertEquals(context.getCurrentPulse(), context.getTailLength(), TOLERANCE);
+        assertEquals(context.getCurrentPulse(), context.getTailLength());
         assertTrue(context.isCalledCompleteDataBlock());
     }
 

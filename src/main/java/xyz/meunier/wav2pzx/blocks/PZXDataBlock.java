@@ -61,7 +61,7 @@ public final class PZXDataBlock implements PZXBlock {
     private final PulseList pulses;
     
     // The length of the tail pulse identified in the source file
-    private final double tailLength;
+    private final long tailLength;
     
     // The decoded data for the data block
     private final byte[] data;
@@ -87,7 +87,7 @@ public final class PZXDataBlock implements PZXBlock {
      * @throws NullPointerException if newPulses or data is null
      * @throws IllegalArgumentException if data is empty
      */
-    public PZXDataBlock(PulseList newPulses, double tailLength, int numBitsInLastByte, 
+    public PZXDataBlock(PulseList newPulses, long tailLength, int numBitsInLastByte, 
             			Collection<Byte> data) {
         checkNotNull(newPulses, "newPulses must not be null");
         checkNotNull(data, "data must not be null");
@@ -165,7 +165,7 @@ public final class PZXDataBlock implements PZXBlock {
         putUnsignedLittleEndianInt(count, output);
         
         // use standard duration tail pulse after last bit of the block if we found one
-        putUnsignedLittleEndianShort(tailLength == 0.0 ? 0 : LoaderContext.TAIL, output);
+        putUnsignedLittleEndianShort(tailLength == 0 ? 0 : LoaderContext.TAIL, output);
         
         putUnsignedByte((byte)2, output); // number of pulses encoding bit equal to 0.
         putUnsignedByte((byte)2, output); // number of pulses encoding bit equal to 1.
@@ -229,9 +229,9 @@ public final class PZXDataBlock implements PZXBlock {
                             this.calculatedChecksum ) );
         
         retval.append("Tail pulse:");
-        if(tailLength != 0.0) {
+        if(tailLength != 0) {
             retval.append(tailLength).append(" tstates, ")
-                .append((double)tailLength/LoaderContext.TAIL*100).append("% of expected\n");
+                .append(Math.round((double)tailLength/LoaderContext.TAIL*100.0)).append("% of expected\n");
         } else {
             retval.append(" None\n");
         }
@@ -270,9 +270,8 @@ public final class PZXDataBlock implements PZXBlock {
 		result = prime * result + Arrays.hashCode(data);
 		result = prime * result + numBitsInLastByte;
 		result = prime * result + ((pulses == null) ? 0 : pulses.hashCode());
-		long temp;
-		temp = Double.doubleToLongBits(tailLength);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + suppliedChecksum;
+		result = prime * result + (int) (tailLength ^ (tailLength >>> 32));
 		return result;
 	}
 
@@ -294,7 +293,7 @@ public final class PZXDataBlock implements PZXBlock {
 				return false;
 		} else if (!pulses.equals(other.pulses))
 			return false;
-		if (Double.doubleToLongBits(tailLength) != Double.doubleToLongBits(other.tailLength))
+		if (tailLength != other.tailLength)
 			return false;
 		return true;
 	}
@@ -314,7 +313,7 @@ public final class PZXDataBlock implements PZXBlock {
 	}
 
 	@Override
-	public List<Double> getPulses() {
+	public List<Long> getPulses() {
 		return pulses.getPulseLengths();
 	}
 

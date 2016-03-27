@@ -45,8 +45,8 @@ import static org.junit.Assert.*;
 public class PZXDataBlockTest {
     
     int firstPulseLevel = 1;
-    Collection<Double> newPulses = Arrays.asList(200.0, 200.0);
-    double tailLength = 945.0;
+    Collection<Long> newPulses = Arrays.asList(200L, 200L);
+    long tailLength = 945;
     int numBitsInLastByte = 8;
     Collection<Byte> data = Arrays.asList((byte)0x10, (byte)0x20, (byte)0x30);
                                 

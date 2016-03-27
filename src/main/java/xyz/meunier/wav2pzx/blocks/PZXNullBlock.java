@@ -56,7 +56,7 @@ public final class PZXNullBlock implements PZXBlock {
 	 * @see xyz.meunier.wav2pzx.PZXBlock#getPulses()
 	 */
 	@Override
-	public List<Double> getPulses() {
+	public List<Long> getPulses() {
 		return Collections.emptyList();
 	}
 
