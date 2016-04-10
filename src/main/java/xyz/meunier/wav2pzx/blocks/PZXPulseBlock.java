@@ -108,7 +108,7 @@ public final class PZXPulseBlock implements PZXBlock {
 
     @Override
     public String getSummary() {
-        return "first pulse level: " + pulseList.getFirstPulseLevel() + " pulse count: " + pulseList.getPulseLengths().size();
+        return "PZXPulseBlock: first pulse level: " + pulseList.getFirstPulseLevel() + " pulse count: " + pulseList.getPulseLengths().size();
     }
     
     @Override

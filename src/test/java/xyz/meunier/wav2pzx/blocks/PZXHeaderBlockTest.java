@@ -61,7 +61,7 @@ public class PZXHeaderBlockTest {
     public void testGetSummary() {
         System.out.println("getSummary");
         PZXHeaderBlock instance = new PZXHeaderBlock();
-        String expResult = "PZX major version: 1 minor version: 0";
+        String expResult = "PZXHeaderBlock: PZX major version: 1 minor version: 0";
         String result = instance.getSummary();
         assertEquals(expResult, result);
     }

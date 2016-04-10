@@ -86,7 +86,7 @@ public class PZXPulseBlockTest {
     }
 
 	/**
-	 * Test method for {@link xyz.meunier.wav2pzx.blocks.PZXPulseBlock#equalWithinResoution(double, double, double)}.
+	 * Test method for {@link xyz.meunier.wav2pzx.blocks.PZXPulseBlock#getPZXBlockDiskRepresentation(PulseList)}.
 	 */
     @Test
     public void testGetPZXBlockDiskRepresentation_PulseList() {
@@ -107,7 +107,7 @@ public class PZXPulseBlockTest {
     @Test
     public void testGetSummary() {
         System.out.println("getSummary");
-        String expResult = "first pulse level: 1 pulse count: 3";
+        String expResult = "PZXPulseBlock: first pulse level: 1 pulse count: 3";
         String result = pulseBlock.getSummary();
         assertEquals(expResult, result);
     }

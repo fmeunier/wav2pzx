@@ -51,8 +51,8 @@ public final class PZXHeaderBlock implements PZXBlock {
      * additional info about the file as well. This block must be always present as
      * the first block of any PZX file.
      */
-    final static byte PZX_MAJOR_VERSION = 0x01;
-    final static byte PZX_MINOR_VERSION = 0x00;
+    private final static byte PZX_MAJOR_VERSION = 0x01;
+    private final static byte PZX_MINOR_VERSION = 0x00;
     
     @Override
     public byte[] getPZXBlockDiskRepresentation() {
@@ -68,6 +68,10 @@ public final class PZXHeaderBlock implements PZXBlock {
 
     @Override
     public String getSummary() {
+        return "PZXHeaderBlock: " + getHeaderDetails();
+    }
+
+    private String getHeaderDetails() {
         return "PZX major version: " + PZX_MAJOR_VERSION + " minor version: " + PZX_MINOR_VERSION;
     }
 
@@ -78,7 +82,7 @@ public final class PZXHeaderBlock implements PZXBlock {
 
     @Override
     public String toString() {
-        return "PZXHeaderBlock{" + getSummary() + '}';
+        return "PZXHeaderBlock{" + getHeaderDetails() + '}';
     }
 
 	@Override

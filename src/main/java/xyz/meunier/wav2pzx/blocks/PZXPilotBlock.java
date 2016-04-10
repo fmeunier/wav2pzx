@@ -95,7 +95,7 @@ public final class PZXPilotBlock implements PZXBlock {
     
     @Override
     public String getSummary() {
-        StringBuilder retval = new StringBuilder();
+        StringBuilder retval = new StringBuilder("PZXPilotBlock:\n");
 
         LongSummaryStatistics stats = 
         		pulses.getPulseLengths()
