@@ -47,7 +47,7 @@ public final class PulseListBuilder {
     private boolean tapeComplete;
     private PulseList pulseList;
     // TODO Allow selection of Bistable on the command line
-    private Bistable bistable = new SchmittTrigger();
+    private final Bistable bistable = new SchmittTrigger();
 
     /**
      * Construct a new PulseListBuilder.
@@ -60,7 +60,7 @@ public final class PulseListBuilder {
         
         // Assert targetHz >= sampleRate
         // note that we expect targetHz to be in MHz and audio samples are not 
-        // expected to be in this range for the forseeable future
+        // expected to be in this range for the foreseeable future
         checkArgument(targetHz >= sampleRate, "Target Hz must be greater than or equal to sample rate, target Hz:" + targetHz + " sample rate: " + sampleRate);
 
         pulseLengths = new ArrayList<>();

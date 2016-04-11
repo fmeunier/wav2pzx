@@ -36,14 +36,14 @@ import org.junit.Test;
 public class PulseUtilsTest {
 
 	/**
-	 * Test method for {@link xyz.meunier.wav2pzx.PulseUtils#equalWithinResoution(double, double, double)}.
+	 * Test method for {@link PulseUtils#equalWithinResolution(double, double, double)}.
 	 */
 	@Test
-	public final void testEqualWithinResoution() {
-		assertTrue("Small average sample pilot pulse from a real tape", PulseUtils.equalWithinResoution(LoaderContext.PILOT_LENGTH, 2058, 76));
-		assertFalse("Upper bound of non-matching pulse", PulseUtils.equalWithinResoution(LoaderContext.PILOT_LENGTH, 1983, 76));
-		assertTrue("Upper bound of a matching pilot pulse", PulseUtils.equalWithinResoution(LoaderContext.PILOT_LENGTH, 2362, 76));
-		assertFalse("Lower bound of non-matching pulse", PulseUtils.equalWithinResoution(LoaderContext.PILOT_LENGTH, 2363, 76));
+	public final void testEqualWithinResolution() {
+		assertTrue("Small average sample pilot pulse from a real tape", PulseUtils.equalWithinResolution(LoaderContext.PILOT_LENGTH, 2058, 76));
+		assertFalse("Upper bound of non-matching pulse", PulseUtils.equalWithinResolution(LoaderContext.PILOT_LENGTH, 1983, 76));
+		assertTrue("Upper bound of a matching pilot pulse", PulseUtils.equalWithinResolution(LoaderContext.PILOT_LENGTH, 2362, 76));
+		assertFalse("Lower bound of non-matching pulse", PulseUtils.equalWithinResolution(LoaderContext.PILOT_LENGTH, 2363, 76));
 	}
 
 }

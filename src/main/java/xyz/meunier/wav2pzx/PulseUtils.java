@@ -45,7 +45,7 @@ public final class PulseUtils {
 	 * @param resolution the feature resolution in terms of the target clock rate
 	 * @return true if the two pulses are probably equal in duration
 	 */
-	public static boolean equalWithinResoution(double pulse1, double pulse2, double resolution) {
+	public static boolean equalWithinResolution(double pulse1, double pulse2, double resolution) {
 		double error = Double.max(pulse1, pulse2) * ERROR_PERCENTAGE;
 		return Math.abs(pulse1 - pulse2) < (resolution + error);
 	}
@@ -60,7 +60,7 @@ public final class PulseUtils {
 	 * @param resolution the feature resolution in terms of the target clock rate
 	 * @return true if pulse1 is probably less than pulse2 in duration
 	 */
-	public static boolean lessThanWithinResoution(double pulse1, double pulse2, double resolution) {
+	public static boolean lessThanWithinResolution(double pulse1, double pulse2, double resolution) {
 		double error = Double.max(pulse1, pulse2) * ERROR_PERCENTAGE;
 		return pulse1 < pulse2 + resolution + error;
 	}

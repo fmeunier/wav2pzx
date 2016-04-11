@@ -25,15 +25,12 @@
  */
 package xyz.meunier.wav2pzx.blocks;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 import org.junit.Test;
 
-import xyz.meunier.wav2pzx.blocks.PZXEncodeUtils;
+import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -104,7 +101,7 @@ public class PZXEncodeUtilsTest {
         System.out.println("putUnsignedByte");
         byte outputVal = 20;
         Collection<Byte> output = new ArrayList<>();
-        List<Byte> expectedResult = Arrays.asList((byte)20);
+        List<Byte> expectedResult = Collections.singletonList((byte)20);
         PZXEncodeUtils.putUnsignedByte(outputVal, output);
         assertArrayEquals("Setting byte", expectedResult.toArray(), output.toArray());
     }

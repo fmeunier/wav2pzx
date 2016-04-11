@@ -97,7 +97,7 @@ public final class LoaderContextImpl implements LoaderContext {
     private long tailLength;
 
     // The resolution of the underlying source in units of the target clock rate
-	private long resolution;
+	private final long resolution;
 
     /**
      * Builder method to construct a series of PZXBlocks that represents the data
@@ -220,7 +220,7 @@ public final class LoaderContextImpl implements LoaderContext {
             LongSummaryStatistics stats = getSummaryStats (pilotPulses);
             Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.INFO, getSummaryText("pilot", PILOT_LENGTH, stats));
             // if average PILOT_LENGTH pulse length is not plausibly the same as standard, record this as a non-pilot block
-            if(!PulseUtils.equalWithinResoution(PILOT_LENGTH, stats.getAverage(), resolution)) {
+            if(!PulseUtils.equalWithinResolution(PILOT_LENGTH, stats.getAverage(), resolution)) {
 	        	completePulseBlock(false);
 	            return;
             }
@@ -262,12 +262,12 @@ public final class LoaderContextImpl implements LoaderContext {
 		// credibly resembles the standard zero pulse, the recognition routines seem to be close to handling standard
 		// speed loaders where the standard routines just have shorter timing constants than the standard ROM routines
         if(data.isEmpty() ||
-        	(!PulseUtils.equalWithinResoution(ZERO, zeroStats.getAverage(), resolution) && zeroStats.getCount() != 0) ||
+        	(!PulseUtils.equalWithinResolution(ZERO, zeroStats.getAverage(), resolution) && zeroStats.getCount() != 0) ||
         
         // TODO: use average ONE pulse length unless idealised, actually - only create data block if average one pulse
 		// credibly resembles the standard one pulse, the recognition routines seem to be close to handling standard
 		// speed loaders where the standard routines just have shorter timing constants than the standard ROM routines
-            (!PulseUtils.equalWithinResoution(ONE, oneStats.getAverage(), resolution) && oneStats.getCount() != 0)) {
+            (!PulseUtils.equalWithinResolution(ONE, oneStats.getAverage(), resolution) && oneStats.getCount() != 0)) {
         	// Something was wrong with this block as a data block, try again to record it as a plain pulse block
         	completePulseBlock(false);
         	
@@ -374,9 +374,7 @@ public final class LoaderContextImpl implements LoaderContext {
         StringBuilder builder = new StringBuilder();
         
         builder.append("LoaderContextImpl{" + "loaderResult=\n");
-        loaderResult.stream().forEach((b) -> {
-            builder.append('\t').append(b).append('\n');
-        });
+        loaderResult.stream().forEach((b) -> builder.append('\t').append(b).append('\n'));
         builder.append('}');
         
         return builder.toString();

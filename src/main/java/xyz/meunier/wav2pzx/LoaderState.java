@@ -44,7 +44,7 @@ public enum LoaderState {
     INITIAL {
         @Override
         public LoaderState nextState(LoaderContext context) {
-            if( PulseUtils.equalWithinResoution(context.getCurrentPulse(), LoaderContext.PILOT_LENGTH, context.getResolution()) ) {
+            if( PulseUtils.equalWithinResolution(context.getCurrentPulse(), LoaderContext.PILOT_LENGTH, context.getResolution()) ) {
                 // Close current pulse block - note that this may be empty!
                 context.completePulseBlock(false);
 
@@ -74,7 +74,7 @@ public enum LoaderState {
     FIND_PILOT {
         @Override
         public LoaderState nextState(LoaderContext context) {
-            if( !PulseUtils.equalWithinResoution(context.getCurrentPulse(), LoaderContext.PILOT_LENGTH, context.getResolution()) ) {
+            if( !PulseUtils.equalWithinResolution(context.getCurrentPulse(), LoaderContext.PILOT_LENGTH, context.getResolution()) ) {
                 // Not really a new pulse sequence, dump pulses into existing block
                 context.revertCurrentBlock();
                 context.addUnclassifiedPulse(context.getCurrentPulse());
@@ -194,15 +194,15 @@ public enum LoaderState {
             
             long nextPulseLength = context.peekNextPulse();
             
-            if( PulseUtils.equalWithinResoution(context.getCurrentPulse(), LoaderContext.ZERO, context.getResolution()) &&
-            	 PulseUtils.equalWithinResoution(nextPulseLength, LoaderContext.ZERO, context.getResolution())) {
+            if( PulseUtils.equalWithinResolution(context.getCurrentPulse(), LoaderContext.ZERO, context.getResolution()) &&
+            	 PulseUtils.equalWithinResolution(nextPulseLength, LoaderContext.ZERO, context.getResolution())) {
                 context.addZeroPulse(context.getCurrentPulse(), nextPulseLength );
                 context.getNextPulse(); // Defer side effect of calculating next pulse level
                 
                 logTransition(context.getCurrentPulse(), GET_DATA, GET_DATA);
                 return GET_DATA;
-            } else if (PulseUtils.equalWithinResoution(context.getCurrentPulse(), LoaderContext.ONE, context.getResolution()) &&
-               	 PulseUtils.equalWithinResoution(nextPulseLength, LoaderContext.ONE, context.getResolution())) {
+            } else if (PulseUtils.equalWithinResolution(context.getCurrentPulse(), LoaderContext.ONE, context.getResolution()) &&
+               	 PulseUtils.equalWithinResolution(nextPulseLength, LoaderContext.ONE, context.getResolution())) {
             	
                 context.addOnePulse(context.getCurrentPulse(), nextPulseLength );
                 context.getNextPulse(); // Defer side effect of calculating next pulse level
@@ -219,7 +219,7 @@ public enum LoaderState {
          * @param context the value of context
          */
         private LoaderState handleOptionalTailPulse(LoaderContext context) {
-            final boolean wasTailPulse = PulseUtils.equalWithinResoution(context.getCurrentPulse(), LoaderContext.TAIL, context.getResolution());
+            final boolean wasTailPulse = PulseUtils.equalWithinResolution(context.getCurrentPulse(), LoaderContext.TAIL, context.getResolution());
             if( wasTailPulse ) {
                 context.setTailLength( context.getCurrentPulse() );
                 
@@ -265,7 +265,7 @@ public enum LoaderState {
      * @param fromState the initial state
      * @param toState the terminal state
      */
-    protected void logTransition(Long currentPulse, LoaderState fromState, LoaderState toState) {
+    private static void logTransition(Long currentPulse, LoaderState fromState, LoaderState toState) {
         String message = String.format("%12s -> %12s: %d", fromState, toState, currentPulse);
         Logger.getLogger(LoaderState.class.getName()).log(Level.FINE, message);
     }

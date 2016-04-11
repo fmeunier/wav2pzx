@@ -39,72 +39,72 @@ public interface LoaderContext {
     /**
      * The longest valid length of two pulses to be considered as a bit in the data block
      */
-    final int DATA_TOTAL_MAX = 3950; // TODO: check this - loading two edges with a timing constant of 0xb0 for a bit implies 4450 as the total?
+    int DATA_TOTAL_MAX = 3950; // TODO: check this - loading two edges with a timing constant of 0xb0 for a bit implies 4450 as the total?
     
     /**
      * The maximum length of a tail pulse
      */
-    final int MAX_TAIL_PULSE = 1700;
+    int MAX_TAIL_PULSE = 1700;
     
     /**
      * The minimum number of pilot pulses before a sync1 pulse can occur
      */
-    final int MIN_PILOT_COUNT = 256;
+    int MIN_PILOT_COUNT = 256;
     
     /**
      * The standard duration of a "one" bit pulse
      */
-    final short ONE = 1710;
+    short ONE = 1710;
     
     /**
      * The standard length of a pilot pulse
      */
-    final int PILOT_LENGTH = 2168;
+    int PILOT_LENGTH = 2168;
     
     /**
      * The maximum valid length of a pilot pulse
      */
-    final int PILOT_MAX = 3000;
-    
+    int PILOT_MAX = 3000;
+
     /**
      * The standard length of a sync1 pulse
      */
-    final int SYNC1 = 667;
+    int SYNC1 = 667;
     
     /**
      * The maximum length of a sync1 pulse
      */
-    final int SYNC1_MAX = 1100;
+    int SYNC1_MAX = 1100;
     
     /**
      * The standard length of a sync2 pulse
      */
-    final int SYNC2 = 735;
+    int SYNC2 = 735;
     
     /**
      * The maximum length the two sync pulses can be
      */
-    final int SYNC_TOTAL_MAX = 3594;
+    int SYNC_TOTAL_MAX = 3594;
     
     /**
      * The standard length of a "zero" bit pulse
      */
-    final short ZERO = 855;
+    short ZERO = 855;
     
     /**
      * The threshold between two pulses being a zero or one bit if they are less than DATA_TOTAL_MAX
      */
-    final int ZERO_THRESHOLD = 2400;
+    int ZERO_THRESHOLD = 2400;
     
     /**
      * The standard length of a tail pulse at the end of a data block
      */
-    final short TAIL = 945;
+    short TAIL = 945;
 
     /**
      * A data bit has been found in the input stream, accumulate it into the current
      * byte being assembled and when complete, add it to the data collection
-     * @param bit 
+     * @param bit  the data bit to add
      */
     void addBit(int bit);
 

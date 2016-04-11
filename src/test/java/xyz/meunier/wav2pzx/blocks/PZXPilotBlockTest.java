@@ -43,10 +43,10 @@ import static org.junit.Assert.*;
 public class PZXPilotBlockTest {
 
     private PZXPilotBlock instance;
-    int firstPulseLevel = 1;
-    long sync1Length = 667;
-    long sync2Length = 735;
-    Collection<Long> newPulses = Arrays.asList(2168L, 2168L, sync1Length, sync2Length);
+    private int firstPulseLevel = 1;
+    private long sync1Length = 667;
+    private long sync2Length = 735;
+    private Collection<Long> newPulses = Arrays.asList(2168L, 2168L, sync1Length, sync2Length);
     
     public PZXPilotBlockTest() {
     }

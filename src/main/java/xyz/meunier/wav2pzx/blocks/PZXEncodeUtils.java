@@ -86,18 +86,16 @@ public final class PZXEncodeUtils {
            block data. The first letter is stored first in the file (i.e., at
            offset 0 of the block), the last letter is stored last (i.e., at offset 3).
            This means the tag may be internally conveniently represented either as 32bit
-           multicharacter constants stored in big endian order or 32bit reversed
-           multicharacter constant stored in little endian order, whichever way an
+           multi-character constants stored in big endian order or 32bit reversed
+           multi-character constant stored in little endian order, whichever way an
            implementation prefers.
         */
 
         int size = output.length;
-        byte[] buffer = ByteBuffer.allocate(8 + size)
+        return ByteBuffer.allocate(8 + size)
                 .order(ByteOrder.LITTLE_ENDIAN)
                 .put(headerTag.getBytes(Charset.forName("US-ASCII"))) // TODO support Sinclair character set
                 .putInt(size).put(output).array();
-        
-        return buffer;
     }
 
     /**
@@ -126,7 +124,7 @@ public final class PZXEncodeUtils {
         checkNotNull(output);
         
         byte[] buffer = ByteBuffer.allocate(2).order(ByteOrder.LITTLE_ENDIAN)
-                .putShort((short)outputVal).array();
+								  .putShort(outputVal).array();
         output.addAll(Bytes.asList(buffer));
     }
 
@@ -150,7 +148,7 @@ public final class PZXEncodeUtils {
 	 * @param output the destination for the bytes corresponding to the pulse sequence
 	 * @throws NullPointerException if output is null
 	 */
-	public static void addBytesFor(long pulse, int count, List<Byte> output) {
+	public static void addBytesFor(long pulse, long count, List<Byte> output) {
 	    checkNotNull(output, "output list cannot be null");
 	    if( count < 1 ) return;
 	

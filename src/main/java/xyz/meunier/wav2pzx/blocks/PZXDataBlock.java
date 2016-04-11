@@ -99,8 +99,7 @@ public final class PZXDataBlock implements PZXBlock {
         this.isHeader = this.data.length == HEADER_LENGTH && 
                             this.data[0] == HEADER_FLAG;
         this.suppliedChecksum = this.data[this.data.length-1];
-        byte checksum = calcChecksum();
-        this.calculatedChecksum = checksum;
+        this.calculatedChecksum = calcChecksum();
     }
 
     // Calculates the checksum for the data according to the algorithm in the 
