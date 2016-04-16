@@ -25,6 +25,8 @@
  */
 package xyz.meunier.wav2pzx.blocks;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
 import org.junit.After;
@@ -52,7 +54,6 @@ public class PZXNullBlockTest {
      */
     @Test
     public void testGetPZXBlockDiskRepresentation() {
-        System.out.println("getPZXBlockDiskRepresentation");
         byte[] expResult = {};
         byte[] result = instance.getPZXBlockDiskRepresentation();
         assertArrayEquals(expResult, result);
@@ -63,10 +64,7 @@ public class PZXNullBlockTest {
      */
     @Test
     public void testGetSummary() {
-        System.out.println("getSummary");
-        String expResult = "Null PZX block";
-        String result = instance.getSummary();
-        assertEquals(expResult, result);
+        assertThat(instance.getSummary(), is("Null PZX block"));
     }
 
     /**
@@ -74,8 +72,7 @@ public class PZXNullBlockTest {
      */
     @Test
     public void testGetPulses() {
-        System.out.println("getPulses");
-        assertTrue(instance.getPulses().isEmpty());
+        assertThat(instance.getPulses().isEmpty(), is(true));
 	}
 
     /**
@@ -83,7 +80,6 @@ public class PZXNullBlockTest {
      */
 	@Test
 	public void testGetFirstPulseLevel() {
-        System.out.println("getFirstPulseLevel");
-        assertEquals(0, instance.getFirstPulseLevel());
+        assertThat(instance.getFirstPulseLevel(), is(0));
 	}
 }
