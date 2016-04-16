@@ -25,6 +25,8 @@
  */
 package xyz.meunier.wav2pzx.blocks;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.*;
@@ -38,16 +40,27 @@ import static org.junit.Assert.assertArrayEquals;
  * @author Fredrick Meunier
  */
 public class PZXEncodeUtilsTest {
-    
+
+    private List<Byte> output;
+    private static final String HEADER_TAG = "TEST";
+
+    @Before
+    public void setUp() throws Exception {
+        output = new ArrayList<>();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        output = null;
+    }
     /**
      * Test of addPZXBlockHeader method, of class PZXEncodeUtils.
      */
     @Test
     public void testAddPZXBlockHeader_String_Collection() {
-        String headerTag = "TEST";
-        Collection<Byte> output = Arrays.asList((byte)0x20, (byte)0x30);
+        output = Arrays.asList((byte)0x20, (byte)0x30);
         byte[] expResult = {(byte)84, (byte)69, (byte)83, (byte)84, (byte)0x02, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x20, (byte)0x30};
-        byte[] result = PZXEncodeUtils.addPZXBlockHeader(headerTag, output);
+        byte[] result = PZXEncodeUtils.addPZXBlockHeader(HEADER_TAG, output);
         assertArrayEquals(expResult, result);
     }
 
@@ -56,10 +69,9 @@ public class PZXEncodeUtilsTest {
      */
     @Test
     public void testAddPZXBlockHeader_String_byteArr() {
-        String headerTag = "TEST";
         byte[] output = {(byte)0x20, (byte)0x30};
         byte[] expResult = {(byte)84, (byte)69, (byte)83, (byte)84, (byte)0x02, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x20, (byte)0x30};
-        byte[] result = PZXEncodeUtils.addPZXBlockHeader(headerTag, output);
+        byte[] result = PZXEncodeUtils.addPZXBlockHeader(HEADER_TAG, output);
         assertArrayEquals(expResult, result);
     }
 
@@ -69,7 +81,6 @@ public class PZXEncodeUtilsTest {
     @Test
     public void testPutUnsignedLittleEndianInt() {
         int outputVal = 0xdeadbeef;
-        Collection<Byte> output = new ArrayList<>();
         List<Byte> expectedResult = Arrays.asList((byte)0xef, (byte)0xbe, (byte)0xad, (byte)0xde);
         PZXEncodeUtils.putUnsignedLittleEndianInt(outputVal, output);
         assertThat("Setting int", output, equalTo(expectedResult));
@@ -80,9 +91,7 @@ public class PZXEncodeUtilsTest {
      */
     @Test
     public void testPutUnsignedLittleEndianShort() {
-        System.out.println("putUnsignedLittleEndianShort");
         short outputVal = (short)0xdead;
-        Collection<Byte> output = new ArrayList<>();
         List<Byte> expectedResult = Arrays.asList((byte)0xad, (byte)0xde);
         PZXEncodeUtils.putUnsignedLittleEndianShort(outputVal, output);
         assertThat("Setting short", output, equalTo(expectedResult));
@@ -94,7 +103,6 @@ public class PZXEncodeUtilsTest {
     @Test
     public void testPutUnsignedByte() {
         byte outputVal = 20;
-        Collection<Byte> output = new ArrayList<>();
         List<Byte> expectedResult = Collections.singletonList((byte)20);
         PZXEncodeUtils.putUnsignedByte(outputVal, output);
         assertThat("Setting byte", output, equalTo(expectedResult));
@@ -105,8 +113,6 @@ public class PZXEncodeUtilsTest {
      */
     @Test
     public void testAddBytesForWithOneCycleShortPulse() {
-        ArrayList<Byte> output = new ArrayList<>();
-
         // Test one cycle short pulse <= 0x7fff
         PZXEncodeUtils.addBytesFor(0x7000L, 1, output);
         List<Byte> expectedResult = Arrays.asList((byte) 0x00, (byte) 0x70);
@@ -118,8 +124,6 @@ public class PZXEncodeUtilsTest {
      */
     @Test
     public void testAddBytesForWithOnceCycleLongerPulse() {
-        ArrayList<Byte> output = new ArrayList<>();
-
         // Test one cycle longer pulse >= 0x8000 < 0x7fffff
         PZXEncodeUtils.addBytesFor(0x8100L, 1, output);
         List<Byte> expectedResult = Arrays.asList((byte) 0x01, (byte) 0x80, (byte) 0x00, (byte) 0x80, (byte) 0x00, (byte) 0x81);
@@ -131,8 +135,6 @@ public class PZXEncodeUtilsTest {
      */
     @Test
     public void testAddBytesForShortMultiCyclePulse() {
-        ArrayList<Byte> output = new ArrayList<>();
-
         // Test multi cycle pulse <= 0x7fff
         PZXEncodeUtils.addBytesFor(0x7000L, 2, output);
         List<Byte> expectedResult = Arrays.asList((byte) 0x02, (byte) 0x80, (byte) 0x00, (byte) 0x70);
@@ -144,8 +146,6 @@ public class PZXEncodeUtilsTest {
      */
     @Test
     public void testAddBytesForLongerMultiCyclePulse() {
-        ArrayList<Byte> output = new ArrayList<>();
-
         // Test multi cycle pulse >= 0x8000 < 0x80000
         PZXEncodeUtils.addBytesFor(0x8100L, 2, output);
         List<Byte> expectedResult = Arrays.asList((byte) 0x02, (byte) 0x80, (byte) 0x00, (byte) 0x80, (byte) 0x00, (byte) 0x81);
@@ -157,8 +157,6 @@ public class PZXEncodeUtilsTest {
      */
     @Test
     public void testAddBytesForEvenLongerMultiCyclePulse() {
-        ArrayList<Byte> output = new ArrayList<>();
-
         // Test multi cycle pulse >= 0x80000 < 0x7fffff
         PZXEncodeUtils.addBytesFor(0x81000L, 2, output);
         List<Byte> expectedResult = Arrays.asList((byte) 0x02, (byte) 0x80, (byte) 0x08, (byte) 0x80, (byte) 0x00, (byte) 0x10);
@@ -170,8 +168,6 @@ public class PZXEncodeUtilsTest {
      */
     @Test
     public void testAddBytesForVeryLongMultiCyclePulse() {
-        ArrayList<Byte> output = new ArrayList<>();
-
         // Test one cycle very long pulse that is multiple of a 0x7fffffff
         PZXEncodeUtils.addBytesFor(0x7fffffffL * 2, 1, output);
         List<Byte> expectedResult = Arrays.asList(
@@ -186,8 +182,6 @@ public class PZXEncodeUtilsTest {
      */
     @Test
     public void testAddBytesForOneVeryLongPulseWithShortRemainder() {
-        ArrayList<Byte> output = new ArrayList<>();
-
         // Test one cycle very long pulse that is not a multiple of 0x7fffffff
         // Note: there are short and long last encoded cycle versions of this
         // Short
@@ -206,8 +200,6 @@ public class PZXEncodeUtilsTest {
      */
     @Test
     public void testAddBytesForOneVeryLongPulseWithLongRemainder() {
-        ArrayList<Byte> output = new ArrayList<>();
-
         // Long
         PZXEncodeUtils.addBytesFor(0x7fffffffL * 2 + 0x8100L, 1, output);
         List<Byte> expectedResult = Arrays.asList(
@@ -225,8 +217,6 @@ public class PZXEncodeUtilsTest {
      */
     @Test
     public void testAddBytesForOneVeryLongPulseWithNoRemainder() {
-        ArrayList<Byte> output = new ArrayList<>();
-
         // Test multi cycle very long pulse that is a multiple of 0x7fffffff
         PZXEncodeUtils.addBytesFor(0x7fffffffL * 2, 2, output);
         List<Byte> expectedResult = Arrays.asList(
@@ -245,8 +235,6 @@ public class PZXEncodeUtilsTest {
      */
     @Test
     public void testAddBytesForOneVeryLongPulseWithARemainder() {
-        ArrayList<Byte> output = new ArrayList<>();
-
         // Test multi cycle very long pulse that is not a multiple of 0x7fffffff
         PZXEncodeUtils.addBytesFor(0x7fffffffL * 2 + 1L, 2, output);
         List<Byte> expectedResult = Arrays.asList(
