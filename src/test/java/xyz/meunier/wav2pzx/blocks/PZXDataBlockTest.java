@@ -73,10 +73,9 @@ public class PZXDataBlockTest {
      * Test of getPZXBlockDiskRepresentation method, of class PZXDataBlock.
      */
     @Test
-    public void testGetPZXBlockDiskRepresentation() {
-        System.out.println("getPZXBlockDiskRepresentation");
+    public void testGetPZXBlockDiskRepresentationForPZXDataBlockWithGoodChecksum() {
         PZXDataBlock instance = new PZXDataBlock(new PulseList(newPulses, firstPulseLevel, 1),
-                                                    tailLength, numBitsInLastByte, data);
+                                                 tailLength, numBitsInLastByte, data);
         byte[] expResult = {(byte)0x44, (byte)0x41, (byte)0x54, (byte)0x41, /* DATA */
                             (byte)0x13, (byte)0x00, (byte)0x00, (byte)0x00, /* size */
                             (byte)0x18, (byte)0x00, (byte)0x00, (byte)0x80, /* bit count + initial pulse flag */
@@ -88,90 +87,123 @@ public class PZXDataBlockTest {
                             (byte)0x10, (byte)0x20, (byte)0x30 /* data */};
         byte[] result = instance.getPZXBlockDiskRepresentation();
         assertArrayEquals(expResult, result);
-        
+    }
+
+    /**
+     * Test of getPZXBlockDiskRepresentation method, of class PZXDataBlock.
+     */
+    @Test
+    public void testGetPZXBlockDiskRepresentationForPZXDataBlockWithBadChecksum() {
         // Checksum doesn't match, should result in PULS block rather than data block
         Collection<Byte> badData = Arrays.asList((byte)0x10, (byte)0x20, (byte)0x33);
-        instance = new PZXDataBlock(new PulseList(newPulses, firstPulseLevel, 1),
-		                tailLength, numBitsInLastByte, badData);
-        byte[] expResult2 = {(byte)80, (byte)85, (byte)76, (byte)83, /* PULS */
-                (byte)0x06, (byte)0x00, (byte)0x00, (byte)0x00, /* Length: 6 bytes */
-                (byte)0x00, (byte)0x00, /* Initial pulse high */
-                (byte)0x02, (byte)0x80, /* Repeat count 2 */
-                (byte)0xc8, (byte)0x00};/* Pulse length 200 */
-		result = instance.getPZXBlockDiskRepresentation();
-		assertArrayEquals(expResult2, result);
+        PZXDataBlock instance = new PZXDataBlock(new PulseList(newPulses, firstPulseLevel, 1),
+                                                 tailLength, numBitsInLastByte, badData);
+        byte[] expResult = {(byte)80, (byte)85, (byte)76, (byte)83, /* PULS */
+                            (byte)0x06, (byte)0x00, (byte)0x00, (byte)0x00, /* Length: 6 bytes */
+                            (byte)0x00, (byte)0x00, /* Initial pulse high */
+                            (byte)0x02, (byte)0x80, /* Repeat count 2 */
+                            (byte)0xc8, (byte)0x00};/* Pulse length 200 */
+        byte[] result = instance.getPZXBlockDiskRepresentation();
+        assertArrayEquals(expResult, result);
+    }
+
+    /**
+     * Test of getPZXBlockDiskRepresentation method, of class PZXDataBlock.
+     */
+    @Test
+    public void testGetPZXBlockDiskRepresentationForPZXDataBlockWithGoodChecksumButIncompleteLastByte() {
+        Collection<Byte> badData = Arrays.asList((byte)0x10, (byte)0x20, (byte)0x33);
 
         // Checksum matches but not all bits are present in the last byte,
 		// should result in PULS block rather than data block
-        instance = new PZXDataBlock(new PulseList(newPulses, firstPulseLevel, 1),
+        PZXDataBlock instance = new PZXDataBlock(new PulseList(newPulses, firstPulseLevel, 1),
 		                tailLength, 1, badData);
-		result = instance.getPZXBlockDiskRepresentation();
-		assertArrayEquals(expResult2, result);
+        byte[] expResult = {(byte)80, (byte)85, (byte)76, (byte)83, /* PULS */
+                            (byte)0x06, (byte)0x00, (byte)0x00, (byte)0x00, /* Length: 6 bytes */
+                            (byte)0x00, (byte)0x00, /* Initial pulse high */
+                            (byte)0x02, (byte)0x80, /* Repeat count 2 */
+                            (byte)0xc8, (byte)0x00};/* Pulse length 200 */
+        byte[] result = instance.getPZXBlockDiskRepresentation();
+		assertArrayEquals(expResult, result);
     }
 
     /**
      * Test of isHeader method, of class PZXDataBlock.
      */
     @Test
-    public void testIsHeader() {
-        System.out.println("isHeader");
-        PulseList newPulses2 = new PulseList(newPulses, firstPulseLevel, 1);
-		PZXDataBlock instance =  new PZXDataBlock(newPulses2, tailLength, numBitsInLastByte, data);
+    public void testIsHeaderForAHeader() {
+        PulseList newPulses = new PulseList(this.newPulses, firstPulseLevel, 1);
+        PZXDataBlock instance = new PZXDataBlock(newPulses, tailLength, numBitsInLastByte, data);
         boolean expResult = false;
         boolean result = instance.isHeader();
         assertEquals("Block too short to be a header", expResult, result);
 
         Collection<Byte> headerData = Arrays.asList(
-                (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, 
-                (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, 
-                (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, 
-                (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00);
-        instance =  new PZXDataBlock(newPulses2, tailLength, numBitsInLastByte, headerData);
+                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00);
+        instance = new PZXDataBlock(newPulses, tailLength, numBitsInLastByte, headerData);
         expResult = true;
         result = instance.isHeader();
         assertEquals("Block is a header", expResult, result);
+    }
 
+    /**
+     * Test of isHeader method, of class PZXDataBlock.
+     */
+    @Test
+    public void testIsHeaderForANonHeader() {
+        PulseList newPulses = new PulseList(this.newPulses, firstPulseLevel, 1);
         Collection<Byte> notHeaderData = Arrays.asList(
-                (byte)0x20, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, 
-                (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, 
-                (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, 
-                (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00);
-        instance =  new PZXDataBlock(newPulses2,
-                                     tailLength, numBitsInLastByte, notHeaderData);
-        expResult = false;
-        result = instance.isHeader();
+                (byte) 0x20, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00);
+        PZXDataBlock instance = new PZXDataBlock(newPulses,
+                tailLength, numBitsInLastByte, notHeaderData);
+        boolean expResult = false;
+        boolean result = instance.isHeader();
         assertEquals("Header flag is not set", expResult, result);
+    }
 
-        notHeaderData = Arrays.asList(
+    /**
+     * Test of isHeader method, of class PZXDataBlock.
+     */
+    @Test
+    public void testIsHeaderForAHeaderWithWrongLength() {
+        PulseList newPulses = new PulseList(this.newPulses, firstPulseLevel, 1);
+        Collection<Byte> notHeaderData = Arrays.asList(
                 (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, 
                 (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, 
                 (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, 
                 (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00);
-        instance =  new PZXDataBlock(newPulses2,
+        PZXDataBlock instance =  new PZXDataBlock(newPulses,
                                      tailLength, numBitsInLastByte, notHeaderData);
-        expResult = false;
-        result = instance.isHeader();
+        boolean expResult = false;
+        boolean result = instance.isHeader();
         assertEquals("Header flag is set but length is wrong", expResult, result);
-
     }
 
     /**
      * Test of checkChecksum method, of class PZXDataBlock.
      */
     @Test
-    public void testCheckChecksum() {
-        System.out.println("checkChecksum");
+    public void testCheckChecksumForAValidChecksumBlock() {
         PZXDataBlock instance = new PZXDataBlock(new PulseList(newPulses, firstPulseLevel, 1),
-                                                    tailLength, numBitsInLastByte, data);
+                                                 tailLength, numBitsInLastByte, data);
         boolean expResult = true;
         boolean result = instance.checkChecksum();
         assertEquals(expResult, result);
-        
+    }
+
+    @Test
+    public void testCheckChecksumForAnInvalidChecksumBlock() {
         Collection<Byte> badChecksum = Arrays.asList((byte)0x10, (byte)0x20, (byte)0x33);
-        instance = new PZXDataBlock(new PulseList(newPulses, firstPulseLevel, 1),
-                                    tailLength, numBitsInLastByte, badChecksum);
-        expResult = false;
-        result = instance.checkChecksum();
+        PZXDataBlock instance = new PZXDataBlock(new PulseList(newPulses, firstPulseLevel, 1),
+                                                 tailLength, numBitsInLastByte, badChecksum);
+        boolean expResult = false;
+        boolean result = instance.checkChecksum();
         assertEquals(expResult, result);
     }
     
