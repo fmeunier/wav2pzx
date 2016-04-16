@@ -53,6 +53,7 @@ public class PZXEncodeUtilsTest {
     public void tearDown() throws Exception {
         output = null;
     }
+
     /**
      * Test of addPZXBlockHeader method, of class PZXEncodeUtils.
      */
