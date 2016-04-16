@@ -27,10 +27,14 @@ package xyz.meunier.wav2pzx.blocks;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import xyz.meunier.wav2pzx.blocks.PZXHeaderBlock;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.*;
 
 /**
@@ -38,8 +42,17 @@ import static org.junit.Assert.*;
  * @author Fredrick Meunier
  */
 public class PZXHeaderBlockTest {
-    
-    public PZXHeaderBlockTest() {
+
+    private PZXHeaderBlock instance;
+
+    @Before
+    public void setUp() throws Exception {
+        instance = new PZXHeaderBlock();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        instance = null;
     }
 
     /**
@@ -47,8 +60,6 @@ public class PZXHeaderBlockTest {
      */
     @Test
     public void testGetPZXBlockDiskRepresentation() {
-        System.out.println("getPZXBlockDiskRepresentation");
-        PZXHeaderBlock instance = new PZXHeaderBlock();
         byte[] expResult = {(byte)0x50, (byte)0x5a, (byte)0x58, (byte)0x54, (byte)0x02, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x01, (byte)0x00};
         byte[] result = instance.getPZXBlockDiskRepresentation();
         assertArrayEquals(expResult, result);
@@ -59,11 +70,7 @@ public class PZXHeaderBlockTest {
      */
     @Test
     public void testGetSummary() {
-        System.out.println("getSummary");
-        PZXHeaderBlock instance = new PZXHeaderBlock();
-        String expResult = "PZXHeaderBlock: PZX major version: 1 minor version: 0";
-        String result = instance.getSummary();
-        assertEquals(expResult, result);
+        assertThat(instance.getSummary(), equalTo("PZXHeaderBlock: PZX major version: 1 minor version: 0"));
     }
 
     /**
@@ -71,11 +78,7 @@ public class PZXHeaderBlockTest {
      */
     @Test
     public void testGetPulses() {
-        System.out.println("getPulses");
-        PZXHeaderBlock instance = new PZXHeaderBlock();
-        Collection<Long> expResult = new ArrayList<>();
-        Collection<Long> result = instance.getPulses();
-        assertEquals(expResult, result);
+        assertThat(instance.getPulses(), equalTo(new ArrayList<Long>()));
     }
 
     /**
@@ -83,11 +86,7 @@ public class PZXHeaderBlockTest {
      */
     @Test
     public void testToString() {
-        System.out.println("toString");
-        PZXHeaderBlock instance = new PZXHeaderBlock();
-        String expResult = "PZXHeaderBlock{PZX major version: 1 minor version: 0}";
-        String result = instance.toString();
-        assertEquals(expResult, result);
+        assertThat(instance.toString(), equalTo("PZXHeaderBlock{PZX major version: 1 minor version: 0}"));
     }
     
 }
