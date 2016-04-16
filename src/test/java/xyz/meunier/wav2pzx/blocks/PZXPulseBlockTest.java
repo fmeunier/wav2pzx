@@ -25,16 +25,17 @@
  */
 package xyz.meunier.wav2pzx.blocks;
 
-import java.util.Arrays;
-import java.util.Collection;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
 import xyz.meunier.wav2pzx.PulseList;
-import xyz.meunier.wav2pzx.blocks.PZXPulseBlock;
 
-import static org.junit.Assert.*;
+import java.util.Arrays;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertThat;
 
 /**
  *
@@ -44,9 +45,6 @@ public class PZXPulseBlockTest {
 
     private static final PulseList PULSES = new PulseList(Arrays.asList(200L, 200L, 300L), 1, 1);
 	private PZXPulseBlock pulseBlock;
-    
-    public PZXPulseBlockTest() {
-    }
     
     @Before
     public void setUp() {
@@ -63,10 +61,7 @@ public class PZXPulseBlockTest {
      */
     @Test
     public void testGetPulses() {
-        System.out.println("getPulses");
-        Collection<Long> expResult = Arrays.asList(200L, 200L, 300L);
-        Collection<Long> result = pulseBlock.getPulses();
-        assertEquals(expResult, result);
+        assertThat(pulseBlock.getPulses(), equalTo(Arrays.asList(200L, 200L, 300L)));
     }
 
     /**
@@ -74,7 +69,6 @@ public class PZXPulseBlockTest {
      */
     @Test
     public void testGetPZXBlockDiskRepresentation() {
-        System.out.println("getPZXBlockDiskRepresentation");
         byte[] expResult = {(byte)80, (byte)85, (byte)76, (byte)83, /* PULS */
                             (byte)0x08, (byte)0x00, (byte)0x00, (byte)0x00, /* Length: 8 bytes */
                             (byte)0x00, (byte)0x00, /* Initial pulse high */
@@ -90,7 +84,6 @@ public class PZXPulseBlockTest {
 	 */
     @Test
     public void testGetPZXBlockDiskRepresentation_PulseList() {
-        System.out.println("getPZXBlockDiskRepresentation");
         byte[] expResult = {(byte)80, (byte)85, (byte)76, (byte)83, /* PULS */
                             (byte)0x08, (byte)0x00, (byte)0x00, (byte)0x00, /* Length: 8 bytes */
                             (byte)0x00, (byte)0x00, /* Initial pulse high */
@@ -106,10 +99,7 @@ public class PZXPulseBlockTest {
      */
     @Test
     public void testGetSummary() {
-        System.out.println("getSummary");
-        String expResult = "PZXPulseBlock: first pulse level: 1 pulse count: 3";
-        String result = pulseBlock.getSummary();
-        assertEquals(expResult, result);
+        assertThat(pulseBlock.getSummary(), is("PZXPulseBlock: first pulse level: 1 pulse count: 3"));
     }
 
     /**
@@ -117,10 +107,8 @@ public class PZXPulseBlockTest {
      */
     @Test
     public void testToString() {
-        System.out.println("toString");
-        String expResult = "PZXPulseBlock [pulseList=PulseList [pulseLengths.size()=3, firstPulseLevel=1, resolution=1]]";
-        String result = pulseBlock.toString();
-        assertEquals(expResult, result);
+        assertThat(pulseBlock.toString(),
+                   is("PZXPulseBlock [pulseList=PulseList [pulseLengths.size()=3, firstPulseLevel=1, resolution=1]]"));
     }
 
     /**
@@ -128,10 +116,7 @@ public class PZXPulseBlockTest {
      */
     @Test
     public void testGetFirstPulseLevel() {
-        System.out.println("getFirstPulseLevel");
-        int expResult = 1;
-        int result = pulseBlock.getFirstPulseLevel();
-        assertEquals(expResult, result);
+        assertThat(pulseBlock.getFirstPulseLevel(), is(1));
     }
     
 }
