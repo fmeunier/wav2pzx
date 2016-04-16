@@ -25,19 +25,15 @@
  */
 package xyz.meunier.wav2pzx.blocks;
 
+import org.junit.Test;
+import xyz.meunier.wav2pzx.PulseList;
+
 import java.util.Arrays;
 import java.util.Collection;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import xyz.meunier.wav2pzx.PulseList;
-import xyz.meunier.wav2pzx.blocks.PZXDataBlock;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertThat;
 
 /**
  *
@@ -174,6 +170,9 @@ public class PZXDataBlockTest {
         assertThat(instance.checkChecksum(), is(true));
     }
 
+    /**
+     * Test of checkChecksum method, of class PZXDataBlock.
+     */
     @Test
     public void testCheckChecksumForAnInvalidChecksumBlock() {
         Collection<Byte> badChecksum = Arrays.asList((byte)0x10, (byte)0x20, (byte)0x33);
