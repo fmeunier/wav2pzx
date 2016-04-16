@@ -36,6 +36,7 @@ import org.junit.Test;
 import xyz.meunier.wav2pzx.PulseList;
 import xyz.meunier.wav2pzx.blocks.PZXDataBlock;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
 /**
@@ -49,25 +50,6 @@ public class PZXDataBlockTest {
     long tailLength = 945;
     int numBitsInLastByte = 8;
     Collection<Byte> data = Arrays.asList((byte)0x10, (byte)0x20, (byte)0x30);
-                                
-    public PZXDataBlockTest() {
-    }
-    
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    
-    @AfterClass
-    public static void tearDownClass() {
-    }
-    
-    @Before
-    public void setUp() {
-    }
-    
-    @After
-    public void tearDown() {
-    }
 
     /**
      * Test of getPZXBlockDiskRepresentation method, of class PZXDataBlock.
@@ -131,22 +113,25 @@ public class PZXDataBlockTest {
      * Test of isHeader method, of class PZXDataBlock.
      */
     @Test
-    public void testIsHeaderForAHeader() {
+    public void testIsHeaderForATooShortBlock() {
         PulseList newPulses = new PulseList(this.newPulses, firstPulseLevel, 1);
         PZXDataBlock instance = new PZXDataBlock(newPulses, tailLength, numBitsInLastByte, data);
-        boolean expResult = false;
-        boolean result = instance.isHeader();
-        assertEquals("Block too short to be a header", expResult, result);
+        assertThat("Block too short to be a header", instance.isHeader(), is(false));
+    }
 
+    /**
+     * Test of isHeader method, of class PZXDataBlock.
+     */
+    @Test
+    public void testIsHeaderForAHeader() {
+        PulseList newPulses = new PulseList(this.newPulses, firstPulseLevel, 1);
         Collection<Byte> headerData = Arrays.asList(
                 (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
                 (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
                 (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
                 (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00);
-        instance = new PZXDataBlock(newPulses, tailLength, numBitsInLastByte, headerData);
-        expResult = true;
-        result = instance.isHeader();
-        assertEquals("Block is a header", expResult, result);
+        PZXDataBlock instance = new PZXDataBlock(newPulses, tailLength, numBitsInLastByte, headerData);
+        assertThat("Block is a header", instance.isHeader(), is(true));
     }
 
     /**
@@ -160,11 +145,8 @@ public class PZXDataBlockTest {
                 (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
                 (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
                 (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00);
-        PZXDataBlock instance = new PZXDataBlock(newPulses,
-                tailLength, numBitsInLastByte, notHeaderData);
-        boolean expResult = false;
-        boolean result = instance.isHeader();
-        assertEquals("Header flag is not set", expResult, result);
+        PZXDataBlock instance = new PZXDataBlock(newPulses, tailLength, numBitsInLastByte, notHeaderData);
+        assertThat("Header flag is not set", instance.isHeader(), is(false));
     }
 
     /**
@@ -178,11 +160,8 @@ public class PZXDataBlockTest {
                 (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, 
                 (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, 
                 (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00);
-        PZXDataBlock instance =  new PZXDataBlock(newPulses,
-                                     tailLength, numBitsInLastByte, notHeaderData);
-        boolean expResult = false;
-        boolean result = instance.isHeader();
-        assertEquals("Header flag is set but length is wrong", expResult, result);
+        PZXDataBlock instance =  new PZXDataBlock(newPulses, tailLength, numBitsInLastByte, notHeaderData);
+        assertThat("Header flag is set but length is wrong", instance.isHeader(), is(false));
     }
 
     /**
@@ -192,9 +171,7 @@ public class PZXDataBlockTest {
     public void testCheckChecksumForAValidChecksumBlock() {
         PZXDataBlock instance = new PZXDataBlock(new PulseList(newPulses, firstPulseLevel, 1),
                                                  tailLength, numBitsInLastByte, data);
-        boolean expResult = true;
-        boolean result = instance.checkChecksum();
-        assertEquals(expResult, result);
+        assertThat(instance.checkChecksum(), is(true));
     }
 
     @Test
@@ -202,9 +179,7 @@ public class PZXDataBlockTest {
         Collection<Byte> badChecksum = Arrays.asList((byte)0x10, (byte)0x20, (byte)0x33);
         PZXDataBlock instance = new PZXDataBlock(new PulseList(newPulses, firstPulseLevel, 1),
                                                  tailLength, numBitsInLastByte, badChecksum);
-        boolean expResult = false;
-        boolean result = instance.checkChecksum();
-        assertEquals(expResult, result);
+        assertThat(instance.checkChecksum(), is(false));
     }
     
 }
