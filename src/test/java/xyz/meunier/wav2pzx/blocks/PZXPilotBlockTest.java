@@ -34,6 +34,7 @@ import org.junit.Test;
 import xyz.meunier.wav2pzx.PulseList;
 import xyz.meunier.wav2pzx.blocks.PZXPilotBlock;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
 /**
@@ -47,9 +48,6 @@ public class PZXPilotBlockTest {
     private long sync1Length = 667;
     private long sync2Length = 735;
     private Collection<Long> newPulses = Arrays.asList(2168L, 2168L, sync1Length, sync2Length);
-    
-    public PZXPilotBlockTest() {
-    }
     
     @Before
     public void setUp() {
@@ -66,7 +64,6 @@ public class PZXPilotBlockTest {
      */
     @Test
     public void testGetPZXBlockDiskRepresentation() {
-        System.out.println("getPZXBlockDiskRepresentation");
         byte[] expResult = {(byte)80, (byte)85, (byte)76, (byte)83, /* PULS */
                             (byte)0x0a, (byte)0x00, (byte)0x00, (byte)0x00, /* Length: 10 bytes */
                             (byte)0x00, (byte)0x00, /* Initial pulse high */
@@ -83,10 +80,8 @@ public class PZXPilotBlockTest {
      */
     @Test
     public void testToString() {
-        System.out.println("toString");
-        String expResult = "PZXPilotBlock{PulseList [pulseLengths.size()=4, firstPulseLevel=1, resolution=1], sync1Length=667, sync2Length=735}";
-        String result = instance.toString();
-        assertEquals(expResult, result);
+        assertThat(instance.toString(),
+                is("PZXPilotBlock{PulseList [pulseLengths.size()=4, firstPulseLevel=1, resolution=1], sync1Length=667, sync2Length=735}"));
     }
     
 }
