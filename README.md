@@ -10,4 +10,4 @@ This program translates a recording of a ZX Spectrum tape in WAV format (prefera
 
 It currently expects to be run from the command line and has the following arguments:
 
-    $ wav2pzx.jar <infile.wav> <outfile.pzx>
+    $ java -jar wav2pzx-1.0.jar <infile.wav> <outfile.pzx>
