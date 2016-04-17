@@ -34,7 +34,7 @@ package xyz.meunier.wav2pzx;
 public final class SchmittTrigger implements Bistable {
 	
 	// The threshold to pass the zero level by to switch price level
-	private final int THRESHOLD = 12;
+	private static final int THRESHOLD = 12;
 	
 	// The current level of the output
 	private int currentLevel = 0;
