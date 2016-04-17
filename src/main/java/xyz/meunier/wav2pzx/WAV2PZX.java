@@ -45,38 +45,43 @@ import xyz.meunier.wav2pzx.blocks.PZXBlock;
  * efficient format that can also represent some of the higher-level features
  * typically used in tape loading schemes from that time.
  * <p>
- * The home page is at {@link http://zxds.raxoft.cz/pzx.html}
+ * The specification is at the <a href="http://zxds.raxoft.cz/pzx.html">PZX home page</a>
  * <p>
  * This program reads a WAV format audio sample of a tape recording for these
  * machines and converts it to the efficient PZX format.
  * @author Fredrick Meunier
  */
 public class WAV2PZX {
-    
+
     /*
      * Any durations are expressed in T cycles of standard 48k Spectrum CPU.
      * This means one cycle equals 1/3500000 second.
      */
     private static final float TARGET_HZ = (float) 3500000.0;
-    
+
     /**
-     * Main entry point for WAV2PZX. Two arguments are expected, first the 
+     * Main entry point for WAV2PZX. Two arguments are expected, first the
      * source WAV filename and second the destination PZX file name.
      * @param args program arguments, two are expected - the source WAV and the destination PZX file names
      */
     public static void main(String[] args) {
-        final String wavFileIn = args[0];
-        final String pzxFileOut = args[1];
-        
-        if(wavFileIn == null || pzxFileOut == null) {
-            System.err.println("wav2pzx: usage: wav2pzx <infile> <outfile>");
+        if(args.length < 2) {
+            usage();
             return;
         }
-        
+
+        final String wavFileIn = args[0];
+        final String pzxFileOut = args[1];
+
+        if(wavFileIn.isEmpty() || pzxFileOut.isEmpty()) {
+            usage();
+            return;
+        }
+
         try {
             // Read and convert the source WAV file from samples to a list of 0/1 pulses in units of TARGET_HZ
             PulseList pulseList = AudioFileTape.buildPulseList(wavFileIn, TARGET_HZ);
-            
+
             // Analyse the source data and translate into an equivalent list of PZX tape blocks
             List<PZXBlock> pzxTape = LoaderContextImpl.buildPZXTapeList(pulseList);
 
@@ -89,12 +94,16 @@ public class WAV2PZX {
                     out.write(data, 0, data.length);
                 }
             } catch (IOException ex) {
-                System.err.println(ex);
+                System.err.println(ex.toString());
                 Logger.getLogger(WAV2PZX.class.getName()).log(Level.SEVERE, ex.toString(), ex);
             }
         } catch (IOException | UnsupportedAudioFileException e) {
             System.err.println(e);
             Logger.getLogger(WAV2PZX.class.getName()).log(Level.SEVERE, e.toString(), e);
         }
+    }
+
+    private static void usage() {
+        System.err.println("wav2pzx: usage: wav2pzx <infile> <outfile>");
     }
 }
