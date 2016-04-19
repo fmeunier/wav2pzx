@@ -25,18 +25,19 @@
  */
 package xyz.meunier.wav2pzx;
 
+import xyz.meunier.wav2pzx.blocks.PZXBlock;
+
+import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.BufferedOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.nio.file.Files;
-import java.util.List;
-import javax.sound.sampled.UnsupportedAudioFileException;
-
-import xyz.meunier.wav2pzx.blocks.PZXBlock;
 
 /**
  * Classic 8 bit Sinclair computers like the ZX Spectrum store program data on
@@ -94,16 +95,22 @@ public class WAV2PZX {
                     out.write(data, 0, data.length);
                 }
             } catch (IOException ex) {
-                System.err.println(ex.toString());
-                Logger.getLogger(WAV2PZX.class.getName()).log(Level.SEVERE, ex.toString(), ex);
+                System.err.println("Error writing file " + pzxFileOut + ": " + ex.getMessage());
+                Logger.getLogger(WAV2PZX.class.getName()).log(Level.FINE, ex.toString(), ex);
             }
-        } catch (IOException | UnsupportedAudioFileException e) {
-            System.err.println(e);
-            Logger.getLogger(WAV2PZX.class.getName()).log(Level.SEVERE, e.toString(), e);
+        } catch (FileNotFoundException e) {
+            System.err.println("Error opening file " + wavFileIn + ": " + e.getMessage());
+            usage();
+        } catch (UnsupportedAudioFileException e) {
+            System.err.println("Unsupported audio file " + wavFileIn + ": " + e.getMessage());
+            Logger.getLogger(WAV2PZX.class.getName()).log(Level.FINE, e.toString(), e);
+        } catch (IOException e) {
+            System.err.println("Error with file " + wavFileIn + ": " + e.toString());
+            Logger.getLogger(WAV2PZX.class.getName()).log(Level.FINE, e.toString(), e);
         }
     }
 
     private static void usage() {
-        System.err.println("wav2pzx: usage: wav2pzx <infile> <outfile>");
+        System.err.println("wav2pzx: usage: wav2pzx <infile.wav> <outfile.pzx>");
     }
 }
