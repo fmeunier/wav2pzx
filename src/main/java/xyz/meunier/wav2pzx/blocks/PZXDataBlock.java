@@ -212,9 +212,7 @@ public final class PZXDataBlock implements PZXBlock {
               retval.append("Unknown: ");
               break;
             }
-            // FIXME: Should have a custom mapping of Sinclair character
-            // encoding to Java characters, but US-ASCII is close enough for now
-            retval.append( new String(data, 2, 10, Charset.forName("US-ASCII") ) );
+            retval.append(getSanitisedFilename());
             retval.append("\n");
         }
 
@@ -236,6 +234,12 @@ public final class PZXDataBlock implements PZXBlock {
         }
 
         return retval.toString();
+    }
+
+    // FIXME: Should have a custom mapping of Sinclair character encoding to Java characters, but printable US-ASCII is
+    // close enough for now
+    private String getSanitisedFilename() {
+        return new String(data, 2, 10, Charset.forName("US-ASCII") ).replaceAll("[^\\p{Print}]", "?");
     }
 
     /**
