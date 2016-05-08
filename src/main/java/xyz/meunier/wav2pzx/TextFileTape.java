@@ -26,7 +26,6 @@
 
 package xyz.meunier.wav2pzx;
 
-import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -47,7 +46,7 @@ public final class TextFileTape {
      * @throws NullPointerException if {@code fileName} is null
      * @throws NumberFormatException if first level cannot be mapped to an int
      */
-    public static PulseList buildPulseList(String fileName) throws IOException, UnsupportedAudioFileException {
+    public static PulseList buildPulseList(String fileName) throws IOException {
         checkNotNull(fileName, "No input TXT file name supplied");
 
         return new PulseList(getPulses(fileName), getInitialLevel(fileName), 1);
