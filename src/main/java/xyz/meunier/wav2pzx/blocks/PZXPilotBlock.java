@@ -25,17 +25,15 @@
  */
 package xyz.meunier.wav2pzx.blocks;
 
+import xyz.meunier.wav2pzx.PulseList;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.LongSummaryStatistics;
 
-import xyz.meunier.wav2pzx.LoaderContext;
-import xyz.meunier.wav2pzx.PulseList;
-
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static xyz.meunier.wav2pzx.LoaderContext.SYNC1;
-import static xyz.meunier.wav2pzx.LoaderContext.SYNC2;
+import static xyz.meunier.wav2pzx.LoaderContext.*;
 import static xyz.meunier.wav2pzx.blocks.PZXEncodeUtils.addPZXBlockHeader;
 
 /**
@@ -86,9 +84,9 @@ public final class PZXPilotBlock implements PZXBlock {
             PZXEncodeUtils.addBytesFor(0, 1, output);
         }
         
-        PZXEncodeUtils.addBytesFor(LoaderContext.PILOT_LENGTH, getPulses().size() - 2, output);
-        PZXEncodeUtils.addBytesFor(LoaderContext.SYNC1, 1, output);
-        PZXEncodeUtils.addBytesFor(LoaderContext.SYNC2, 1, output);
+        PZXEncodeUtils.addBytesFor(PILOT_LENGTH, getPulses().size() - 2, output);
+        PZXEncodeUtils.addBytesFor(SYNC1, 1, output);
+        PZXEncodeUtils.addBytesFor(SYNC2, 1, output);
         
         return addPZXBlockHeader("PULS", output);
     }
@@ -103,7 +101,7 @@ public final class PZXPilotBlock implements PZXBlock {
         			.stream().mapToLong(x -> x).summaryStatistics();
         
         retval.append("Average pilot pulse:").append(Math.round(stats.getAverage())).append(" tstates, ")
-        		.append(String.format("%.2f", stats.getAverage()/LoaderContext.PILOT_LENGTH*100.0)).append("% of expected\n");
+        		.append(String.format("%.2f", stats.getAverage()/ PILOT_LENGTH*100.0)).append("% of expected\n");
         
         retval.append("Sync1 pulse:").append(sync1Length).append(" tstates, ")
                 .append(String.format("%.2f", (double)sync1Length/SYNC1*100.0)).append("% of expected\n");
