@@ -71,26 +71,44 @@ public class WAV2PZX {
             return;
         }
 
-        final String wavFileIn = args[0];
+        final String fileIn = args[0];
         final String pzxFileOut = args[1];
 
-        if(wavFileIn.isEmpty() || pzxFileOut.isEmpty()) {
+        if(fileIn.isEmpty() || pzxFileOut.isEmpty()) {
             usage();
             return;
         }
 
         try {
             // Read and convert the source WAV file from samples to a list of 0/1 pulses in units of TARGET_HZ
-            PulseList pulseList = AudioFileTape.buildPulseList(wavFileIn, TARGET_HZ);
+            PulseList pulseList;
+            if(fileIn.toLowerCase().endsWith(".wav")) {
+                // Read and convert the source WAV file from samples to a list of 0/1 pulses in units of TARGET_HZ
+                pulseList = AudioFileTape.buildPulseList(fileIn, TARGET_HZ);
+            } else if(fileIn.toLowerCase().endsWith(".txt")) {
+                pulseList = TextFileTape.buildPulseList(fileIn);
+            } else {
+                usage();
+                return;
+            }
 
             // Analyse the source data and translate into an equivalent list of PZX tape blocks
             List<PZXBlock> pzxTape = LoaderContextImpl.buildPZXTapeList(pulseList);
 
+            try(OutputStream pulses = new BufferedOutputStream(Files.newOutputStream(Paths.get("pulseDump.txt")))) {
+                for(PZXBlock block : pzxTape) {
+                	for(Long pulse : block.getPulses()) {
+                		pulses.write(String.format("%d%n", pulse).getBytes());
+                	}
+                }
+            }
+            
             Path pzxFile = Paths.get(pzxFileOut);
 
             // Overwrite the destination file with the extracted PZX data
             try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(pzxFile))) {
                 for(PZXBlock block : pzxTape) {
+                	System.out.println(block.getSummary());
                     byte[] data = block.getPZXBlockDiskRepresentation();
                     out.write(data, 0, data.length);
                 }
@@ -99,18 +117,18 @@ public class WAV2PZX {
                 Logger.getLogger(WAV2PZX.class.getName()).log(Level.FINE, ex.toString(), ex);
             }
         } catch (FileNotFoundException e) {
-            System.err.println("Error opening file " + wavFileIn + ": " + e.getMessage());
+            System.err.println("Error opening file " + fileIn + ": " + e.getMessage());
             usage();
         } catch (UnsupportedAudioFileException e) {
-            System.err.println("Unsupported audio file " + wavFileIn + ": " + e.getMessage());
+            System.err.println("Unsupported audio file " + fileIn + ": " + e.getMessage());
             Logger.getLogger(WAV2PZX.class.getName()).log(Level.FINE, e.toString(), e);
         } catch (IOException e) {
-            System.err.println("Error with file " + wavFileIn + ": " + e.toString());
+            System.err.println("Error with file " + fileIn + ": " + e.toString());
             Logger.getLogger(WAV2PZX.class.getName()).log(Level.FINE, e.toString(), e);
         }
     }
 
     private static void usage() {
-        System.err.println("wav2pzx: usage: wav2pzx <infile.wav> <outfile.pzx>");
+        System.err.println("wav2pzx: usage: wav2pzx <infile.wav or txt> <outfile.pzx>");
     }
 }
