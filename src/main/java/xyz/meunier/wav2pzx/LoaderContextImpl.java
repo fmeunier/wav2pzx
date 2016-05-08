@@ -59,10 +59,10 @@ public final class LoaderContextImpl implements LoaderContext {
     
     // The current binary signal level
     private int currentLevel;
-    
+
     // Holds all the detected pilot pulses from the source for this block
     private final ArrayList<Long> pilotPulses = new ArrayList<>();
-    
+
     // Holds all the detected 0 bit pulses from the source
     private final ArrayList<Long> zeroPulses = new ArrayList<>();
     
@@ -217,7 +217,7 @@ public final class LoaderContextImpl implements LoaderContext {
         
         if(isPilot) {
             newBlock = new PZXPilotBlock(getPulseListForCurrentPulses());
-            LongSummaryStatistics stats = getSummaryStats (pilotPulses);
+            LongSummaryStatistics stats = getSummaryStats(pilotPulses);
             Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.INFO, getSummaryText("pilot", PILOT_LENGTH, stats));
             // if average PILOT_LENGTH pulse length is not plausibly the same as standard, record this as a non-pilot block
             if(!PulseUtils.equalWithinResolution(PILOT_LENGTH, stats.getAverage(), resolution)) {
