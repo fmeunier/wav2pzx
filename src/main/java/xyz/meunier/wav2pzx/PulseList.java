@@ -25,9 +25,10 @@
  */
 package xyz.meunier.wav2pzx;
 
+import com.google.common.collect.ImmutableList;
+
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import com.google.common.collect.ImmutableList;
 
 /**
  * Representation of an immutable sequence of pulses for a tape.
@@ -121,8 +122,19 @@ public final class PulseList {
 
 	@Override
 	public String toString() {
-		return "PulseList [pulseLengths.size()=" + pulseLengths.size() + ", firstPulseLevel=" + firstPulseLevel + ", resolution="
-				+ resolution + "]";
+		return "PulseList [pulseLengths.size()=" + pulseLengths.size() + ", firstPulseLevel=" + firstPulseLevel
+				+ ", resolution=" + resolution + "]";
 	}
-    
+
+	/**
+	 * Returns a String representation of a PulseList in the non-annotated text format that is used by the pzx2txt
+	 * program in the pzxtools
+	 * @return the String representation
+     */
+	public String toPulseListText() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("PULSES\n");
+		pulseLengths.stream().forEach(p -> builder.append("PULSE ").append(p).append("\n"));
+		return builder.toString();
+	}
 }
