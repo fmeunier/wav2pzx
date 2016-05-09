@@ -27,19 +27,14 @@ package xyz.meunier.wav2pzx;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
-
-import xyz.meunier.wav2pzx.blocks.PZXBlock;
-import xyz.meunier.wav2pzx.blocks.PZXDataBlock;
-import xyz.meunier.wav2pzx.blocks.PZXHeaderBlock;
-import xyz.meunier.wav2pzx.blocks.PZXNullBlock;
-import xyz.meunier.wav2pzx.blocks.PZXPilotBlock;
-import xyz.meunier.wav2pzx.blocks.PZXPulseBlock;
+import xyz.meunier.wav2pzx.blocks.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.LongSummaryStatistics;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -275,8 +270,7 @@ public final class LoaderContextImpl implements LoaderContext {
 		}
 
 		PZXDataBlock newBlock = 
-                new PZXDataBlock(getPulseListForCurrentPulses(), tailLength, 
-                				 numBitsInLastByte, data);
+                new PZXDataBlock(getPulseListForCurrentPulses(), numBitsInLastByte, data);
         
 		Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.INFO, newBlock.getSummary());
         loaderResult.add(newBlock);

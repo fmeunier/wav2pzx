@@ -26,21 +26,18 @@
 package xyz.meunier.wav2pzx.blocks;
 
 import com.google.common.primitives.Bytes;
-
-import xyz.meunier.wav2pzx.LoaderContext;
 import xyz.meunier.wav2pzx.PulseList;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Arrays;
+
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static xyz.meunier.wav2pzx.blocks.PZXEncodeUtils.addPZXBlockHeader;
-import static xyz.meunier.wav2pzx.blocks.PZXEncodeUtils.putUnsignedByte;
-import static xyz.meunier.wav2pzx.blocks.PZXEncodeUtils.putUnsignedLittleEndianInt;
-import static xyz.meunier.wav2pzx.blocks.PZXEncodeUtils.putUnsignedLittleEndianShort;
+import static xyz.meunier.wav2pzx.LoaderContext.*;
+import static xyz.meunier.wav2pzx.blocks.PZXEncodeUtils.*;
 
 /**
  * Represents a PZX data block (DATA). Stores the decoded bytes found on the tape.
@@ -61,7 +58,7 @@ public final class PZXDataBlock implements PZXBlock {
     private final PulseList pulses;
     
     // The length of the tail pulse identified in the source file
-    private final long tailLength;
+    private final short tailLength;
     
     // The decoded data for the data block
     private final byte[] data;
@@ -78,28 +75,50 @@ public final class PZXDataBlock implements PZXBlock {
     // Was this block a header or data block?
     private final boolean isHeader;
 
+    // The length of the zero pulse identified in the source file
+    private final short zeroPulseLength;
+
+    // The length of the one pulse identified in the source file
+    private final short onePulseLength;
+
     /**
      * Constructs a new PZXDataBlock.
      * @param newPulses the original tape pulses that have been decoded into this block
+     * @param zeroPulseLength the length of the zero pulses in the block
+     * @param onePulseLength the length of the one pulses in the block
      * @param tailLength the length of the tail pulse in the block
      * @param numBitsInLastByte the number of bits used in the last byte of the data collection
      * @param data the decoded data from the tape image
      * @throws NullPointerException if newPulses or data is null
      * @throws IllegalArgumentException if data is empty
      */
-    public PZXDataBlock(PulseList newPulses, long tailLength, int numBitsInLastByte, 
-            			Collection<Byte> data) {
+    public PZXDataBlock(PulseList newPulses, long zeroPulseLength, long onePulseLength, long tailLength,
+                        int numBitsInLastByte, Collection<Byte> data) {
         checkNotNull(newPulses, "newPulses must not be null");
         checkNotNull(data, "data must not be null");
         checkArgument(!data.isEmpty(), "data array must not be empty");
         this.pulses = newPulses;
-        this.tailLength = tailLength;
+        this.zeroPulseLength = (short)zeroPulseLength;
+        this.onePulseLength = (short)onePulseLength;
+        this.tailLength = (short)tailLength;
         this.numBitsInLastByte = numBitsInLastByte;
         this.data = Bytes.toArray(data);
-        this.isHeader = this.data.length == HEADER_LENGTH && 
-                            this.data[0] == HEADER_FLAG;
+        this.isHeader = this.data.length == HEADER_LENGTH &&
+                this.data[0] == HEADER_FLAG;
         this.suppliedChecksum = this.data[this.data.length-1];
         this.calculatedChecksum = calcChecksum();
+    }
+
+    /**
+     * Constructs a new PZXDataBlock.
+     * @param newPulses the original tape pulses that have been decoded into this block
+     * @param numBitsInLastByte the number of bits used in the last byte of the data collection
+     * @param data the decoded data from the tape image
+     * @throws NullPointerException if newPulses or data is null
+     * @throws IllegalArgumentException if data is empty
+     */
+    public PZXDataBlock(PulseList newPulses, int numBitsInLastByte, Collection<Byte> data) {
+        this(newPulses, ZERO, ONE, TAIL, numBitsInLastByte, data);
     }
 
     // Calculates the checksum for the data according to the algorithm in the 
@@ -117,12 +136,6 @@ public final class PZXDataBlock implements PZXBlock {
 
     @Override
     public byte[] getPZXBlockDiskRepresentation() {
-    	// If the checksum has failed or we have an incomplete last byte than the block decoding has
-    	// failed and we should return a pulse block disk representation instead
-    	if(numBitsInLastByte != 8 || suppliedChecksum != calculatedChecksum) {
-    		return PZXPulseBlock.getPZXBlockDiskRepresentation(pulses);
-    	}
-
     	/*  DATA - Data block
             -----------------
 
@@ -164,18 +177,18 @@ public final class PZXDataBlock implements PZXBlock {
         putUnsignedLittleEndianInt(count, output);
         
         // use standard duration tail pulse after last bit of the block if we found one
-        putUnsignedLittleEndianShort(tailLength == 0 ? 0 : LoaderContext.TAIL, output);
+        putUnsignedLittleEndianShort(tailLength == 0 ? 0 : tailLength, output);
         
         putUnsignedByte((byte)2, output); // number of pulses encoding bit equal to 0.
         putUnsignedByte((byte)2, output); // number of pulses encoding bit equal to 1.
         
         // sequence of pulse durations encoding bit equal to 0.
-        putUnsignedLittleEndianShort(LoaderContext.ZERO, output);
-        putUnsignedLittleEndianShort(LoaderContext.ZERO, output);
+        putUnsignedLittleEndianShort(zeroPulseLength, output);
+        putUnsignedLittleEndianShort(zeroPulseLength, output);
         
         // sequence of pulse durations encoding bit equal to 1.
-        putUnsignedLittleEndianShort(LoaderContext.ONE, output);
-        putUnsignedLittleEndianShort(LoaderContext.ONE, output);
+        putUnsignedLittleEndianShort(onePulseLength, output);
+        putUnsignedLittleEndianShort(onePulseLength, output);
         
         // data stream
         output.addAll(Bytes.asList(data));
@@ -228,7 +241,7 @@ public final class PZXDataBlock implements PZXBlock {
         retval.append("Tail pulse:");
         if(tailLength != 0) {
             retval.append(tailLength).append(" tstates, ")
-                .append(Math.round((double)tailLength/LoaderContext.TAIL*100.0)).append("% of expected\n");
+                .append(Math.round((double)tailLength/ TAIL*100.0)).append("% of expected\n");
         } else {
             retval.append(" None\n");
         }
@@ -263,7 +276,11 @@ public final class PZXDataBlock implements PZXBlock {
 
     @Override
     public String toString() {
-        return "PZXDataBlock{" + pulses.toString() + ", tailLength=" + tailLength + ", numBitsInLastByte=" + numBitsInLastByte + ", calculatedChecksum=" + String.format("0x%x", calculatedChecksum) + ", suppliedChecksum=" + String.format("0x%x", suppliedChecksum) + ", isHeader=" + isHeader + ", data.length=" + data.length + '}';
+        return "PZXDataBlock{" + pulses.toString() + ", zeroPulseLength=" + zeroPulseLength + ", onePulseLength="
+                + onePulseLength + ", tailLength=" + tailLength + ", numBitsInLastByte=" + numBitsInLastByte
+                + ", calculatedChecksum=" + String.format("0x%x", calculatedChecksum) + ", suppliedChecksum="
+                + String.format("0x%x", suppliedChecksum) + ", isHeader=" + isHeader + ", data.length="
+                + data.length + '}';
     }
 
 	@Override
