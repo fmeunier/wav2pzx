@@ -102,13 +102,6 @@ public interface LoaderContext {
     short TAIL = 945;
 
     /**
-     * A data bit has been found in the input stream, accumulate it into the current
-     * byte being assembled and when complete, add it to the data collection
-     * @param bit  the data bit to add
-     */
-    void addBit(int bit);
-
-    /**
      * Add the two "one" pulses that have been identified as a "one" bit to the
      * data stream
      * @param firstPulseLength the value of firstPulse

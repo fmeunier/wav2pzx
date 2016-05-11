@@ -25,21 +25,15 @@
  */
 package xyz.meunier.wav2pzx;
 
+import org.junit.Test;
+import xyz.meunier.wav2pzx.blocks.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Test;
 
-import xyz.meunier.wav2pzx.blocks.PZXBlock;
-import xyz.meunier.wav2pzx.blocks.PZXDataBlock;
-import xyz.meunier.wav2pzx.blocks.PZXNullBlock;
-import xyz.meunier.wav2pzx.blocks.PZXPilotBlock;
-import xyz.meunier.wav2pzx.blocks.PZXPulseBlock;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 /**
@@ -48,8 +42,6 @@ import static org.junit.Assert.*;
  */
 public class LoaderContextImplTest {
     
-    private static final double TOLERANCE = 0.001;
-
     /**
      * Test of buildPZXTapeList method, of class LoaderContextImpl.
      */
@@ -101,26 +93,6 @@ public class LoaderContextImplTest {
         assertThat("Check current block pulses recorded", instance.getPulseLengths(), equalTo(expResult));
 
         assertThat("Check zero pulses recorded", instance.getZeroPulses(), equalTo(expResult));
-
-        assertThat("Check bit has been handled", instance.getCurrentByte(), is((byte)0x00));
-    }
-
-    /**
-     * Test of addBit method, of class LoaderContextImpl.
-     */
-    @Test
-    public void testAddBit() {
-        int bit = 1;
-        PulseList pulseList = new PulseList(Collections.singletonList(200L), 1, 1);
-        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
-        // add 8 bits to add an entry to data collection, plus one to check current byte
-        for(int i = 0; i < 9; i++) {
-        	instance.addBit(bit);
-        }
-
-        assertThat("Check byte was generated", instance.getData(), equalTo(Collections.singletonList((byte)0xff)));
-
-        assertThat("Check bit has been handled", instance.getCurrentByte(), is((byte)0x01));
     }
 
     /**
@@ -135,10 +107,6 @@ public class LoaderContextImplTest {
         instance.addPilotPulse(pulseLength);
         instance.addZeroPulse(pulseLength, pulseLength);
         instance.addOnePulse(pulseLength, pulseLength);
-        // add 8 bits to add an entry to data collection
-        for(int i = 0; i < 8; i++) {
-        	instance.addBit(1);
-        }
         instance.addSync1(pulseLength);
         instance.addSync2(pulseLength);
         instance.setTailLength(pulseLength);
@@ -163,8 +131,6 @@ public class LoaderContextImplTest {
         assertThat("Check current block pulses recorded", instance.getPulseLengths(), equalTo(expResult));
 
         assertThat("Check one pulses recorded", instance.getOnePulses(), equalTo(expResult));
-
-        assertThat("Check bit has been handled", instance.getCurrentByte(), is((byte)0x01));
     }
 
     /**
@@ -428,12 +394,9 @@ public class LoaderContextImplTest {
         assertThat("Check sync1 has been reset", instance.getSync1Length(), is(0L));
         assertThat("Check sync2 has been reset", instance.getSync2Length(), is(0L));
         assertThat("Check tail length has been reset", instance.getTailLength(), is(0L));
-        assertThat("Check bit has been reset", instance.getCurrentByte(), is((byte)0x00));
-        assertThat("Check number of bits in current byte is 0", instance.getNumBitsInCurrentByte(), is(0));
         assertThat("Check no pilot pulse recorded", instance.getPilotPulses().isEmpty(), is(true));
         assertThat("Check no zero pulses recorded", instance.getZeroPulses().isEmpty(), is(true));
         assertThat("Check no one pulses recorded", instance.getOnePulses().isEmpty(), is(true));
-        assertThat("Check no data recorded", instance.getData().isEmpty(), is(true));
 	}
 
     /**

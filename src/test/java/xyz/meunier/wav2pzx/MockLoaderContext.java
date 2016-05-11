@@ -31,7 +31,6 @@ package xyz.meunier.wav2pzx;
  */
 public final class MockLoaderContext implements LoaderContext {
 
-    private int bit;
     private Long lastSecondOnePulse;
     private Long lastPilotPulse;
     private Long lastSync1Length;
@@ -57,7 +56,6 @@ public final class MockLoaderContext implements LoaderContext {
     }
 
     public void resetFields() {
-        this.bit = 0;
         this.lastFirstOnePulse = Long.MIN_VALUE;
         this.lastSecondOnePulse = Long.MIN_VALUE;
         this.lastPilotPulse = Long.MIN_VALUE;
@@ -77,10 +75,6 @@ public final class MockLoaderContext implements LoaderContext {
         this.currentPulseLevel = Integer.MIN_VALUE;
         this.nextPulseLevel = Long.MIN_VALUE;
         this.hasNextPulse = false;
-    }
-
-    public int getBit() {
-        return bit;
     }
 
     public Long getLastFirstOnePulse() {
@@ -121,11 +115,6 @@ public final class MockLoaderContext implements LoaderContext {
 
     public boolean isCalledRevertCurrentBlock() {
         return calledRevertCurrentBlock;
-    }
-
-    @Override
-    public void addBit(int bit) {
-        this.bit = bit;
     }
 
     /**

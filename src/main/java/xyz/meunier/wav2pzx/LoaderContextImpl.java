@@ -25,6 +25,7 @@
  */
 package xyz.meunier.wav2pzx;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
 import xyz.meunier.wav2pzx.blocks.*;
@@ -65,12 +66,7 @@ public final class LoaderContextImpl implements LoaderContext {
     private final ArrayList<Long> onePulses = new ArrayList<>();
     
     // Holds the sequence of bytes decoded from the pulse stream
-    private final ArrayList<Byte> data = new ArrayList<>();
-
-    // Holds the in-progress byte being built from the tape bitstream
-    private byte currentByte;
-    // Number of bits received so far for the currentByte
-    private int numBitsInCurrentByte;
+    private DataBuilder dataBuilder = new DataBuilder();
     
     // Length of the SYNC1 pulse found on the tape
     private long sync1Length;
@@ -163,18 +159,7 @@ public final class LoaderContextImpl implements LoaderContext {
         addPulse(secondPulseLength);
         zeroPulses.add(firstPulseLength);
         zeroPulses.add(secondPulseLength);
-        addBit( 0 );
-    }
-
-    @Override
-    public void addBit(int bit) {
-        currentByte <<= 1;
-        currentByte |= (bit & 0x01);
-        if( ++numBitsInCurrentByte == 8 ) {
-            data.add(currentByte);
-            currentByte = 0;
-            numBitsInCurrentByte = 0;
-        }
+        dataBuilder.addBit(0);
     }
 
     @Override
@@ -182,10 +167,9 @@ public final class LoaderContextImpl implements LoaderContext {
         pilotPulses.clear();
         zeroPulses.clear();
         onePulses.clear();
-        data.clear();
-        
-        currentByte = 0;
-        numBitsInCurrentByte = 0;
+
+        dataBuilder = new DataBuilder();
+
         sync1Length = 0;
         sync2Length = 0;
         tailLength = 0;
@@ -197,7 +181,7 @@ public final class LoaderContextImpl implements LoaderContext {
         addPulse(secondPulseLength);
         onePulses.add(firstPulseLength);
         onePulses.add(secondPulseLength);
-        addBit( 1 );
+        dataBuilder.addBit(1);
     }
 
     @Override
@@ -240,14 +224,9 @@ public final class LoaderContextImpl implements LoaderContext {
             return;
         }
 
-        // add any partially accumulated byte to the data collection before
-        // considering this block complete
-        if( numBitsInCurrentByte != 0 ) {
-            data.add(currentByte);
-        }
-        
-        int numBitsInLastByte = numBitsInCurrentByte == 0  ? 8 : numBitsInCurrentByte;
-        
+        ImmutableList<Byte> data = dataBuilder.getData();
+        int numBitsInLastByte = dataBuilder.getNumBitsInCurrentByte();
+
         LongSummaryStatistics zeroStats = getSummaryStats(zeroPulses);
 		Logger.getLogger(LoaderContextImpl.class.getName()).log(Level.INFO, getSummaryText("zero", ZERO, zeroStats));
         LongSummaryStatistics oneStats = getSummaryStats (onePulses);
@@ -426,22 +405,6 @@ public final class LoaderContextImpl implements LoaderContext {
     }
 
     /**
-     * Get the in-progress byte being constructed from the decoded bits
-     * @return the in-progress byte being built
-     */
-    public byte getCurrentByte() {
-        return currentByte;
-    }
-    
-    /**
-     * Get the number of bits in the in-progress byte being constructed from the decoded bits
-     * @return the number of bits in the in-progress byte being built
-     */
-    public int getNumBitsInCurrentByte() {
-    	return numBitsInCurrentByte;
-    }
-
-    /**
      * Get a copy of the current list of one bit pulses in the block being built
      * @return a copy of the current list of zero bit pulses
      */
@@ -457,14 +420,6 @@ public final class LoaderContextImpl implements LoaderContext {
         return new ArrayList<>(pilotPulses);
     }
     
-    /**
-     * Get a copy of the current list of data bytes in the block being built
-     * @return a copy of the current list of data bytes
-     */
-    public List<Byte> getData() {
-    	return new ArrayList<>(data);
-    }
-
 	@Override
 	public long getResolution() {
 		return this.resolution;
