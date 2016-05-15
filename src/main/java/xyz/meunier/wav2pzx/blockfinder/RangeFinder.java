@@ -32,6 +32,8 @@ import com.google.common.collect.Range;
 import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.lang.Math.round;
+import static java.util.stream.Collectors.averagingLong;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -51,14 +53,14 @@ final class RangeFinder {
      * Analyse a provided collection of summed pairs of pulses assuming that they consist of a typical ZX Spectrum data
      * block with zero and one bits represented by pairs of equal sized pulses and return a list of Ranges that can be
      * used to classify the source pulses into their different underlying groups.
-     * @param pulses the list of pulses to be analysed
+     * @param fullPulses the list of pulses to be analysed
      * @return the list of Ranges identified to correspond to the underlying pulse pairs
      * @throws NullPointerException if pulses was null
      */
-    static List<Range<Long>> getRanges(Collection<Long> pulses) {
-        checkNotNull(pulses, "pulses was null");
+    static List<Range<Long>> getRanges(Collection<Long> fullPulses) {
+        checkNotNull(fullPulses, "fullPulses was null");
 
-        List<Long> sortedPulses = pulses.stream().sorted().collect(toList());
+        List<Long> sortedPulses = fullPulses.stream().sorted().collect(toList());
 
         Optional<Long> first = sortedPulses.stream().findFirst();
         if(!first.isPresent()) {
@@ -103,5 +105,21 @@ final class RangeFinder {
 
     private static Range<Long> getRange(long value) {
         return Range.singleton(value);
+    }
+
+    /**
+     * Get an average pulse for pulses in a supplied stream that fall into the supplied ranges.
+     * @param ranges the classified ranges
+     * @param fullPulses the pulses to classify
+     * @return a map of range to the average length of the matching pulses from the stream
+     */
+    static Map<Range<Long>, Long> getAveragePulseLengthsOfRanges(Iterable<Range<Long>> ranges, Collection<Long> fullPulses) {
+        Map<Range<Long>, Long> averages = new LinkedHashMap<>();
+
+        for(Range<Long> range : ranges) {
+            Long average = round(fullPulses.stream().filter(range::contains).collect(averagingLong(l -> l)));
+            averages.put(range, average);
+        }
+        return averages;
     }
 }

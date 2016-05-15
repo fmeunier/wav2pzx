@@ -26,7 +26,12 @@
 
 package xyz.meunier.wav2pzx.blockfinder;
 
+import com.google.common.collect.Range;
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Range.closed;
 import static com.google.common.collect.Range.singleton;
@@ -34,10 +39,15 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.collection.IsMapContaining.hasEntry;
 import static org.junit.Assert.assertThat;
+import static xyz.meunier.wav2pzx.blockfinder.RangeFinder.getAveragePulseLengthsOfRanges;
 import static xyz.meunier.wav2pzx.blockfinder.RangeFinder.getRanges;
 
 public class RangeFinderTest {
+
+    private final List<Long> MULTI_SYMBOL_PULSE_LIST = asList(1000L, 1100L, 3100L, 3200L);
+    private final List<Range<Long>> MULTI_SYMBOL_RANGES = asList(closed(950L, 1150L), closed(3050L, 3250L));
 
     @Test(expected = NullPointerException.class)
     public void shouldGetNullPointerExceptionWithNullArgument() throws Exception {
@@ -61,6 +71,20 @@ public class RangeFinderTest {
 
     @Test
     public void shouldSplitRangeWithASignificantGap() throws Exception {
-        assertThat(getRanges(asList(1000L, 1100L, 3100L, 3200L)), is(asList(closed(950L, 1150L), closed(3050L, 3250L))));
+        assertThat(getRanges(MULTI_SYMBOL_PULSE_LIST), is(MULTI_SYMBOL_RANGES));
+    }
+
+    @Test
+    public void shouldGetAveragePulseCalculatedPerRange() throws Exception {
+        Map<Range<Long>, Long> expectedMap = getAveragePulseLengthsOfRanges(MULTI_SYMBOL_RANGES, MULTI_SYMBOL_PULSE_LIST);
+
+        Map<Range<Long>, Long> expectedData = new HashMap<>();
+
+        expectedData.put(Range.closed(950L, 1150L), 1050L);
+        expectedData.put(Range.closed(3050L, 3250L), 3150L);
+
+        for (Map.Entry<Range<Long>, Long> entry : expectedData.entrySet()) {
+            assertThat(expectedMap, hasEntry(entry.getKey(), entry.getValue()));
+        }
     }
 }
