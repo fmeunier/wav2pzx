@@ -38,11 +38,11 @@ import static com.google.common.collect.Range.singleton;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.collection.IsMapContaining.hasEntry;
 import static org.junit.Assert.assertThat;
-import static xyz.meunier.wav2pzx.blockfinder.RangeFinder.getAveragePulseLengthsOfRanges;
-import static xyz.meunier.wav2pzx.blockfinder.RangeFinder.getRanges;
+import static xyz.meunier.wav2pzx.blockfinder.RangeFinder.*;
 
 public class RangeFinderTest {
 
@@ -86,5 +86,25 @@ public class RangeFinderTest {
         for (Map.Entry<Range<Long>, Long> entry : expectedData.entrySet()) {
             assertThat(expectedMap, hasEntry(entry.getKey(), entry.getValue()));
         }
+    }
+
+    @Test
+    public void shouldGetAZeroAverageIfNoPulsesMatchSuppliedRange() throws Exception {
+        Map<Range<Long>, Long> actualMap = getAveragePulseLengthsOfRanges(MULTI_SYMBOL_RANGES, emptyList());
+
+        Map<Range<Long>, Long> expectedData = new HashMap<>();
+
+        expectedData.put(Range.closed(950L, 1150L), 0L);
+        expectedData.put(Range.closed(3050L, 3250L), 0L);
+
+        for (Map.Entry<Range<Long>, Long> entry : expectedData.entrySet()) {
+            assertThat(actualMap, hasEntry(entry.getKey(), entry.getValue()));
+        }
+    }
+
+    @Test
+    public void shouldGetOneRangeForEachSourcePulse() throws Exception {
+        List<Range<Long>> expectedList = asList(singleton(1000L), singleton(1100L), singleton(3100L), singleton(3200L));
+        assertThat(getRangesForSinglePulses(MULTI_SYMBOL_PULSE_LIST), is(equalTo(expectedList)));
     }
 }

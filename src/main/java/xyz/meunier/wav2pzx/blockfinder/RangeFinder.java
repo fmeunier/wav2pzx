@@ -32,7 +32,11 @@ import com.google.common.collect.Range;
 import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Range.closed;
+import static com.google.common.collect.Range.singleton;
 import static java.lang.Math.round;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.averagingLong;
 import static java.util.stream.Collectors.toList;
 
@@ -64,12 +68,12 @@ final class RangeFinder {
 
         Optional<Long> first = sortedPulses.stream().findFirst();
         if(!first.isPresent()) {
-            return Collections.emptyList();
+            return emptyList();
         }
 
         Long bottomOfRange = first.get();
         if(sortedPulses.size() == 1) {
-            return Collections.singletonList(getRange(bottomOfRange));
+            return singletonList(singleton(bottomOfRange));
         }
 
         List<Range<Long>> foundRanges = new ArrayList<>();
@@ -87,7 +91,7 @@ final class RangeFinder {
         }
 
         if(bottomOfRange.equals(lastPulse)) {
-            foundRanges.add(getRange(bottomOfRange));
+            foundRanges.add(singleton(bottomOfRange));
         } else {
             foundRanges.add(getRange(bottomOfRange, lastPulse));
         }
@@ -95,31 +99,38 @@ final class RangeFinder {
         return ImmutableList.copyOf(foundRanges);
     }
 
-    private static boolean isaSignificantGapBetweenPulses(Long lastPulse, Long pulse) {
-        return (pulse - lastPulse) > MIN_INTER_SYMBOL_GAP;
-    }
-
-    private static Range<Long> getRange(Long bottomOfRange, Long lastPulse) {
-        return Range.closed(bottomOfRange - PULSE_TOLERANCE, lastPulse + PULSE_TOLERANCE);
-    }
-
-    private static Range<Long> getRange(long value) {
-        return Range.singleton(value);
+    /**
+     * Constructs a list of ranges, one singleton range for each provided pulse
+     * @param pulses the collection of pulses
+     * @return a list of singleton ranges, one for each non-null source pulse
+     */
+    static List<Range<Long>> getRangesForSinglePulses(Collection<Long> pulses) {
+        checkNotNull(pulses, "pulses was null");
+        return pulses.stream().filter(l -> l != null).sorted().map(Range::singleton).collect(toList());
     }
 
     /**
      * Get an average pulse for pulses in a supplied stream that fall into the supplied ranges.
      * @param ranges the classified ranges
-     * @param fullPulses the pulses to classify
+     * @param fullBits the pulses to classify
      * @return a map of range to the average length of the matching pulses from the stream
      */
-    static Map<Range<Long>, Long> getAveragePulseLengthsOfRanges(Iterable<Range<Long>> ranges, Collection<Long> fullPulses) {
+    static Map<Range<Long>, Long> getAveragePulseLengthsOfRanges(Iterable<Range<Long>> ranges, Collection<Long> fullBits) {
         Map<Range<Long>, Long> averages = new LinkedHashMap<>();
 
         for(Range<Long> range : ranges) {
-            Long average = round(fullPulses.stream().filter(range::contains).collect(averagingLong(l -> l)));
+            Long average = round(fullBits.stream().filter(range::contains).collect(averagingLong(l -> l)));
             averages.put(range, average);
         }
         return averages;
     }
+
+    private static boolean isaSignificantGapBetweenPulses(Long lastPulse, Long pulse) {
+        return (pulse - lastPulse) > MIN_INTER_SYMBOL_GAP;
+    }
+
+    private static Range<Long> getRange(Long bottomOfRange, Long lastPulse) {
+        return closed(bottomOfRange - PULSE_TOLERANCE, lastPulse + PULSE_TOLERANCE);
+    }
+
 }
