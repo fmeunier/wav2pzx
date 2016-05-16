@@ -86,4 +86,26 @@ final class TapeBlock {
                 ", pulseList=" + pulseList +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TapeBlock tapeBlock = (TapeBlock) o;
+
+        if (blockType != tapeBlock.blockType) return false;
+        if (rangeAverages != null ? !rangeAverages.equals(tapeBlock.rangeAverages) : tapeBlock.rangeAverages != null)
+            return false;
+        return pulseList != null ? pulseList.equals(tapeBlock.pulseList) : tapeBlock.pulseList == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = blockType != null ? blockType.hashCode() : 0;
+        result = 31 * result + (rangeAverages != null ? rangeAverages.hashCode() : 0);
+        result = 31 * result + (pulseList != null ? pulseList.hashCode() : 0);
+        return result;
+    }
 }
