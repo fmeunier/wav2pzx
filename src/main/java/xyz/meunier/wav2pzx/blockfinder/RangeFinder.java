@@ -100,6 +100,26 @@ final class RangeFinder {
     }
 
     /**
+     * Get an average pulse for pulses in a supplied stream that fall into the supplied ranges.
+     * @param ranges the classified ranges
+     * @param fullBits the pulses to classify
+     * @return a map of range to the average length of the matching pulses from the stream
+     * @throws NullPointerException if ranges or fullBits was null
+     */
+    static Map<Range<Long>, Long> getAveragePulseLengthsOfRanges(Iterable<Range<Long>> ranges, Collection<Long> fullBits) {
+        checkNotNull(ranges, "ranges was null");
+        checkNotNull(fullBits, "fullBits was null");
+
+        Map<Range<Long>, Long> averages = new LinkedHashMap<>();
+
+        for(Range<Long> range : ranges) {
+            Long average = round(fullBits.stream().filter(range::contains).collect(averagingLong(l -> l)));
+            averages.put(range, average);
+        }
+        return averages;
+    }
+
+    /**
      * Constructs a list of ranges, one singleton range for each provided pulse
      * @param pulses the collection of pulses
      * @return a list of singleton ranges, one for each non-null source pulse
@@ -110,17 +130,18 @@ final class RangeFinder {
     }
 
     /**
-     * Get an average pulse for pulses in a supplied stream that fall into the supplied ranges.
+     * Get a map of supplied Range<Long> singleton values to their long value.
      * @param ranges the classified ranges
-     * @param fullBits the pulses to classify
-     * @return a map of range to the average length of the matching pulses from the stream
+     * @return a map of range to the length of the matching pulses from the stream
+     * @throws NullPointerException if ranges was null
      */
-    static Map<Range<Long>, Long> getAveragePulseLengthsOfRanges(Iterable<Range<Long>> ranges, Collection<Long> fullBits) {
+    static Map<Range<Long>, Long> getSingletonPulseLengthsOfRanges(Iterable<Range<Long>> ranges) {
+        checkNotNull(ranges, "ranges was null");
+
         Map<Range<Long>, Long> averages = new LinkedHashMap<>();
 
         for(Range<Long> range : ranges) {
-            Long average = round(fullBits.stream().filter(range::contains).collect(averagingLong(l -> l)));
-            averages.put(range, average);
+            averages.put(range, range.lowerEndpoint());
         }
         return averages;
     }

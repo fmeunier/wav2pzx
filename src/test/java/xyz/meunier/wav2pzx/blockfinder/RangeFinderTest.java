@@ -26,6 +26,7 @@
 
 package xyz.meunier.wav2pzx.blockfinder;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import org.junit.Test;
 
@@ -107,4 +108,19 @@ public class RangeFinderTest {
         List<Range<Long>> expectedList = asList(singleton(1000L), singleton(1100L), singleton(3100L), singleton(3200L));
         assertThat(getRangesForSinglePulses(MULTI_SYMBOL_PULSE_LIST), is(equalTo(expectedList)));
     }
+
+    @Test
+    public void shouldGetSuitableRangesForSingletonPulses() throws Exception {
+        List<Range<Long>> expectedList = asList(singleton(1000L), singleton(1100L), singleton(3100L), singleton(3200L));
+
+        Map<Range<Long>, Long> expectedMap = ImmutableMap.of(
+                singleton(1000L), 1000L,
+                singleton(1100L), 1100L,
+                singleton(3100L), 3100L,
+                singleton(3200L), 3200L
+        );
+
+        assertThat(getSingletonPulseLengthsOfRanges(expectedList), is(equalTo(expectedMap)));
+    }
+
 }
