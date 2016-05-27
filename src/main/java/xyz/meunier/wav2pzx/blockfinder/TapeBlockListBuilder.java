@@ -27,6 +27,7 @@
 package xyz.meunier.wav2pzx.blockfinder;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 
@@ -90,4 +91,13 @@ final class TapeBlockListBuilder {
     private Optional<TapeBlock> getTapeBlock(Supplier<Optional<TapeBlock>> supplier) {
         return tapeBlocks.isEmpty() ? empty() : supplier.get();
     }
+
+    Optional<TapeBlock> removeLastBlockIfTrue(Predicate<TapeBlock> predicate) {
+        checkNotNull(predicate, "predicate cannot be null");
+
+        Optional<TapeBlock> lastBlock = peekLastBlock();
+        if (!lastBlock.isPresent() || !predicate.test(lastBlock.get())) return empty();
+        return removeLastBlock();
+    }
+
 }

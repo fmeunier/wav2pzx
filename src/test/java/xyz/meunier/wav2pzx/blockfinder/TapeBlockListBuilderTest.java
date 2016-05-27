@@ -80,4 +80,27 @@ public class TapeBlockListBuilderTest {
         builder.addAll(asList(Optional.of(block), null, Optional.of(block2)));
         assertThat(builder.build(), is(asList(block, block2)));
     }
+
+    @Test(expected = NullPointerException.class)
+    public void checkConsolidateWithPreviousPilotCandidateThrowsNullPointerExceptionWhenTestIsNull() {
+        builder.removeLastBlockIfTrue(null);
+    }
+
+    @Test
+    public void checkPulseListIsReturnedWhenBuilderIsEmpty() {
+        assertThat(builder.removeLastBlockIfTrue((b)-> true), is(empty()));
+    }
+
+    @Test
+    public void checkConsolidateWithPreviousPilotCandidateReturnsOriginalPulseListWhenTestIsFalse() {
+        builder.add(block2);
+        assertThat(builder.removeLastBlockIfTrue((b)-> false), is(empty()));
+    }
+
+    @Test
+    public void checkConsolidateWithPreviousPilotCandidateReturnsOriginalPulseListWhenTestIsTrue() {
+        builder.add(block2);
+        assertThat(builder.removeLastBlockIfTrue((b)-> true), is(Optional.of(block2)));
+    }
+
 }
