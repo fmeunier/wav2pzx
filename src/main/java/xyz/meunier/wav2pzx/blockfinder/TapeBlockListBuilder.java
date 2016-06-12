@@ -51,7 +51,7 @@ final class TapeBlockListBuilder {
      */
     void addAll(Collection<Optional<TapeBlock>> newBlocks) {
         checkNotNull(newBlocks, "newBlocks cannot be null");
-        newBlocks.stream().filter(b -> b != null).forEach(tapeBlocks::add);
+        newBlocks.stream().filter(Objects::nonNull).forEach(tapeBlocks::add);
     }
 
     /**

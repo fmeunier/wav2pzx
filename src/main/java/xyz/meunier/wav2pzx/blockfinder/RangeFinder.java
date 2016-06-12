@@ -126,7 +126,7 @@ final class RangeFinder {
      */
     static List<Range<Long>> getRangesForSinglePulses(Collection<Long> pulses) {
         checkNotNull(pulses, "pulses was null");
-        return pulses.stream().filter(l -> l != null).sorted().map(Range::singleton).collect(toList());
+        return pulses.stream().filter(Objects::nonNull).sorted().map(Range::singleton).collect(toList());
     }
 
     /**
