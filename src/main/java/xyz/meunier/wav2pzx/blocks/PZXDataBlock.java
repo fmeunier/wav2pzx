@@ -283,42 +283,36 @@ public final class PZXDataBlock implements PZXBlock {
                 + data.length + '}';
     }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + Arrays.hashCode(data);
-		result = prime * result + numBitsInLastByte;
-		result = prime * result + ((pulses == null) ? 0 : pulses.hashCode());
-		result = prime * result + suppliedChecksum;
-		result = prime * result + (int) (tailLength ^ (tailLength >>> 32));
-		return result;
-	}
+    @Override
+    public int hashCode() {
+        int result = pulses.hashCode();
+        result = 31 * result + (int) tailLength;
+        result = 31 * result + Arrays.hashCode(data);
+        result = 31 * result + numBitsInLastByte;
+        result = 31 * result + (int) suppliedChecksum;
+        result = 31 * result + (int) zeroPulseLength;
+        result = 31 * result + (int) onePulseLength;
+        return result;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		PZXDataBlock other = (PZXDataBlock) obj;
-		if (!Arrays.equals(data, other.data))
-			return false;
-		if (numBitsInLastByte != other.numBitsInLastByte)
-			return false;
-		if (pulses == null) {
-			if (other.pulses != null)
-				return false;
-		} else if (!pulses.equals(other.pulses))
-			return false;
-		if (tailLength != other.tailLength)
-			return false;
-		return true;
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-	/**
+        PZXDataBlock that = (PZXDataBlock) o;
+
+        if (tailLength != that.tailLength) return false;
+        if (numBitsInLastByte != that.numBitsInLastByte) return false;
+        if (suppliedChecksum != that.suppliedChecksum) return false;
+        if (zeroPulseLength != that.zeroPulseLength) return false;
+        if (onePulseLength != that.onePulseLength) return false;
+        if (!pulses.equals(that.pulses)) return false;
+        return Arrays.equals(data, that.data);
+
+    }
+
+    /**
 	 * @return the number of bits of data in the last data block byte
 	 */
 	public int getNumBitsInLastByte() {
