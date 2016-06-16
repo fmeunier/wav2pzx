@@ -23,97 +23,73 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+
 package xyz.meunier.wav2pzx;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
+
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
 /**
- * The aim of this class is to take a series of samples from an external source
- * and convert them into an array list of pulse durations in T states
+ * The aim of this class is to take a series of pulses and build a PulseList
  *
  * @author Fredrick Meunier
  */
 public final class PulseListBuilder {
 
-    private final Collection<Long> pulseLengths;
-    private int firstPulseLevel;
-    private int lastSampleLevel;
-    private boolean gotFirstSample;
-    private double currentPulseDuration;
-    private final double tStatesPerSample;
-    private boolean tapeComplete;
-    private PulseList pulseList;
-    // TODO Allow selection of Bistable on the command line
-    private final Bistable bistable = new SchmittTrigger();
+    private final Collection<Long> pulseLengths = new ArrayList<>();
+    private int firstPulseLevel = 0;
+    private long resolution = 1;
 
     /**
-     * Construct a new PulseListBuilder.
-     * @param sampleRate the sample rate of the source file, must be less than targetHz
-     * @param targetHz the sample rate to resample to
+     * Set the first pulse signal level
+     * @param firstPulseLevel the first pulse level of this block, needs to be 0 or 1
+     * @return this builder instance
+     * @throws IllegalArgumentException if firstPulseLevel is not 0 or 1
      */
-    public PulseListBuilder(float sampleRate, float targetHz) {
-        // Assert sampleRate > 0
-        checkArgument(sampleRate > 0, "Sample rate must be greater than 0, sample rate: " + sampleRate);
-        
-        // Assert targetHz >= sampleRate
-        // note that we expect targetHz to be in MHz and audio samples are not 
-        // expected to be in this range for the foreseeable future
-        checkArgument(targetHz >= sampleRate, "Target Hz must be greater than or equal to sample rate, target Hz:" + targetHz + " sample rate: " + sampleRate);
-
-        pulseLengths = new ArrayList<>();
-        tStatesPerSample = targetHz / sampleRate;
-        gotFirstSample = false;
-        tapeComplete = false;
+    public PulseListBuilder withFirstPulseLevel(int firstPulseLevel) {
+        checkArgument(firstPulseLevel == 0 || firstPulseLevel == 1, "firstPulseLevel must be 0 or 1");
+        this.firstPulseLevel = firstPulseLevel;
+        return this;
     }
 
     /**
-     * @return the number of tstates per sample
+     * Set the sample resolution of these pulses in units of 1/3,500,000ths of a second
+     * @param resolution the sample resolution of these pulses in 3,500,000 Hz tstates
+     * @return this builder instance
+     * @throws IllegalArgumentException if resolution is not greater than 0
      */
-    public double getTStatesPerSample() {
-        return tStatesPerSample;
+    public PulseListBuilder withResolution(long resolution) {
+        checkArgument(resolution > 0, "resolution must be greater than 0");
+        this.resolution = resolution;
+        return this;
     }
 
     /**
-     * @return whether this builder has completed and built the tape
+     * Add a pulse with the supplied duration in tstates.
+     * @param pulse the length of this pulse in 3,500,000 Hz tstates
+     * @return this builder instance
+     * @throws IllegalArgumentException if pulse is null or not greater than or equal to 0
      */
-    public boolean isTapeComplete() {
-        return tapeComplete;
+    public PulseListBuilder withNextPulse(Long pulse) {
+        checkArgument(pulse != null, "pulse cannot be null");
+        checkArgument(pulse >= 0, "pulse must be greater than or equal to 0 tstates");
+        pulseLengths.add(pulse);
+        return this;
     }
 
     /**
-     * Add a sample from the source to the PulseList under construction
-     * @param sample new unsigned byte sample value, range is expected to be 0 - 255
-     * @throws IllegalStateException if the tape is complete
-     * @throws IllegalArgumentException if the sample is out of range
+     * Add a collection of non-null pulses with the specified durations in tstates.
+     * @param pulses a collection of pulses in 3,500,000 Hz tstates size
+     * @return this builder instance
+     * @throws IllegalArgumentException if pulse is null or not greater than or equal to 0
      */
-    public void addSample(int sample) {
-        // State error, tape is already complete so no more pulses
-        checkState(!tapeComplete, "Pulse length list has already been marked as complete");
-        checkArgument( sample >= 0 & sample <= 255, "Sample out of range, should be 0-255, value: " + sample);
-        
-        int newLevel = bistable.getNewLevel(sample);
-        
-        // Record the level of the first sample, later pulses only record the duration
-        // as they are defined by the edge between the levels
-        if( !gotFirstSample ) {
-            gotFirstSample = true;
-            firstPulseLevel = lastSampleLevel = newLevel;
-            currentPulseDuration = tStatesPerSample;
-            return;
-        }
-        
-        if (newLevel == lastSampleLevel) {
-            // Continue current pulse
-            currentPulseDuration += tStatesPerSample;
-        } else {
-            // Close current pulse and start accumulating new pulse
-            pulseLengths.add(Math.round(currentPulseDuration));
-            currentPulseDuration = tStatesPerSample;
-            lastSampleLevel = newLevel;
-        }
+    public PulseListBuilder withNextPulses(Collection<Long> pulses) {
+        pulses.stream().filter(Objects::nonNull).forEach(this::withNextPulse);
+        return this;
     }
 
     /**
@@ -123,17 +99,28 @@ public final class PulseListBuilder {
      */
     public PulseList build() {
         // State error, haven't received first pulse so we don't know the first pulse level
-        checkState(gotFirstSample, "First pulse not yet received");
-                
-        if(tapeComplete) {
-            return pulseList;
-        }
-        
-        // Close current pulse and mark list as being complete
-        pulseLengths.add(Math.round(currentPulseDuration));
-        tapeComplete = true;
-        pulseList = new PulseList(pulseLengths, firstPulseLevel, Math.round(tStatesPerSample*8));
-        
-        return pulseList;
+        checkState(!pulseLengths.isEmpty(), "First pulse not yet received");
+        return new PulseList(pulseLengths, firstPulseLevel, resolution);
+    }
+
+    /**
+     * @return the first pulse signal level of the pulse list
+     */
+    public int getFirstPulseLevel() {
+        return firstPulseLevel;
+    }
+
+    /**
+     * @return the sample resolution of the pulse list
+     */
+    public long getResolution() {
+        return resolution;
+    }
+
+    /**
+     * @return true if the builder is empty
+     */
+    public boolean isEmpty() {
+        return pulseLengths.isEmpty();
     }
 }

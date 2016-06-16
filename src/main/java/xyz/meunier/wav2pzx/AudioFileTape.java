@@ -25,15 +25,20 @@
  */
 package xyz.meunier.wav2pzx;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static java.nio.file.Files.newInputStream;
+import static javax.sound.sampled.AudioSystem.getAudioInputStream;
+import static javax.sound.sampled.AudioSystem.isConversionSupported;
 
 /**
  * This class handles reading a WAV tape sample file and converting them to the
@@ -58,11 +63,12 @@ public final class AudioFileTape {
         int totalFramesRead = 0;
         
         // Open WAV file specified on the command line
-        File fileIn = new File(fileName);
-        
-        try (AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(fileIn)) {
+        Path fileIn = Paths.get(fileName);
+
+        try (InputStream inputStream = newInputStream(fileIn)) {
+            AudioInputStream audioInputStream = getAudioInputStream(inputStream);
             AudioFormat inDataFormat = audioInputStream.getFormat();
-            
+
             // Process the WAV as a mono 8 bit file to limit memory requirements
             AudioFormat dataFormat = 
                     new AudioFormat(AudioFormat.Encoding.PCM_UNSIGNED, 
@@ -70,17 +76,16 @@ public final class AudioFileTape {
                             inDataFormat.getFrameRate(), 
                             inDataFormat.isBigEndian());
             
-            if (!AudioSystem.isConversionSupported(dataFormat, inDataFormat)) {
+            if (!isConversionSupported(dataFormat, inDataFormat)) {
                 throw new UnsupportedAudioFileException("Unsupported WAV audio format " + inDataFormat.toString());
             }
 
             System.out.println("Using WAV format " + dataFormat.toString());
             
-            AudioInputStream lowResAIS = 
-                    AudioSystem.getAudioInputStream(dataFormat, audioInputStream);
+            AudioInputStream lowResAIS = getAudioInputStream(dataFormat, audioInputStream);
 
-            PulseListBuilder pulseListBuilder = 
-                    new PulseListBuilder(inDataFormat.getSampleRate(), targetHz);
+            AudioSamplePulseListBuilder pulseListBuilder =
+                    new AudioSamplePulseListBuilder(inDataFormat.getSampleRate(), targetHz);
             
             int bytesPerFrame = 1;
             int numBytes = 1024 * bytesPerFrame; 

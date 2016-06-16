@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2016, Fredrick Meunier
  * All rights reserved.
  *
@@ -23,164 +23,84 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+
 package xyz.meunier.wav2pzx;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
-
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.number.IsCloseTo.closeTo;
+import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
-/**
- *
- * @author Fredrick Meunier
- */
 public class PulseListBuilderTest {
-    
-    private static final double TOLERANCE = 0.001;
-	// Two 238 t state pulses with a trailing 79 t state pulse
-    private int[] samples1 = {0, 0, 0, 255, 255, 255, 0};
-    private int[] samples2 = {255, 255, 255, 0, 0, 0, 0, 255};
-    private static final float SAMPLE_RATE = (float) 44100.0;
-    private static final float MACHINE_HZ = (float) 3500000.0;
-    private PulseListBuilder instance1;
-    private PulseListBuilder instance2;
-    
+
+    private PulseListBuilder builder;
+
     @Before
-    public void setUp() {
-        instance1 = new PulseListBuilder(SAMPLE_RATE, MACHINE_HZ);
-        for(int i : samples1) {
-            instance1.addSample(i);
-        }
-        
-        // Test 2: Build samples2 should produce first pulse level 1
-        instance2 = new PulseListBuilder(SAMPLE_RATE, MACHINE_HZ);
-        for(int i : samples2) {
-            instance2.addSample(i);
-        }
-    }
-    
-    @After
-    public void tearDown() {
-        instance1 = null;
-        instance2 = null;
+    public void setUp() throws Exception {
+        builder = new PulseListBuilder();
     }
 
-    /**
-     * Test of addSample method, of class PulseListBuilder.
-     */
+    @Test
+    public void with0FirstPulseLevel() throws Exception {
+        builder.withFirstPulseLevel(0);
+        assertThat(builder.getFirstPulseLevel(), is(0));
+    }
+
+    @Test
+    public void with1FirstPulseLevel() throws Exception {
+        builder.withFirstPulseLevel(1);
+        assertThat(builder.getFirstPulseLevel(), is(1));
+    }
+
     @Test(expected = IllegalArgumentException.class)
-    public void testAddSampleThrowsExceptionForNegative() {
-        // Test 1: shouldn't be able to add out of range samples
-        instance1.addSample(-1);
+    public void withIllegalFirstPulseLevel() throws Exception {
+        builder.withFirstPulseLevel(10);
     }
 
-    /**
-     * Test of addSample method, of class PulseListBuilder.
-     */
+    @Test
+    public void withResolution() throws Exception {
+        builder.withResolution(1);
+        assertThat(builder.getResolution(), is(1L));
+    }
+
     @Test(expected = IllegalArgumentException.class)
-    public void testAddSampleThrowsExceptionForLargeNum() {
-        // Test 1: shouldn't be able to add out of range samples
-        instance1.addSample(256);
+    public void withIllegalResolution() throws Exception {
+        builder.withResolution(0);
     }
 
-    /**
-     * Test of addSample method, of class PulseListBuilder.
-     */
-    @Test(expected = IllegalStateException.class)
-    public void testAddSampleCantAddSampleToACompletedList() {
-        // Test 2: shouldn't be able to add a sample to a completed list
-        instance1.build();
-        instance1.addSample(0);
+    @Test(expected = IllegalArgumentException.class)
+    public void withNullNextPulse() throws Exception {
+        builder.withNextPulse(null);
     }
 
-    /**
-     * Test of addSample method, of class PulseListBuilder.
-     */
+    @Test(expected = IllegalArgumentException.class)
+    public void withNegativeNextPulse() throws Exception {
+        builder.withNextPulse(-1L);
+    }
+
     @Test
-    public void testAddSample() {
-        // Test 3: Should be able to add an in-range sample to an incomplete list with no exception
-        instance2.addSample(0);
-    }
+    public void build() throws Exception {
+        // Test the remaining methods work normally in the happy case
+        PulseList pulseList = builder.withNextPulse(1L)
+                .withNextPulses(asList(2L, 3L))
+                .withFirstPulseLevel(0)
+                .withResolution(1)
+                .build();
 
-    /**
-     * Test of finishPulseList method, of class PulseListBuilder.
-     */
-    @Test
-    public void testFinishPulseList() {
-        System.out.println("finishPulseList");
-
-    }
-
-    /**
-     * Test of getPulseList method, of class PulseListBuilder.
-     */
-    @Test
-    public void testGetPulseList() {
-        PulseList pulseList = instance1.build();
-        List<Long> result = pulseList.getPulseLengths();
-
-        assertThat(result.get(0), is(238L));
-        assertThat(result.get(1), is(238L));
-        assertThat(result.get(2), is(79L));
-    }
-
-    /**
-     * Test of firstPulseLevel method, of class PulseListBuilder.
-     */
-    @Test
-    public void testFirstPulseLevel() {
-        // Test 1: Build samples1 should produce first pulse level 0
-        PulseList pulseList = instance1.build();
-        assertThat(pulseList.getFirstPulseLevel(), is(0));
-        
-        // Test 2: Build samples2 should produce first pulse level 1
-        pulseList = instance2.build();
-        assertThat(pulseList.getFirstPulseLevel(), is(1));
-    }
-
-    /**
-     * Test of firstPulseLevel method, of class PulseListBuilder.
-     */
-    @Test(expected = IllegalStateException.class)
-    public void testBuildThrowsException() {
-        // Test 0: check we get an exception when built with no pulses added
-        PulseListBuilder instance = new PulseListBuilder(SAMPLE_RATE, MACHINE_HZ);
-        instance.build();
-    }
-
-    /**
-     * Test of firstPulseLevel method, of class PulseListBuilder.
-     */
-    @Test
-    public void testBuild() {
-        PulseListBuilder instance = new PulseListBuilder(SAMPLE_RATE, MACHINE_HZ);
-
-        // Test that builder transitions to complete state when finished
-        assertThat(instance.isTapeComplete(), is(false));
-
-        // Test 1: Check we get a PulseList when build() is called and some samples have been received
-        PulseList pulseList = instance1.build();
         assertThat(pulseList, is(notNullValue()));
-
-        assertThat(instance1.isTapeComplete(), is(true));
-        
-        // Validate that final pulse is closed by this method?
-        pulseList = instance2.build();
-        assertThat(pulseList.getPulseLengths().size(), is(3));
+        assertThat(pulseList.getFirstPulseLevel(), is(0));
+        assertThat(pulseList.getResolution(), is(1L));
+        assertThat(pulseList.getPulseLengths(), is(asList(1L, 2L, 3L)));
     }
-    
-    /**
-     * Test of getTStatesPerSample method, of class PulseListBuilder.
-     */
+
     @Test
-    public void testGetTStatesPerSample() {
-        assertThat(instance1.getTStatesPerSample(), is(closeTo(79.365, TOLERANCE)));
+    public void isEmpty() throws Exception {
+        assertThat(builder.isEmpty(), is(true));
+        builder.withNextPulse(1L);
+        assertThat(builder.isEmpty(), is(false));
     }
 
 }
