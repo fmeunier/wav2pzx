@@ -31,6 +31,7 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
 
+import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -51,6 +52,14 @@ public class PulseListTest {
     @Before
     public void setup() {
         instance = new PulseList(pulses, 1, 1);
+    }
+
+    @Test
+    public void testPulseListConcatenationConstructor() {
+        PulseList instance2 = new PulseList(singletonList(100L), 1, 1);
+        PulseList instance3 = new PulseList(instance, instance2);
+
+        assertThat(instance3.getPulseLengths(), is(Arrays.asList(200L, 300L, 100L)));
     }
 
     /**

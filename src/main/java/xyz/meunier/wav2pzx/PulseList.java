@@ -32,6 +32,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Representation of an immutable sequence of pulses for a tape.
+ *
  * @author Fredrick Meunier
  */
 public final class PulseList {
@@ -39,7 +40,7 @@ public final class PulseList {
      * The pulses
      */
     private final ImmutableList<Long> pulseLengths;
-    
+
     /**
      * The level of the first pulse of the sequence
      */
@@ -49,9 +50,10 @@ public final class PulseList {
      * The resolution of each pulse in T-states (error is up to 2 samples)
      */
     private final long resolution;
-    
+
     /**
      * Get the list of pulses that comprise the tape
+     *
      * @return an immutable list of the pulses for the tape
      */
     public ImmutableList<Long> getPulseLengths() {
@@ -60,81 +62,115 @@ public final class PulseList {
 
     /**
      * Get the level of the first pulse on the tape.
+     *
      * @return the level of the first pulse on the tape (0 or 1)
      */
     public int getFirstPulseLevel() {
         return firstPulseLevel;
     }
-    
+
     /**
      * Get the resolution of each pulse in T-states (error is up to 2 samples)
+     *
      * @return the resolution of each pulse in T-states (error is up to 2 samples)
      */
     public long getResolution() {
-		return resolution;
-	}
+        return resolution;
+    }
 
-	/**
+    /**
      * Constructor for a new PulseList
-     * @param pulseLengths a non-empty Iterable of pulses for a tape
+     *
+     * @param pulseLengths    a non-empty Iterable of pulses for a tape
      * @param firstPulseLevel the level of the first pulse in the list
-     * @param resolution the resolution of each pulse in T-states (error is up to 2 samples)
-     * @throws NullPointerException if the supplied list is null
+     * @param resolution      the resolution of each pulse in T-states (error is up to 2 samples)
+     * @throws NullPointerException     if the supplied list is null
      * @throws IllegalArgumentException if the supplied list is empty
      * @throws IllegalArgumentException if firstPulseLevel is not 0 or 1
      */
     public PulseList(Iterable<Long> pulseLengths, int firstPulseLevel, long resolution) {
+        this(ImmutableList.copyOf(pulseLengths), firstPulseLevel, resolution);
+    }
+
+    /**
+     * Constructor for a new PulseList
+     *
+     * @param pulseLengths    a non-empty ImmutableList of pulses for a tape
+     * @param firstPulseLevel the level of the first pulse in the list
+     * @param resolution      the resolution of each pulse in T-states (error is up to 2 samples)
+     * @throws NullPointerException     if the supplied list is null
+     * @throws IllegalArgumentException if the supplied list is empty
+     * @throws IllegalArgumentException if firstPulseLevel is not 0 or 1
+     */
+    public PulseList(ImmutableList<Long> pulseLengths, int firstPulseLevel, long resolution) {
         checkNotNull(pulseLengths, "pulseLengths must not be null");
+        checkArgument(!pulseLengths.isEmpty(), "pulseLengths cannot be empty");
         checkArgument(firstPulseLevel == 0 || firstPulseLevel == 1, "firstPulseLevel must be 0 or 1");
-        this.pulseLengths = ImmutableList.copyOf(checkNotNull(pulseLengths));
-        checkArgument(!this.pulseLengths.isEmpty(), "pulseLengths cannot be empty");
+        this.pulseLengths = pulseLengths;
         this.firstPulseLevel = firstPulseLevel;
         this.resolution = resolution;
     }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + firstPulseLevel;
-		result = prime * result + ((pulseLengths == null) ? 0 : pulseLengths.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		PulseList other = (PulseList) obj;
-		if (firstPulseLevel != other.firstPulseLevel)
-			return false;
-		if (pulseLengths == null) {
-			if (other.pulseLengths != null)
-				return false;
-		} else if (!pulseLengths.equals(other.pulseLengths))
-			return false;
-		return true;
-	}
-
-	@Override
-	public String toString() {
-		return "PulseList [pulseLengths.size()=" + pulseLengths.size() + ", firstPulseLevel=" + firstPulseLevel
-				+ ", resolution=" + resolution + "]";
-	}
-
-	/**
-	 * Returns a String representation of a PulseList in the non-annotated text format that is used by the pzx2txt
-	 * program in the pzxtools
-	 * @return the String representation
+    /**
+     * Builds a new PulseList made of the catenation of two supplied PulseLists with the same resolution
+     * @param first the first PulseList
+     * @param second the second PulseList
      */
-	public String toPulseListText() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("PULSES\n");
-		pulseLengths.stream().forEach(p -> builder.append("PULSE ").append(p).append("\n"));
-		return builder.toString();
-	}
+    public PulseList(PulseList first, PulseList second) {
+        checkNotNull(first, "first must not be null");
+        checkNotNull(second, "second must not be null");
+        checkArgument(first.getResolution() == second.getResolution());
+        this.pulseLengths = ImmutableList.<Long>builder()
+                .addAll(first.getPulseLengths()).addAll(second.getPulseLengths()).build();
+        this.firstPulseLevel = first.getFirstPulseLevel(); // FIXME: second has opposite level to first last pulse
+        this.resolution = first.getResolution();
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + firstPulseLevel;
+        result = prime * result + ((pulseLengths == null) ? 0 : pulseLengths.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        PulseList other = (PulseList) obj;
+        if (firstPulseLevel != other.firstPulseLevel)
+            return false;
+        if (pulseLengths == null) {
+            if (other.pulseLengths != null)
+                return false;
+        } else if (!pulseLengths.equals(other.pulseLengths))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "PulseList [pulseLengths.size()=" + pulseLengths.size() + ", firstPulseLevel=" + firstPulseLevel
+                + ", resolution=" + resolution + "]";
+    }
+
+    /**
+     * Returns a String representation of a PulseList in the non-annotated text format that is used by the pzx2txt
+     * program in the pzxtools
+     *
+     * @return the String representation
+     */
+    public String toPulseListText() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("PULSES\n");
+        pulseLengths.stream().forEach(p -> builder.append("PULSE ").append(p).append("\n"));
+        return builder.toString();
+    }
+
 }
