@@ -25,11 +25,11 @@
  */
 package xyz.meunier.wav2pzx.blocks;
 
-import static xyz.meunier.wav2pzx.blocks.PZXEncodeUtils.addPZXBlockHeader;
-
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.List;
+
+import static xyz.meunier.wav2pzx.blocks.PZXEncodeUtils.addPZXBlockHeader;
 
 /**
  * Represents the header block (PZXT) at the beginning of all valid PZX files.
@@ -71,10 +71,6 @@ public final class PZXHeaderBlock implements PZXBlock {
         return "PZXHeaderBlock: " + getHeaderDetails();
     }
 
-    private String getHeaderDetails() {
-        return "PZX major version: " + PZX_MAJOR_VERSION + " minor version: " + PZX_MINOR_VERSION;
-    }
-
     @Override
     public List<Long> getPulses() {
         return Collections.emptyList();
@@ -90,4 +86,19 @@ public final class PZXHeaderBlock implements PZXBlock {
 		return 0;
 	}
 
+    @Override
+    public boolean equals(Object obj) {
+        // No members to vary between instances
+        return this == obj || obj != null && getClass() == obj.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        // No members to vary between instances
+        return 0;
+    }
+
+    private String getHeaderDetails() {
+        return "PZX major version: " + PZX_MAJOR_VERSION + " minor version: " + PZX_MINOR_VERSION;
+    }
 }
