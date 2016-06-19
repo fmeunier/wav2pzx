@@ -28,6 +28,7 @@ package xyz.meunier.wav2pzx;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -66,7 +67,8 @@ public final class AudioFileTape {
         Path fileIn = Paths.get(fileName);
 
         try (InputStream inputStream = newInputStream(fileIn)) {
-            AudioInputStream audioInputStream = getAudioInputStream(inputStream);
+            // Add buffer for mark/reset support
+            AudioInputStream audioInputStream = getAudioInputStream(new BufferedInputStream(inputStream));
             AudioFormat inDataFormat = audioInputStream.getFormat();
 
             // Process the WAV as a mono 8 bit file to limit memory requirements
