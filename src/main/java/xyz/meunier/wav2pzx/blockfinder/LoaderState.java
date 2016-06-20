@@ -28,7 +28,8 @@ package xyz.meunier.wav2pzx.blockfinder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static xyz.meunier.wav2pzx.blockfinder.LoaderContext.*;
+import static xyz.meunier.wav2pzx.blockfinder.LoaderContext.DATA_TOTAL_MAX;
+import static xyz.meunier.wav2pzx.blockfinder.LoaderContext.MIN_PILOT_COUNT;
 
 /**
  * State machine that drives the processing of a sequence of pulses, recognising
@@ -53,7 +54,7 @@ enum LoaderState {
                 // Put pulse into new pulse block and pilot pulse stats
                 context.addPilotPulse();
                 
-                logTransition(context.getCurrentPulse(), INITIAL, FIND_PILOT);
+                logTransition(INITIAL, FIND_PILOT);
                 return FIND_PILOT;
             } else {
                 // Put pulse into current block
@@ -81,14 +82,14 @@ enum LoaderState {
                 context.revertCurrentBlock();
                 context.addUnclassifiedPulse();
                 
-                logTransition(context.getCurrentPulse(), FIND_PILOT, INITIAL);
+                logTransition(FIND_PILOT, INITIAL);
                 return INITIAL;
             }
             
             context.addPilotPulse();
 
             if( context.getNumPilotPulses() >= MIN_PILOT_COUNT ) {
-                logTransition(context.getCurrentPulse(), FIND_PILOT, FIND_PILOT_END);
+                logTransition(FIND_PILOT, FIND_PILOT_END);
                 return FIND_PILOT_END;
             }
             
@@ -114,13 +115,13 @@ enum LoaderState {
                 context.completePilotPulseBlock();
 
                 // Found a candidate sync/data pulse, and re-process this pulse in the new state
-                logTransition(context.getCurrentPulse(), FIND_PILOT_END, GET_DATA);
+                logTransition(FIND_PILOT_END, GET_DATA);
                 return GET_DATA.nextState(context);
-            } else if( context.getCurrentPulse() > MAX_PILOT_LENGTH ) {
+            } else if(context.isTooLongToBeAPilot()) {
                 context.completePilotPulseBlock();
 
                 // go back to looking for pilot tones, but re-process this pulse in the new state
-                logTransition(context.getCurrentPulse(), FIND_PILOT_END, INITIAL);
+                logTransition(FIND_PILOT_END, INITIAL);
                 return INITIAL.nextState(context);
             }
 
@@ -173,7 +174,7 @@ enum LoaderState {
 
             // go back to looking for pilot tones, but re-process this pulse in the new state if we haven't allocated it
             // to this block
-            logTransition(context.getCurrentPulse(), GET_DATA, INITIAL);
+            logTransition(GET_DATA, INITIAL);
             return wasTailPulse ? INITIAL : INITIAL.nextState(context);
         }
 
@@ -197,12 +198,11 @@ enum LoaderState {
     
     /**
      * Debug message to track state transitions.
-     * @param currentPulse the pulse that triggered the transition
      * @param fromState the initial state
      * @param toState the terminal state
      */
-    private static void logTransition(Long currentPulse, LoaderState fromState, LoaderState toState) {
-        String message = String.format("%12s -> %12s: %d", fromState, toState, currentPulse);
+    private static void logTransition(LoaderState fromState, LoaderState toState) {
+        String message = String.format("%12s -> %12s", fromState, toState);
         Logger.getLogger(LoaderState.class.getName()).log(Level.FINE, message);
     }
 }

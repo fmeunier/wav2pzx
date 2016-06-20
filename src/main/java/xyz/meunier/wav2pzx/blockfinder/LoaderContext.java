@@ -189,4 +189,10 @@ public interface LoaderContext {
     static boolean isaPilotCandidate(long pulse) {
         return PILOT_CANDIDATE_RANGE.contains(pulse);
     }
+
+    /**
+     * Checks whether the current pulse is too long to be a pilot pulse
+     * @return true if the pulse is not too long to be a pilot candidate
+     */
+    boolean isTooLongToBeAPilot();
 }

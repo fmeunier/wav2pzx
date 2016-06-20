@@ -118,7 +118,7 @@ public class LoaderStateTest {
 
     @Test
     public void testNextState_From_FIND_PILOT_END_To_INITIAL() {
-        when(context.getCurrentPulse()).thenReturn(3500L);
+        when(context.isTooLongToBeAPilot()).thenReturn(true);
 
         assertThat(FIND_PILOT_END.nextState(context), is(INITIAL));
 

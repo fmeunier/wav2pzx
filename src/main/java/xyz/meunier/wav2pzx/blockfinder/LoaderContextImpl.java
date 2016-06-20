@@ -198,6 +198,11 @@ class LoaderContextImpl implements LoaderContext {
     }
 
     @Override
+    public boolean isTooLongToBeAPilot() {
+        return this.currentPulse > MAX_PILOT_LENGTH;
+    }
+
+    @Override
     public boolean isaDataCandidate() {
         return this.currentPulse < MIN_PILOT_LENGTH;
     }
