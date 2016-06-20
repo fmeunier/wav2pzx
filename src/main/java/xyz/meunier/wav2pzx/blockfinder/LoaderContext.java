@@ -151,10 +151,9 @@ public interface LoaderContext {
     void addPilotPulse();
 
     /**
-     * Add an unclassified pulse to the current block in progress
-     * @param pulseLength the unclassified pulse
+     * Add current pulse to the block in progress as an unclassified pulse
      */
-    void addUnclassifiedPulse(Long pulseLength);
+    void addUnclassifiedPulse();
 
     /**
      * If a last block completed was being provisionally treated as a certain

@@ -81,7 +81,7 @@ public class LoaderStateTest {
 
         assertThat(INITIAL.nextState(context), is(INITIAL));
 
-        verify(context).addUnclassifiedPulse(3500L);
+        verify(context).addUnclassifiedPulse();
         verify(context,never()).completeUnknownPulseBlock();
     }
 
@@ -93,7 +93,7 @@ public class LoaderStateTest {
 
         InOrder inOrder = inOrder(context);
         inOrder.verify(context).revertCurrentBlock();
-        inOrder.verify(context).addUnclassifiedPulse(3500L);
+        inOrder.verify(context).addUnclassifiedPulse();
     }
 
     @Test
@@ -124,7 +124,7 @@ public class LoaderStateTest {
 
         InOrder inOrder = inOrder(context);
         inOrder.verify(context).completePilotPulseBlock();
-        inOrder.verify(context).addUnclassifiedPulse(3500L);
+        inOrder.verify(context).addUnclassifiedPulse();
     }
 
     @Test
@@ -142,7 +142,7 @@ public class LoaderStateTest {
 
         assertThat(GET_DATA.nextState(context), is(GET_DATA));
 
-        verify(context).addUnclassifiedPulse(1100L);
+        verify(context).addUnclassifiedPulse();
     }
 
     @Test
@@ -154,7 +154,7 @@ public class LoaderStateTest {
 
         InOrder inOrder = inOrder(context);
         inOrder.verify(context).completeDataBlock();
-        inOrder.verify(context).addUnclassifiedPulse(4000L);
+        inOrder.verify(context).addUnclassifiedPulse();
     }
 
     @Test
@@ -167,7 +167,7 @@ public class LoaderStateTest {
         assertThat(GET_DATA.nextState(context), is(INITIAL));
 
         InOrder inOrder = inOrder(context);
-        inOrder.verify(context).addUnclassifiedPulse(1000L);
+        inOrder.verify(context).addUnclassifiedPulse();
         inOrder.verify(context).completeDataBlock();
     }
 
@@ -182,7 +182,7 @@ public class LoaderStateTest {
 
         InOrder inOrder = inOrder(context);
         inOrder.verify(context).completeDataBlock();
-        inOrder.verify(context).addUnclassifiedPulse(3000L);
+        inOrder.verify(context).addUnclassifiedPulse();
     }
 
     @Test

@@ -118,7 +118,10 @@ public class LoaderContextImplTest {
     public void checkThatAnUnclassifiedPulseIsStoredInAnUnknownTapeBlock() throws Exception {
         // Really want to check that a unclassified block ends up in a proper TapeBlock
         Long pulseLength = 50L;
-        instance.addUnclassifiedPulse(pulseLength);
+        PulseList pulseList = new PulseList(singletonList(pulseLength), 1, 1);
+        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
+        instance.getNextPulse();
+        instance.addUnclassifiedPulse();
         instance.completeUnknownPulseBlock();
         List<TapeBlock> tapeBlockList = instance.getTapeBlockList();
 
@@ -141,8 +144,11 @@ public class LoaderContextImplTest {
         // 4 revert block
         // 5 complete tape
         Long pulseLength = 50L;
+        PulseList pulseList = new PulseList(singletonList(pulseLength), 1, 1);
+        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
+        instance.getNextPulse();
 
-        instance.addUnclassifiedPulse(pulseLength);
+        instance.addUnclassifiedPulse();
         instance.completeUnknownPulseBlock();
         instance.completeUnknownPulseBlock();
         instance.revertCurrentBlock();
@@ -165,10 +171,14 @@ public class LoaderContextImplTest {
         // 4 complete block
         // 5 complete tape
         Long pulseLength = 50L;
+        PulseList pulseList = new PulseList(asList(pulseLength, pulseLength), 1, 1);
+        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
+        instance.getNextPulse();
 
-        instance.addUnclassifiedPulse(pulseLength);
+        instance.addUnclassifiedPulse();
         instance.completeUnknownPulseBlock();
-        instance.addUnclassifiedPulse(pulseLength);
+        instance.getNextPulse();
+        instance.addUnclassifiedPulse();
         instance.revertCurrentBlock();
         instance.completeUnknownPulseBlock();
         List<TapeBlock> tapeBlockList = instance.getTapeBlockList();

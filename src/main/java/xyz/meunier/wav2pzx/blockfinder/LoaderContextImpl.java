@@ -163,8 +163,8 @@ class LoaderContextImpl implements LoaderContext {
     }
 
     @Override
-    public void addUnclassifiedPulse(Long pulseLength) {
-        builder.withNextPulse(pulseLength);
+    public void addUnclassifiedPulse() {
+        builder.withNextPulse(this.currentPulse);
     }
 
     @Override

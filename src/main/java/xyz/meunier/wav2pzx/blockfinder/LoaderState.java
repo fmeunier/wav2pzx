@@ -57,7 +57,7 @@ enum LoaderState {
                 return FIND_PILOT;
             } else {
                 // Put pulse into current block
-                context.addUnclassifiedPulse(context.getCurrentPulse());
+                context.addUnclassifiedPulse();
 
                 return INITIAL;
             }
@@ -79,7 +79,7 @@ enum LoaderState {
             if( !isaPilotCandidate(context.getCurrentPulse()) ) {
                 // Not really a new pulse sequence, dump pulses into existing block
                 context.revertCurrentBlock();
-                context.addUnclassifiedPulse(context.getCurrentPulse());
+                context.addUnclassifiedPulse();
                 
                 logTransition(context.getCurrentPulse(), FIND_PILOT, INITIAL);
                 return INITIAL;
@@ -151,7 +151,7 @@ enum LoaderState {
             }
 
             // Put pulse into current block
-            context.addUnclassifiedPulse(context.getCurrentPulse());
+            context.addUnclassifiedPulse();
 
             return GET_DATA;
         }
@@ -166,7 +166,7 @@ enum LoaderState {
             final boolean wasTailPulse = context.getCurrentPulse() <= LoaderContext.MAX_TAIL_PULSE;
 
             if( wasTailPulse ) {
-                context.addUnclassifiedPulse(context.getCurrentPulse());
+                context.addUnclassifiedPulse();
             }
 
             context.completeDataBlock();
