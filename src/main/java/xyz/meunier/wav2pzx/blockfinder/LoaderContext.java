@@ -186,4 +186,10 @@ public interface LoaderContext {
     static boolean isaDataCandidate(long pulse) {
         return pulse < MIN_PILOT_LENGTH;
     }
+
+    /**
+     * Checks whether the current pulse is a candidate to be a pilot pulse
+     * @return true if the current pulse appears to be a pilot candidate
+     */
+    boolean isaPilotCandidate();
 }

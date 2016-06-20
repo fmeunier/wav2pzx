@@ -66,7 +66,7 @@ public class LoaderStateTest {
 
     @Test
     public void testNextState_From_INITIAL_To_FIND_PILOT() {
-        when(context.getCurrentPulse()).thenReturn(2100L);
+        when(context.isaPilotCandidate()).thenReturn(true);
 
         assertThat(INITIAL.nextState(context), is(FIND_PILOT));
 
@@ -98,8 +98,8 @@ public class LoaderStateTest {
 
     @Test
     public void testNextState_From_FIND_PILOT_To_FIND_PILOT_END() {
-        when(context.getCurrentPulse()).thenReturn(2100L);
         when(context.getNumPilotPulses()).thenReturn(32);
+        when(context.isaPilotCandidate()).thenReturn(true);
 
         assertThat(FIND_PILOT.nextState(context), is(FIND_PILOT_END));
 
@@ -108,8 +108,8 @@ public class LoaderStateTest {
 
     @Test
     public void testNextState_From_FIND_PILOT_To_FIND_PILOT() {
-        when(context.getCurrentPulse()).thenReturn(2100L);
         when(context.getNumPilotPulses()).thenReturn(5);
+        when(context.isaPilotCandidate()).thenReturn(true);
 
         assertThat(FIND_PILOT.nextState(context), is(FIND_PILOT));
 

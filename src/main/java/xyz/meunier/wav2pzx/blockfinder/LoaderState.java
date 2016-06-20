@@ -46,7 +46,7 @@ enum LoaderState {
     INITIAL {
         @Override
         public LoaderState nextState(LoaderContext context) {
-            if(isaPilotCandidate(context.getCurrentPulse())) {
+            if(context.isaPilotCandidate()) {
                 // Close current pulse block - note that this may be empty!
                 context.completeUnknownPulseBlock();
 
@@ -76,7 +76,7 @@ enum LoaderState {
     FIND_PILOT {
         @Override
         public LoaderState nextState(LoaderContext context) {
-            if( !isaPilotCandidate(context.getCurrentPulse()) ) {
+            if( !context.isaPilotCandidate() ) {
                 // Not really a new pulse sequence, dump pulses into existing block
                 context.revertCurrentBlock();
                 context.addUnclassifiedPulse();
