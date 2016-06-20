@@ -164,7 +164,7 @@ enum LoaderState {
         }
 
         private LoaderState handleOptionalTailPulse(LoaderContext context) {
-            final boolean wasTailPulse = context.getCurrentPulse() <= LoaderContext.MAX_TAIL_PULSE;
+            final boolean wasTailPulse = context.isaCandidateTailPulse();
 
             if( wasTailPulse ) {
                 context.addUnclassifiedPulse();

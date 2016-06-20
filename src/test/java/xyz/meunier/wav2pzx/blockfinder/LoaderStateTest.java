@@ -163,6 +163,7 @@ public class LoaderStateTest {
         when(context.getCurrentPulse()).thenReturn(1000L);
         when(context.hasNextPulse()).thenReturn(true);
         when(context.peekNextPulse()).thenReturn(3000L);
+        when(context.isaCandidateTailPulse()).thenReturn(true);
 
         assertThat(GET_DATA.nextState(context), is(INITIAL));
 

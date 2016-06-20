@@ -192,7 +192,13 @@ public interface LoaderContext {
 
     /**
      * Checks whether the current pulse is too long to be a pilot pulse
-     * @return true if the pulse is not too long to be a pilot candidate
+     * @return true if the current pulse is not too long to be a pilot candidate
      */
     boolean isTooLongToBeAPilot();
+
+    /**
+     * Checks whether the current pulse is a candidate to be a tail pulse
+     * @return true if the current pulse is a candidate to be a tail pulse
+     */
+    boolean isaCandidateTailPulse();
 }
