@@ -98,7 +98,7 @@ public class LoaderStateTest {
 
     @Test
     public void testNextState_From_FIND_PILOT_To_FIND_PILOT_END() {
-        when(context.getNumPilotPulses()).thenReturn(32);
+        when(context.isaMinimumNumberOfPilotPulses()).thenReturn(true);
         when(context.isaPilotCandidate()).thenReturn(true);
 
         assertThat(FIND_PILOT.nextState(context), is(FIND_PILOT_END));

@@ -327,4 +327,23 @@ public class LoaderContextImplTest {
         assertThat(instance.isCurrentAndNextPulseTooLongToBeADataCandidate(), is(true));
     }
 
+    @Test
+    public void shouldFindNotEnoughPilotPulsesIsNotAMinimumNumberOfPilotPulses() throws Exception {
+        testMinimumNumberOfPilotPulses(31, false);
+    }
+
+    @Test
+    public void shouldFindEnoughPilotPulsesIsAMinimumNumberOfPilotPulses() throws Exception {
+        testMinimumNumberOfPilotPulses(32, true);
+    }
+
+    private void testMinimumNumberOfPilotPulses(int pilotCount, boolean expectedResult) {
+        for(int i = 0; i < pilotCount; i++) {
+            instance.getNextPulse();
+            instance.addPilotPulse();
+        }
+
+        assertThat(instance.isaMinimumNumberOfPilotPulses(), is(expectedResult));
+    }
+
 }

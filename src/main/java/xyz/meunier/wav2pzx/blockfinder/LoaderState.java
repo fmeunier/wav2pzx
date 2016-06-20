@@ -28,8 +28,6 @@ package xyz.meunier.wav2pzx.blockfinder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static xyz.meunier.wav2pzx.blockfinder.LoaderContext.MIN_PILOT_COUNT;
-
 /**
  * State machine that drives the processing of a sequence of pulses, recognising
  * pilot and data blocks.
@@ -87,7 +85,7 @@ enum LoaderState {
             
             context.addPilotPulse();
 
-            if( context.getNumPilotPulses() >= MIN_PILOT_COUNT ) {
+            if(context.isaMinimumNumberOfPilotPulses()) {
                 logTransition(FIND_PILOT, FIND_PILOT_END);
                 return FIND_PILOT_END;
             }

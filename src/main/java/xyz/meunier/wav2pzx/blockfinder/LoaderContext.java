@@ -207,4 +207,10 @@ public interface LoaderContext {
      * @return true if the current pulse and next pulse are candidates to be a data bit
      */
     boolean isCurrentAndNextPulseTooLongToBeADataCandidate();
+
+    /**
+     * Checks whether we have seen a mimimum required number of pilot pulses in the current block
+     * @return true if we have seen a mimimum required number of pilot pulses in the current block
+     */
+    boolean isaMinimumNumberOfPilotPulses();
 }
