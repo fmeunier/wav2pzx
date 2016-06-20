@@ -146,10 +146,9 @@ public interface LoaderContext {
     void completePilotPulseBlock();
 
     /**
-     * Add an identified pilot pulse to the block in progress.
-     * @param pulseLength the pilot pulse
+     * Add the current pulse to the block in progress as a pilot pulse.
      */
-    void addPilotPulse(Long pulseLength);
+    void addPilotPulse();
 
     /**
      * Add an unclassified pulse to the current block in progress

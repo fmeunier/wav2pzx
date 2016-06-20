@@ -51,7 +51,7 @@ enum LoaderState {
                 context.completeUnknownPulseBlock();
 
                 // Put pulse into new pulse block and pilot pulse stats
-                context.addPilotPulse(context.getCurrentPulse());
+                context.addPilotPulse();
                 
                 logTransition(context.getCurrentPulse(), INITIAL, FIND_PILOT);
                 return FIND_PILOT;
@@ -85,7 +85,7 @@ enum LoaderState {
                 return INITIAL;
             }
             
-            context.addPilotPulse( context.getCurrentPulse() );
+            context.addPilotPulse();
 
             if( context.getNumPilotPulses() >= MIN_PILOT_COUNT ) {
                 logTransition(context.getCurrentPulse(), FIND_PILOT, FIND_PILOT_END);
@@ -124,7 +124,7 @@ enum LoaderState {
                 return INITIAL.nextState(context);
             }
 
-            context.addPilotPulse( context.getCurrentPulse() );
+            context.addPilotPulse();
             
             return FIND_PILOT_END;
         }

@@ -30,10 +30,10 @@ import org.junit.Test;
 import xyz.meunier.wav2pzx.PulseList;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
@@ -42,7 +42,7 @@ import static xyz.meunier.wav2pzx.blockfinder.BlockType.UNKNOWN;
 
 public class LoaderContextImplTest {
 
-    private List<Long> pulses = Arrays.asList(
+    private List<Long> pulses = asList(
             2143L, 2460L, 1667L, 2302L, 2143L, 1984L, 2143L, 2143L, 1984L, 2302L, 1905L, 2381L, 1825L, 2302L, 1984L,
             2302L, 1905L, 2302L, 1905L, 2302L, 1905L, 2302L, 1984L, 2222L, 1984L, 2302L, 1905L, 2302L, 1905L, 2302L,
             1905L, 2302L, 1984L, 2222L, 1984L, 2302L, 1905L, 2302L, 1905L, 2302L, 1984L, 2222L, 1984L, 2302L, 1905L,
@@ -54,7 +54,7 @@ public class LoaderContextImplTest {
 
     @Test
     public void buildTapeBlockList() throws Exception {
-        List<Long> sourcePulses = Arrays.asList(200L, 200L, 200L);
+        List<Long> sourcePulses = asList(200L, 200L, 200L);
         PulseList pulseList = new PulseList(sourcePulses, 1, 1);
         List<TapeBlock> result = LoaderContextImpl.buildTapeBlockList(pulseList);
         List<Long> pulses = new ArrayList<>();
@@ -97,7 +97,10 @@ public class LoaderContextImplTest {
     @Test
     public void checkThatAPilotPulseIsCountedAndStoredInAPilotTapeBlock() throws Exception {
         Long pilotPulseLength = 2100L;
-        instance.addPilotPulse(pilotPulseLength);
+        PulseList pulseList = new PulseList(singletonList(pilotPulseLength), 1, 1);
+        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
+        instance.getNextPulse();
+        instance.addPilotPulse();
 
         assertThat("Check pilot pulse recorded", instance.getNumPilotPulses(), equalTo(1));
 
@@ -182,8 +185,12 @@ public class LoaderContextImplTest {
     @Test
     public void getNumPilotPulses() throws Exception {
         Long pulseLength = 50L;
-        instance.addPilotPulse(pulseLength);
-        instance.addPilotPulse(pulseLength);
+        PulseList pulseList = new PulseList(asList(pulseLength, pulseLength), 1, 1);
+        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
+        instance.getNextPulse();
+        instance.addPilotPulse();
+        instance.getNextPulse();
+        instance.addPilotPulse();
 
         assertThat("We have the expected 2 pilot pulses counted", instance.getNumPilotPulses(), is(2));
     }

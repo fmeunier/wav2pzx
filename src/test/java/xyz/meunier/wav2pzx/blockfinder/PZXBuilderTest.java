@@ -43,6 +43,7 @@ import static java.util.Collections.singletonList;
 import static java.util.EnumSet.complementOf;
 import static java.util.EnumSet.of;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertThat;
 import static xyz.meunier.wav2pzx.blockfinder.BlockType.*;
@@ -126,6 +127,20 @@ public class PZXBuilderTest {
 
         // Also test handling of DATA block following DATA block
         testNonCoalesceOfBlockWithFollowingDataBlock(DATA, getPzxDataBlock(0));
+    }
+
+    @Test
+    public void shouldAlternatePulseLevelsBetweenBlocks() throws Exception {
+        int initialLevel = 0;
+        List<Long> pulses = asList(15946112L, 2101L, 2101L, 2101L, 2101L, 2101L, 2101L);
+        PulseList pulseList = new PulseList(pulses, initialLevel, 1L);
+
+        List<PZXBlock> blocks = buildPZXTapeList(pulseList);
+
+        assertThat(blocks.size(), is(3));
+        assertThat(blocks.get(1).getPulses().size(), is(1));
+        assertThat(blocks.get(1).getFirstPulseLevel(), is(initialLevel));
+        assertThat(blocks.get(1).getFirstPulseLevel(), is(not(blocks.get(2).getFirstPulseLevel())));
     }
 
     private void testNonCoalesceOfBlockWithFollowingDataBlock(BlockType type, PZXBlock pzxBlock) {

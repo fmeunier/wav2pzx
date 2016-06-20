@@ -72,7 +72,7 @@ public class LoaderStateTest {
 
         InOrder inOrder = inOrder(context);
         inOrder.verify(context).completeUnknownPulseBlock();
-        inOrder.verify(context).addPilotPulse(2100L);
+        inOrder.verify(context).addPilotPulse();
     }
 
     @Test
@@ -103,7 +103,7 @@ public class LoaderStateTest {
 
         assertThat(FIND_PILOT.nextState(context), is(FIND_PILOT_END));
 
-        verify(context).addPilotPulse(2100L);
+        verify(context).addPilotPulse();
     }
 
     @Test
@@ -113,7 +113,7 @@ public class LoaderStateTest {
 
         assertThat(FIND_PILOT.nextState(context), is(FIND_PILOT));
 
-        verify(context).addPilotPulse(2100L);
+        verify(context).addPilotPulse();
     }
 
     @Test
@@ -133,7 +133,7 @@ public class LoaderStateTest {
 
         assertThat(FIND_PILOT_END.nextState(context), is(FIND_PILOT_END));
 
-        verify(context).addPilotPulse(2100L);
+        verify(context).addPilotPulse();
     }
 
     @Test

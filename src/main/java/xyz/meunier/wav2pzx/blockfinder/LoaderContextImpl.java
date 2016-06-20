@@ -157,8 +157,8 @@ class LoaderContextImpl implements LoaderContext {
     }
 
     @Override
-    public void addPilotPulse(Long pulseLength) {
-        builder.withNextPulse(pulseLength);
+    public void addPilotPulse() {
+        builder.withNextPulse(this.currentPulse);
         pilotPulseCount++;
     }
 
@@ -209,7 +209,7 @@ class LoaderContextImpl implements LoaderContext {
     }
 
     private void resetBlock() {
-        resetBlock(invertPulseLevel(currentLevel));
+        resetBlock(currentLevel);
     }
 
     private void resetBlock(int firstPulseLevel) {
