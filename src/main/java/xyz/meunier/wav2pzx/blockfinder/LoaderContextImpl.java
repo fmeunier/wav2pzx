@@ -197,6 +197,11 @@ class LoaderContextImpl implements LoaderContext {
         return LoaderContext.isaPilotCandidate(this.currentPulse);
     }
 
+    @Override
+    public boolean isaDataCandidate() {
+        return this.currentPulse < MIN_PILOT_LENGTH;
+    }
+
     LoaderContextImpl(PulseList pulseList) {
         checkNotNull(pulseList, "pulseList cannot be null");
         this.currentLevel = invertPulseLevel(pulseList.getFirstPulseLevel()); // will be inverted when first pulse is retrieved

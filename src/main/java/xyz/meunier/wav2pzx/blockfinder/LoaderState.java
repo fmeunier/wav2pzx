@@ -110,7 +110,7 @@ enum LoaderState {
     FIND_PILOT_END {
         @Override
         public LoaderState nextState(LoaderContext context) {
-            if( isaDataCandidate(context.getCurrentPulse()) ) {
+            if( context.isaDataCandidate() ) {
                 context.completePilotPulseBlock();
 
                 // Found a candidate sync/data pulse, and re-process this pulse in the new state

@@ -170,6 +170,18 @@ public interface LoaderContext {
     int getNumPilotPulses();
 
     /**
+     * Checks whether the current pulse is a candidate to be a data pulse
+     * @return true if the pulse appears to be a data candidate
+     */
+    boolean isaDataCandidate();
+
+    /**
+     * Checks whether the current pulse is a candidate to be a pilot pulse
+     * @return true if the current pulse appears to be a pilot candidate
+     */
+    boolean isaPilotCandidate();
+
+    /**
      * Checks whether a pulse is a candidate to be a pilot pulse
      * @param pulse the pulse to validate
      * @return true if the pulse appears to be a pilot candidate
@@ -177,19 +189,4 @@ public interface LoaderContext {
     static boolean isaPilotCandidate(long pulse) {
         return PILOT_CANDIDATE_RANGE.contains(pulse);
     }
-
-    /**
-     * Checks whether a pulse is a candidate to be a data pulse
-     * @param pulse the pulse to validate
-     * @return true if the pulse appears to be a data candidate
-     */
-    static boolean isaDataCandidate(long pulse) {
-        return pulse < MIN_PILOT_LENGTH;
-    }
-
-    /**
-     * Checks whether the current pulse is a candidate to be a pilot pulse
-     * @return true if the current pulse appears to be a pilot candidate
-     */
-    boolean isaPilotCandidate();
 }
