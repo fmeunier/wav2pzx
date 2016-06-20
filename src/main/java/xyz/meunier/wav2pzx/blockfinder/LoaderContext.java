@@ -201,4 +201,10 @@ public interface LoaderContext {
      * @return true if the current pulse is a candidate to be a tail pulse
      */
     boolean isaCandidateTailPulse();
+
+    /**
+     * Checks whether the current pulse and next pulse are candidates to be a data bit
+     * @return true if the current pulse and next pulse are candidates to be a data bit
+     */
+    boolean isCurrentAndNextPulseTooLongToBeADataCandidate();
 }

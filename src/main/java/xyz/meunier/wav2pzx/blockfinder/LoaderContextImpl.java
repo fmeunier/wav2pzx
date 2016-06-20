@@ -212,6 +212,13 @@ class LoaderContextImpl implements LoaderContext {
         return this.currentPulse <= LoaderContext.MAX_TAIL_PULSE;
     }
 
+    @Override
+    public boolean isCurrentAndNextPulseTooLongToBeADataCandidate() {
+        // Any two adjacent data pulses must be less than DATA_TOTAL_MAX
+        long nextPulse = this.pulseIterator.hasNext() ? this.pulseIterator.peek() : 0L;
+        return (this.currentPulse + nextPulse) > DATA_TOTAL_MAX;
+    }
+
     LoaderContextImpl(PulseList pulseList) {
         checkNotNull(pulseList, "pulseList cannot be null");
         this.currentLevel = invertPulseLevel(pulseList.getFirstPulseLevel()); // will be inverted when first pulse is retrieved

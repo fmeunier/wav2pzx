@@ -146,23 +146,9 @@ public class LoaderStateTest {
     }
 
     @Test
-    public void testNextState_From_GET_DATA_To_INITIAL_lastPulseLong() {
-        // Last pulse in source is a single pulse that is too long to be a tail pulse
-        when(context.getCurrentPulse()).thenReturn(4000L);
-
-        assertThat(GET_DATA.nextState(context), is(INITIAL));
-
-        InOrder inOrder = inOrder(context);
-        inOrder.verify(context).completeDataBlock();
-        inOrder.verify(context).addUnclassifiedPulse();
-    }
-
-    @Test
     public void testNextState_From_GET_DATA_To_INITIAL_currentPulseTail() {
         // Current pulse is a good size to be a tail pulse but following is too long to be a data pulse
-        when(context.getCurrentPulse()).thenReturn(1000L);
-        when(context.hasNextPulse()).thenReturn(true);
-        when(context.peekNextPulse()).thenReturn(3000L);
+        when(context.isCurrentAndNextPulseTooLongToBeADataCandidate()).thenReturn(true);
         when(context.isaCandidateTailPulse()).thenReturn(true);
 
         assertThat(GET_DATA.nextState(context), is(INITIAL));
@@ -175,9 +161,8 @@ public class LoaderStateTest {
     @Test
     public void testNextState_From_GET_DATA_To_INITIAL_currentPulseNotTail() {
         // Current pulse is a good size to be a tail pulse but following is too long to be a data pulse
-        when(context.getCurrentPulse()).thenReturn(3000L);
-        when(context.hasNextPulse()).thenReturn(true);
-        when(context.peekNextPulse()).thenReturn(1000L);
+        when(context.isCurrentAndNextPulseTooLongToBeADataCandidate()).thenReturn(true);
+        when(context.isaCandidateTailPulse()).thenReturn(false);
 
         assertThat(GET_DATA.nextState(context), is(INITIAL));
 

@@ -205,4 +205,126 @@ public class LoaderContextImplTest {
         assertThat("We have the expected 2 pilot pulses counted", instance.getNumPilotPulses(), is(2));
     }
 
+    @Test
+    public void shouldFindATooShortPulseIsNotAPilotCandidate() throws Exception {
+        Long pulseLength = 900L;
+        PulseList pulseList = new PulseList(singletonList(pulseLength), 1, 1);
+        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
+        instance.getNextPulse();
+
+        assertThat(instance.isaPilotCandidate(), is(false));
+    }
+
+    @Test
+    public void shouldFindATooLongPulseIsNotAPilotCandidate() throws Exception {
+        Long pulseLength = 4000L;
+        PulseList pulseList = new PulseList(singletonList(pulseLength), 1, 1);
+        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
+        instance.getNextPulse();
+
+        assertThat(instance.isaPilotCandidate(), is(false));
+    }
+
+    @Test
+    public void shouldFindAJustRightPulseIsAPilotCandidate() throws Exception {
+        Long pulseLength = 2000L;
+        PulseList pulseList = new PulseList(singletonList(pulseLength), 1, 1);
+        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
+        instance.getNextPulse();
+
+        assertThat(instance.isaPilotCandidate(), is(true));
+    }
+
+    @Test
+    public void shouldFindATooLongPulseIsTooLongToBeAPilotCandidate() throws Exception {
+        Long pulseLength = 4000L;
+        PulseList pulseList = new PulseList(singletonList(pulseLength), 1, 1);
+        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
+        instance.getNextPulse();
+
+        assertThat(instance.isTooLongToBeAPilot(), is(true));
+    }
+
+    @Test
+    public void shouldFindAJustRightPulseIsNotTooLongToBeAPilotCandidate() throws Exception {
+        Long pulseLength = 2000L;
+        PulseList pulseList = new PulseList(singletonList(pulseLength), 1, 1);
+        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
+        instance.getNextPulse();
+
+        assertThat(instance.isTooLongToBeAPilot(), is(false));
+    }
+
+    @Test
+    public void shouldFindATooLongPulseIsNotATailPulseCandidate() throws Exception {
+        Long pulseLength = 2000L;
+        PulseList pulseList = new PulseList(singletonList(pulseLength), 1, 1);
+        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
+        instance.getNextPulse();
+
+        assertThat(instance.isaCandidateTailPulse(), is(false));
+    }
+
+    @Test
+    public void shouldFindAJustRightPulseIsATailPulseCandidate() throws Exception {
+        Long pulseLength = 1000L;
+        PulseList pulseList = new PulseList(singletonList(pulseLength), 1, 1);
+        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
+        instance.getNextPulse();
+
+        assertThat(instance.isaCandidateTailPulse(), is(true));
+    }
+
+    @Test
+    public void shouldFindASinglePulseTooLongToBeATailPulseIsTooLongToBeADataCandidate() throws Exception {
+        // Pulse in source is a single pulse that is too long to be a tail pulse
+        Long pulseLength = 4000L;
+        PulseList pulseList = new PulseList(singletonList(pulseLength), 1, 1);
+        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
+        instance.getNextPulse();
+
+        assertThat(instance.isCurrentAndNextPulseTooLongToBeADataCandidate(), is(true));
+    }
+
+    @Test
+    public void shouldFindASinglePulseNotTooLongToBeATailPulseIsNotTooLongToBeAADataCandidate() throws Exception {
+        // Pulse in source is a single pulse that is too long to be a tail pulse
+        Long pulseLength = 1000L;
+        PulseList pulseList = new PulseList(singletonList(pulseLength), 1, 1);
+        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
+        instance.getNextPulse();
+
+        assertThat(instance.isCurrentAndNextPulseTooLongToBeADataCandidate(), is(false));
+    }
+
+    @Test
+    public void shouldFindTwoTailPulsesIsNotTooLongToBeADataCandidate() throws Exception {
+        // Current pulse is a good size to be a tail pulse but following is too long to be a data pulse
+        PulseList pulseList = new PulseList(asList(1000L, 1000L), 1, 1);
+        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
+        instance.getNextPulse();
+
+        assertThat(instance.isCurrentAndNextPulseTooLongToBeADataCandidate(), is(false));
+    }
+
+    @Test
+    public void shouldFindATailPulseAndATooLongPulseIsTooLongToBeADataCandidate() throws Exception {
+        // Current pulse is a good size to be a tail pulse but following is too long to be a data pulse
+        PulseList pulseList = new PulseList(asList(1000L, 3000L), 1, 1);
+        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
+        instance.getNextPulse();
+
+        assertThat(instance.isCurrentAndNextPulseTooLongToBeADataCandidate(), is(true));
+    }
+
+    @Test
+    public void shouldFindATooLongPulseAndAShortPulseIsTooLongToBeADataCandidate() throws Exception {
+        // Current pulse is a too big to be a tail pulse but following is not too long to be a data pulse
+        PulseList pulseList = new PulseList(asList(3000L, 1000L), 1, 1);
+        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
+        instance.getNextPulse();
+
+        assertThat(instance.isCurrentAndNextPulseTooLongToBeADataCandidate(), is(true));
+    }
+
 }

@@ -28,7 +28,6 @@ package xyz.meunier.wav2pzx.blockfinder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static xyz.meunier.wav2pzx.blockfinder.LoaderContext.DATA_TOTAL_MAX;
 import static xyz.meunier.wav2pzx.blockfinder.LoaderContext.MIN_PILOT_COUNT;
 
 /**
@@ -145,9 +144,7 @@ enum LoaderState {
     GET_DATA {
         @Override
         public LoaderState nextState(LoaderContext context) {
-            // Any two adjacent data pulses must be less than DATA_TOTAL_MAX
-            long nextPulse = context.hasNextPulse() ? context.peekNextPulse() : 0L;
-            if( (context.getCurrentPulse() + nextPulse) > DATA_TOTAL_MAX ) {
+            if(context.isCurrentAndNextPulseTooLongToBeADataCandidate()) {
                 return handleOptionalTailPulse(context);
             }
 
