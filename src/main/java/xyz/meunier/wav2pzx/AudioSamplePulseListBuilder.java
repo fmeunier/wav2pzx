@@ -44,15 +44,15 @@ public final class AudioSamplePulseListBuilder {
     private final double tStatesPerSample;
     private boolean tapeComplete;
     private PulseList pulseList;
-    // TODO Allow selection of Bistable on the command line
-    private final Bistable bistable = new SchmittTrigger();
+    private final Bistable bistable;
 
     /**
      * Construct a new AudioSamplePulseListBuilder.
      * @param sampleRate the sample rate of the source file, must be less than targetHz
      * @param targetHz the sample rate to resample to
+     * @param trigger determines when the signal level of a sample should be 0 or 1
      */
-    public AudioSamplePulseListBuilder(float sampleRate, float targetHz) {
+    public AudioSamplePulseListBuilder(float sampleRate, float targetHz, Bistable trigger) {
         // Assert sampleRate > 0
         checkArgument(sampleRate > 0, "Sample rate must be greater than 0, sample rate: " + sampleRate);
         
@@ -65,6 +65,7 @@ public final class AudioSamplePulseListBuilder {
         builder = new PulseListBuilder().withResolution((int)round(tStatesPerSample));
         gotFirstSample = false;
         tapeComplete = false;
+        bistable = trigger;
     }
 
     /**

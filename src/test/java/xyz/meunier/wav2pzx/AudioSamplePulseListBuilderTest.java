@@ -53,13 +53,13 @@ public class AudioSamplePulseListBuilderTest {
     
     @Before
     public void setUp() {
-        instance1 = new AudioSamplePulseListBuilder(SAMPLE_RATE, MACHINE_HZ);
+        instance1 = new AudioSamplePulseListBuilder(SAMPLE_RATE, MACHINE_HZ, new SchmittTrigger());
         for(int i : samples1) {
             instance1.addSample(i);
         }
         
         // Test 2: Build samples2 should produce first pulse level 1
-        instance2 = new AudioSamplePulseListBuilder(SAMPLE_RATE, MACHINE_HZ);
+        instance2 = new AudioSamplePulseListBuilder(SAMPLE_RATE, MACHINE_HZ, new SchmittTrigger());
         for(int i : samples2) {
             instance2.addSample(i);
         }
@@ -150,7 +150,7 @@ public class AudioSamplePulseListBuilderTest {
     @Test(expected = IllegalStateException.class)
     public void testBuildThrowsException() {
         // Test 0: check we get an exception when built with no pulses added
-        AudioSamplePulseListBuilder instance = new AudioSamplePulseListBuilder(SAMPLE_RATE, MACHINE_HZ);
+        AudioSamplePulseListBuilder instance = new AudioSamplePulseListBuilder(SAMPLE_RATE, MACHINE_HZ, new SchmittTrigger());
         instance.build();
     }
 
@@ -159,7 +159,7 @@ public class AudioSamplePulseListBuilderTest {
      */
     @Test
     public void testBuild() {
-        AudioSamplePulseListBuilder instance = new AudioSamplePulseListBuilder(SAMPLE_RATE, MACHINE_HZ);
+        AudioSamplePulseListBuilder instance = new AudioSamplePulseListBuilder(SAMPLE_RATE, MACHINE_HZ, new SchmittTrigger());
 
         // Test that builder transitions to complete state when finished
         assertThat(instance.isTapeComplete(), is(false));

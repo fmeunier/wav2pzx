@@ -53,12 +53,14 @@ public final class AudioFileTape {
      * resampled to a base of targetHz.
      * @param fileName the source WAV file
      * @param targetHz the base rate for the resultant pulses
+     * @param trigger determines when the signal level of a sample should be 0 or 1
      * @return a PulseList populated with the pulse data from the file.
      * @throws java.io.IOException if there is an error reading the source file
      * @throws javax.sound.sampled.UnsupportedAudioFileException if the WAV file cannot be converted to the required format
      * @throws NullPointerException if {@code fileName} is null
      */
-    public static PulseList buildPulseList(String fileName, float targetHz) throws IOException, UnsupportedAudioFileException {
+    public static PulseList buildPulseList(String fileName, float targetHz, Bistable trigger)
+            throws IOException, UnsupportedAudioFileException {
         checkNotNull(fileName, "No input WAV file name supplied");
         
         int totalFramesRead = 0;
@@ -87,7 +89,7 @@ public final class AudioFileTape {
             AudioInputStream lowResAIS = getAudioInputStream(dataFormat, audioInputStream);
 
             AudioSamplePulseListBuilder pulseListBuilder =
-                    new AudioSamplePulseListBuilder(inDataFormat.getSampleRate(), targetHz);
+                    new AudioSamplePulseListBuilder(inDataFormat.getSampleRate(), targetHz, trigger);
             
             int bytesPerFrame = 1;
             int numBytes = 1024 * bytesPerFrame; 

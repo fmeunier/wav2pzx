@@ -63,7 +63,14 @@ public class WAV2PZX {
         V20
     }
 
+    private enum Trigger {
+        SIMPLE,
+        SCHMITT
+    }
+
     private static final EncodingVersion version = EncodingVersion.V20;
+
+    private static final Trigger triggerType = Trigger.SCHMITT;
 
     /*
      * Any durations are expressed in T cycles of standard 48k Spectrum CPU.
@@ -95,8 +102,10 @@ public class WAV2PZX {
             // Read and convert the source WAV file from samples to a list of 0/1 pulses in units of TARGET_HZ
             PulseList pulseList;
             if (fileIn.toLowerCase().endsWith(".wav")) {
+                // TODO Allow selection of Bistable on the command line
+                Bistable trigger = triggerType == Trigger.SIMPLE ? new SimpleBistable() : new SchmittTrigger();
                 // Read and convert the source WAV file from samples to a list of 0/1 pulses in units of TARGET_HZ
-                pulseList = AudioFileTape.buildPulseList(fileIn, TARGET_HZ);
+                pulseList = AudioFileTape.buildPulseList(fileIn, TARGET_HZ, trigger);
             } else if (fileIn.toLowerCase().endsWith(".txt")) {
                 pulseList = TextFileTape.buildPulseList(fileIn);
             } else {
