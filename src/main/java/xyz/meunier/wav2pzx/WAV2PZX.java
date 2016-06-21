@@ -25,6 +25,7 @@
  */
 package xyz.meunier.wav2pzx;
 
+import xyz.meunier.wav2pzx.blockfinder.PZXBuilder;
 import xyz.meunier.wav2pzx.blocks.PZXBlock;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -42,7 +43,7 @@ import java.util.logging.Logger;
 /**
  * Classic 8 bit Sinclair computers like the ZX Spectrum store program data on
  * cassette tapes using square waves forming sequences of pulses.
- * The PZX file format has been developed to represent those tapes in a space 
+ * The PZX file format has been developed to represent those tapes in a space
  * efficient format that can also represent some of the higher-level features
  * typically used in tape loading schemes from that time.
  * <p>
@@ -50,9 +51,19 @@ import java.util.logging.Logger;
  * <p>
  * This program reads a WAV format audio sample of a tape recording for these
  * machines and converts it to the efficient PZX format.
+ *
  * @author Fredrick Meunier
  */
 public class WAV2PZX {
+
+    private static boolean dumpPulses = false;
+
+    private enum EncodingVersion {
+        V10,
+        V20
+    }
+
+    private static final EncodingVersion version = EncodingVersion.V20;
 
     /*
      * Any durations are expressed in T cycles of standard 48k Spectrum CPU.
@@ -63,10 +74,11 @@ public class WAV2PZX {
     /**
      * Main entry point for WAV2PZX. Two arguments are expected, first the
      * source WAV filename and second the destination PZX file name.
+     *
      * @param args program arguments, two are expected - the source WAV and the destination PZX file names
      */
     public static void main(String[] args) {
-        if(args.length < 2) {
+        if (args.length < 2) {
             usage();
             return;
         }
@@ -74,7 +86,7 @@ public class WAV2PZX {
         final String fileIn = args[0];
         final String pzxFileOut = args[1];
 
-        if(fileIn.isEmpty() || pzxFileOut.isEmpty()) {
+        if (fileIn.isEmpty() || pzxFileOut.isEmpty()) {
             usage();
             return;
         }
@@ -82,10 +94,10 @@ public class WAV2PZX {
         try {
             // Read and convert the source WAV file from samples to a list of 0/1 pulses in units of TARGET_HZ
             PulseList pulseList;
-            if(fileIn.toLowerCase().endsWith(".wav")) {
+            if (fileIn.toLowerCase().endsWith(".wav")) {
                 // Read and convert the source WAV file from samples to a list of 0/1 pulses in units of TARGET_HZ
                 pulseList = AudioFileTape.buildPulseList(fileIn, TARGET_HZ);
-            } else if(fileIn.toLowerCase().endsWith(".txt")) {
+            } else if (fileIn.toLowerCase().endsWith(".txt")) {
                 pulseList = TextFileTape.buildPulseList(fileIn);
             } else {
                 usage();
@@ -93,29 +105,16 @@ public class WAV2PZX {
             }
 
             // Analyse the source data and translate into an equivalent list of PZX tape blocks
-            List<PZXBlock> pzxTape = LoaderContextImpl.buildPZXTapeList(pulseList);
+            List<PZXBlock> pzxTape =
+                    version == EncodingVersion.V20 ?
+                            PZXBuilder.buildPZXTapeList(pulseList) :
+                            LoaderContextImpl.buildPZXTapeList(pulseList);
 
-            try(OutputStream pulses = new BufferedOutputStream(Files.newOutputStream(Paths.get("pulseDump.txt")))) {
-                for(PZXBlock block : pzxTape) {
-                	for(Long pulse : block.getPulses()) {
-                		pulses.write(String.format("%d%n", pulse).getBytes());
-                	}
-                }
+            if (dumpPulses) {
+                dumpPulses(pzxTape);
             }
-            
-            Path pzxFile = Paths.get(pzxFileOut);
 
-            // Overwrite the destination file with the extracted PZX data
-            try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(pzxFile))) {
-                for(PZXBlock block : pzxTape) {
-                	System.out.println(block.getSummary());
-                    byte[] data = block.getPZXBlockDiskRepresentation();
-                    out.write(data, 0, data.length);
-                }
-            } catch (IOException ex) {
-                System.err.println("Error writing file " + pzxFileOut + ": " + ex.getMessage());
-                Logger.getLogger(WAV2PZX.class.getName()).log(Level.FINE, ex.toString(), ex);
-            }
+            writePzxFile(pzxFileOut, pzxTape);
         } catch (FileNotFoundException e) {
             System.err.println("Error opening file " + fileIn + ": " + e.getMessage());
             usage();
@@ -125,6 +124,31 @@ public class WAV2PZX {
         } catch (IOException e) {
             System.err.println("Error with file " + fileIn + ": " + e.toString());
             Logger.getLogger(WAV2PZX.class.getName()).log(Level.FINE, e.toString(), e);
+        }
+    }
+
+    private static void dumpPulses(List<PZXBlock> pzxTape) throws IOException {
+        try (OutputStream pulses = new BufferedOutputStream(Files.newOutputStream(Paths.get("pulseDump.txt")))) {
+            for (PZXBlock block : pzxTape) {
+                for (Long pulse : block.getPulses()) {
+                    pulses.write(String.format("%d%n", pulse).getBytes());
+                }
+            }
+        }
+    }
+
+    private static void writePzxFile(String pzxFileOut, Iterable<PZXBlock> pzxTape) {
+        Path pzxFile = Paths.get(pzxFileOut);
+
+        // Overwrite the destination file with the extracted PZX data
+        try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(pzxFile))) {
+            for (PZXBlock block : pzxTape) {
+                System.out.println(block.getSummary());
+                out.write(block.getPZXBlockDiskRepresentation());
+            }
+        } catch (IOException ex) {
+            System.err.println("Error writing file " + pzxFileOut + ": " + ex.getMessage());
+            Logger.getLogger(WAV2PZX.class.getName()).log(Level.FINE, ex.toString(), ex);
         }
     }
 
