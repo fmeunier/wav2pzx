@@ -77,17 +77,17 @@ public class LoaderStateTest {
 
     @Test
     public void testNextState_From_INITIAL_To_INITIAL() {
-        when(context.getCurrentPulse()).thenReturn(3500L);
+        when(context.isaPilotCandidate()).thenReturn(false);
 
         assertThat(INITIAL.nextState(context), is(INITIAL));
 
         verify(context).addUnclassifiedPulse();
-        verify(context,never()).completeUnknownPulseBlock();
+        verify(context, never()).completeUnknownPulseBlock();
     }
 
     @Test
     public void testNextState_From_FIND_PILOT_To_INITIAL() {
-        when(context.getCurrentPulse()).thenReturn(3500L);
+        when(context.isaPilotCandidate()).thenReturn(false);
 
         assertThat(FIND_PILOT.nextState(context), is(INITIAL));
 
@@ -117,7 +117,19 @@ public class LoaderStateTest {
     }
 
     @Test
+    public void testNextState_From_FIND_PILOT_END_To_GET_DATA() {
+        when(context.isaDataCandidate()).thenReturn(true);
+
+        assertThat(FIND_PILOT_END.nextState(context), is(GET_DATA));
+
+        InOrder inOrder = inOrder(context);
+        inOrder.verify(context).completePilotPulseBlock();
+        inOrder.verify(context).addUnclassifiedPulse();
+    }
+
+    @Test
     public void testNextState_From_FIND_PILOT_END_To_INITIAL() {
+        when(context.isaDataCandidate()).thenReturn(false);
         when(context.isTooLongToBeAPilot()).thenReturn(true);
 
         assertThat(FIND_PILOT_END.nextState(context), is(INITIAL));
@@ -129,7 +141,8 @@ public class LoaderStateTest {
 
     @Test
     public void testNextState_From_FIND_PILOT_END_To_FIND_PILOT_END() {
-        when(context.getCurrentPulse()).thenReturn(2100L);
+        when(context.isaDataCandidate()).thenReturn(false);
+        when(context.isTooLongToBeAPilot()).thenReturn(false);
 
         assertThat(FIND_PILOT_END.nextState(context), is(FIND_PILOT_END));
 
@@ -138,7 +151,7 @@ public class LoaderStateTest {
 
     @Test
     public void testNextState_From_GET_DATA_To_GET_DATA() {
-        when(context.getCurrentPulse()).thenReturn(1100L);
+        when(context.isCurrentAndNextPulseTooLongToBeADataCandidate()).thenReturn(false);
 
         assertThat(GET_DATA.nextState(context), is(GET_DATA));
 

@@ -45,6 +45,7 @@ import static xyz.meunier.wav2pzx.blockfinder.LoaderState.INITIAL;
 /**
  * LoaderContextImpl represents the extrinsic state of the tape processing state
  * machine. The data extracted from the source file will be stored here and
+ *
  * @author Fredrick Meunier
  */
 class LoaderContextImpl implements LoaderContext {
@@ -91,26 +92,13 @@ class LoaderContextImpl implements LoaderContext {
         return context.getTapeBlockList();
     }
 
-    @Override
-    public long getNextPulse() {
+    void getNextPulse() {
         this.currentPulse = this.pulseIterator.next();
         this.currentLevel = invertPulseLevel(this.currentLevel);
-        return this.currentPulse;
     }
 
-    @Override
-    public boolean hasNextPulse() {
+    private boolean hasNextPulse() {
         return this.pulseIterator.hasNext();
-    }
-
-    @Override
-    public long getCurrentPulse() {
-        return this.currentPulse;
-    }
-
-    @Override
-    public Long peekNextPulse() {
-        return this.pulseIterator.peek();
     }
 
     @Override
@@ -136,7 +124,7 @@ class LoaderContextImpl implements LoaderContext {
         completePulseBlock(() -> {
             Optional<TapeBlock> block = tapeBlockListBuilder.removeLastBlockIfTrue(IS_A_ONE_PILOT_PULSE_CANDIDATE);
             PulseList pulseList = builder.build();
-            if(block.isPresent()) {
+            if (block.isPresent()) {
                 pulseList = new PulseList(block.get().getPulseList(), pulseList);
             }
             return pulseList;

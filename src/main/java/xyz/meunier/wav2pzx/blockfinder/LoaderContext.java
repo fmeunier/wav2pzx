@@ -28,8 +28,6 @@ package xyz.meunier.wav2pzx.blockfinder;
 
 import com.google.common.collect.Range;
 
-import java.util.NoSuchElementException;
-
 /**
  * Base interface for managing the extrinsic state of the tape being analysed.
  * @author Fredrick Meunier
@@ -97,27 +95,6 @@ public interface LoaderContext {
      * The standard length of a tail pulse at the end of a data block
      */
     short TAIL = 945;
-
-    /**
-     * @return the current pulse being processed
-     */
-    long getCurrentPulse();
-
-    /**
-     * @return the next pulse to be processed
-     */
-    long getNextPulse();
-
-    /**
-     * @return true if there is another pulse to process after the current one
-     */
-    boolean hasNextPulse();
-
-    /**
-     * @return the length of the next pulse in the tape
-     * @throws NoSuchElementException if there are no more pulses
-     */
-    Long peekNextPulse();
 
     /**
      * Get the resolution of each pulse in T-states (error is up to 2 samples)

@@ -64,32 +64,6 @@ public class LoaderContextImplTest {
     }
 
     @Test
-    public void getNextPulse() throws Exception {
-        assertThat("getNextPulse() returns the next pulse", instance.getNextPulse(), is(pulses.get(0)));
-    }
-
-    @Test
-    public void hasNextPulse() throws Exception {
-        PulseList pulseList = new PulseList(singletonList(200L), 1, 1);
-        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
-        assertThat("Check hasNextPulse is true when there is another pulse", instance.hasNextPulse(), is(true));
-
-        instance.getNextPulse();
-        assertThat("Check hasNextPulse is false when there is not another pulse", instance.hasNextPulse(), is(false));
-    }
-
-    @Test
-    public void getCurrentPulse() throws Exception {
-        instance.getNextPulse();
-        assertThat("Check getCurrentPulse returns the current pulse", instance.getCurrentPulse(), is(pulses.get(0)));
-    }
-
-    @Test
-    public void peekNextPulse() throws Exception {
-        assertThat("Check peekNextPulse looks at the next pulse", instance.peekNextPulse(), is(pulses.get(0)));
-    }
-
-    @Test
     public void getResolution() throws Exception {
         assertThat("Check getResolution returns the resolution in use", instance.getResolution(), is(1L));
     }
