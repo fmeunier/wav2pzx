@@ -30,9 +30,10 @@ import org.junit.Test;
 import xyz.meunier.wav2pzx.PulseList;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
+import static java.lang.Math.floor;
+import static java.lang.Math.round;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.*;
@@ -50,17 +51,15 @@ public class LoaderContextImplTest {
             1984L, 2222L, 1984L, 2302L, 1905L, 2222L, 1984L, 2222L, 1984L, 2222L, 1905L, 2302L, 1905L, 2302L, 1905L,
             2302L, 1905L, 2302L, 1825L);
     private final PulseList pulseList = new PulseList(pulses, 0, 1);
-    private final LoaderContextImpl instance = new LoaderContextImpl(pulseList);
+    private LoaderContextImpl instance = new LoaderContextImpl(pulseList);
 
     @Test
     public void buildTapeBlockList() throws Exception {
-        List<Long> sourcePulses = asList(200L, 200L, 200L);
-        PulseList pulseList = new PulseList(sourcePulses, 1, 1);
         List<TapeBlock> result = LoaderContextImpl.buildTapeBlockList(pulseList);
         List<Long> pulses = new ArrayList<>();
         result.stream().forEach((block) -> pulses.addAll(block.getPulseList().getPulseLengths()));
 
-        assertThat("Pulses from generated tape should match source", pulses, equalTo(sourcePulses));
+        assertThat("Pulses from generated tape should match source", pulses, equalTo(pulses));
     }
 
     @Test
@@ -70,9 +69,6 @@ public class LoaderContextImplTest {
 
     @Test
     public void checkThatAPilotPulseIsCountedAndStoredInAPilotTapeBlock() throws Exception {
-        Long pilotPulseLength = 2100L;
-        PulseList pulseList = new PulseList(singletonList(pilotPulseLength), 1, 1);
-        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
         instance.getNextPulse();
         instance.addPilotPulse();
 
@@ -85,15 +81,16 @@ public class LoaderContextImplTest {
         TapeBlock tapeBlock = tapeBlockList.get(0);
         assertThat("Check the block has the proper type", tapeBlock.getBlockType(), is(PILOT));
         assertThat("Check the block has the supplied pilot pulse ", tapeBlock.getPulseList().getPulseLengths(),
-                is(singletonList(pilotPulseLength)));
+                is(singletonList(pulses.get(0))));
     }
 
     @Test
     public void checkThatAnUnclassifiedPulseIsStoredInAnUnknownTapeBlock() throws Exception {
         // Really want to check that a unclassified block ends up in a proper TapeBlock
         Long pulseLength = 50L;
-        PulseList pulseList = new PulseList(singletonList(pulseLength), 1, 1);
-        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
+        List<Long> pulses = singletonList(pulseLength);
+        PulseList pulseList = new PulseList(pulses, 1, 1);
+        instance = new LoaderContextImpl(pulseList);
         instance.getNextPulse();
         instance.addUnclassifiedPulse();
         instance.completeUnknownPulseBlock();
@@ -102,8 +99,7 @@ public class LoaderContextImplTest {
         assertThat("Check one block is created", tapeBlockList.size(), is(1));
         TapeBlock tapeBlock = tapeBlockList.get(0);
         assertThat("Check the block has the proper type", tapeBlock.getBlockType(), is(UNKNOWN));
-        assertThat("Check the block has the supplied pulse ", tapeBlock.getPulseList().getPulseLengths(),
-                is(singletonList(pulseLength)));
+        assertThat("Check the block has the supplied pulse ", tapeBlock.getPulseList().getPulseLengths(), is(pulses));
     }
 
     @Test
@@ -117,9 +113,6 @@ public class LoaderContextImplTest {
         // 3 add no pulses
         // 4 revert block
         // 5 complete tape
-        Long pulseLength = 50L;
-        PulseList pulseList = new PulseList(singletonList(pulseLength), 1, 1);
-        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
         instance.getNextPulse();
 
         instance.addUnclassifiedPulse();
@@ -131,9 +124,9 @@ public class LoaderContextImplTest {
         assertThat("A tape block list was returned", tapeBlockList, is(notNullValue()));
         assertThat("One tape block was made", tapeBlockList.size(), is(1));
         TapeBlock tapeBlock = tapeBlockList.get(0);
-        assertThat("Check the block has the proper type", tapeBlock.getBlockType(), is(UNKNOWN));
+        assertThat("Check the block has the proper type", tapeBlock.getBlockType(), is(PILOT));
         assertThat("Check the block has the supplied pulse ", tapeBlock.getPulseList().getPulseLengths(),
-                is(singletonList(pulseLength)));
+                is(pulses.subList(0,1)));
     }
 
     @Test
@@ -144,9 +137,6 @@ public class LoaderContextImplTest {
         // 3 revert block add pulse
         // 4 complete block
         // 5 complete tape
-        Long pulseLength = 50L;
-        PulseList pulseList = new PulseList(asList(pulseLength, pulseLength), 1, 1);
-        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
         instance.getNextPulse();
 
         instance.addUnclassifiedPulse();
@@ -159,18 +149,15 @@ public class LoaderContextImplTest {
 
         assertThat("A tape block list was returned", tapeBlockList, is(notNullValue()));
         assertThat("One tape block was made", tapeBlockList.size(), is(1));
-        Collection<Long> pulseLengths = tapeBlockList.get(0).getPulseList().getPulseLengths();
+        List<Long> pulseLengths = tapeBlockList.get(0).getPulseList().getPulseLengths();
         assertThat("We have the expected 2 pulses in the block", pulseLengths.size(), is(2));
-        for (Long length : pulseLengths) {
-            assertThat("All pulses should match the source pulse", pulseLength, is(length));
-        }
+        Long averageLength = round((floor(pulses.get(0) + pulses.get(1)) / 2.0));
+        assertThat("All pulses should match the source pulse", pulseLengths.get(0), is(averageLength));
+        assertThat("All pulses should match the source pulse", pulseLengths.get(1), is(averageLength));
     }
 
     @Test
     public void getNumPilotPulses() throws Exception {
-        Long pulseLength = 50L;
-        PulseList pulseList = new PulseList(asList(pulseLength, pulseLength), 1, 1);
-        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
         instance.getNextPulse();
         instance.addPilotPulse();
         instance.getNextPulse();
@@ -183,7 +170,7 @@ public class LoaderContextImplTest {
     public void shouldFindATooShortPulseIsNotAPilotCandidate() throws Exception {
         Long pulseLength = 900L;
         PulseList pulseList = new PulseList(singletonList(pulseLength), 1, 1);
-        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
+        instance = new LoaderContextImpl(pulseList);
         instance.getNextPulse();
 
         assertThat(instance.isaPilotCandidate(), is(false));
@@ -193,7 +180,7 @@ public class LoaderContextImplTest {
     public void shouldFindATooLongPulseIsNotAPilotCandidate() throws Exception {
         Long pulseLength = 4000L;
         PulseList pulseList = new PulseList(singletonList(pulseLength), 1, 1);
-        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
+        instance = new LoaderContextImpl(pulseList);
         instance.getNextPulse();
 
         assertThat(instance.isaPilotCandidate(), is(false));
@@ -201,9 +188,6 @@ public class LoaderContextImplTest {
 
     @Test
     public void shouldFindAJustRightPulseIsAPilotCandidate() throws Exception {
-        Long pulseLength = 2000L;
-        PulseList pulseList = new PulseList(singletonList(pulseLength), 1, 1);
-        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
         instance.getNextPulse();
 
         assertThat(instance.isaPilotCandidate(), is(true));
@@ -213,7 +197,7 @@ public class LoaderContextImplTest {
     public void shouldFindATooLongPulseIsTooLongToBeAPilotCandidate() throws Exception {
         Long pulseLength = 4000L;
         PulseList pulseList = new PulseList(singletonList(pulseLength), 1, 1);
-        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
+        instance = new LoaderContextImpl(pulseList);
         instance.getNextPulse();
 
         assertThat(instance.isTooLongToBeAPilot(), is(true));
@@ -221,9 +205,6 @@ public class LoaderContextImplTest {
 
     @Test
     public void shouldFindAJustRightPulseIsNotTooLongToBeAPilotCandidate() throws Exception {
-        Long pulseLength = 2000L;
-        PulseList pulseList = new PulseList(singletonList(pulseLength), 1, 1);
-        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
         instance.getNextPulse();
 
         assertThat(instance.isTooLongToBeAPilot(), is(false));
@@ -231,9 +212,6 @@ public class LoaderContextImplTest {
 
     @Test
     public void shouldFindATooLongPulseIsNotATailPulseCandidate() throws Exception {
-        Long pulseLength = 2000L;
-        PulseList pulseList = new PulseList(singletonList(pulseLength), 1, 1);
-        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
         instance.getNextPulse();
 
         assertThat(instance.isaCandidateTailPulse(), is(false));
@@ -243,7 +221,7 @@ public class LoaderContextImplTest {
     public void shouldFindAJustRightPulseIsATailPulseCandidate() throws Exception {
         Long pulseLength = 1000L;
         PulseList pulseList = new PulseList(singletonList(pulseLength), 1, 1);
-        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
+        instance = new LoaderContextImpl(pulseList);
         instance.getNextPulse();
 
         assertThat(instance.isaCandidateTailPulse(), is(true));
@@ -254,7 +232,7 @@ public class LoaderContextImplTest {
         // Pulse in source is a single pulse that is too long to be a tail pulse
         Long pulseLength = 4000L;
         PulseList pulseList = new PulseList(singletonList(pulseLength), 1, 1);
-        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
+        instance = new LoaderContextImpl(pulseList);
         instance.getNextPulse();
 
         assertThat(instance.isCurrentAndNextPulseTooLongToBeADataCandidate(), is(true));
@@ -265,7 +243,7 @@ public class LoaderContextImplTest {
         // Pulse in source is a single pulse that is too long to be a tail pulse
         Long pulseLength = 1000L;
         PulseList pulseList = new PulseList(singletonList(pulseLength), 1, 1);
-        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
+        instance = new LoaderContextImpl(pulseList);
         instance.getNextPulse();
 
         assertThat(instance.isCurrentAndNextPulseTooLongToBeADataCandidate(), is(false));
@@ -275,7 +253,7 @@ public class LoaderContextImplTest {
     public void shouldFindTwoTailPulsesIsNotTooLongToBeADataCandidate() throws Exception {
         // Current pulse is a good size to be a tail pulse but following is too long to be a data pulse
         PulseList pulseList = new PulseList(asList(1000L, 1000L), 1, 1);
-        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
+        instance = new LoaderContextImpl(pulseList);
         instance.getNextPulse();
 
         assertThat(instance.isCurrentAndNextPulseTooLongToBeADataCandidate(), is(false));
@@ -285,7 +263,7 @@ public class LoaderContextImplTest {
     public void shouldFindATailPulseAndATooLongPulseIsTooLongToBeADataCandidate() throws Exception {
         // Current pulse is a good size to be a tail pulse but following is too long to be a data pulse
         PulseList pulseList = new PulseList(asList(1000L, 3000L), 1, 1);
-        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
+        instance = new LoaderContextImpl(pulseList);
         instance.getNextPulse();
 
         assertThat(instance.isCurrentAndNextPulseTooLongToBeADataCandidate(), is(true));
@@ -295,7 +273,7 @@ public class LoaderContextImplTest {
     public void shouldFindATooLongPulseAndAShortPulseIsTooLongToBeADataCandidate() throws Exception {
         // Current pulse is a too big to be a tail pulse but following is not too long to be a data pulse
         PulseList pulseList = new PulseList(asList(3000L, 1000L), 1, 1);
-        LoaderContextImpl instance = new LoaderContextImpl(pulseList);
+        instance = new LoaderContextImpl(pulseList);
         instance.getNextPulse();
 
         assertThat(instance.isCurrentAndNextPulseTooLongToBeADataCandidate(), is(true));
