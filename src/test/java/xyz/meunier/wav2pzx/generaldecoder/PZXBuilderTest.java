@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package xyz.meunier.wav2pzx.blockfinder;
+package xyz.meunier.wav2pzx.generaldecoder;
 
 import com.google.common.collect.Range;
 import org.junit.Test;
@@ -46,10 +46,10 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertThat;
-import static xyz.meunier.wav2pzx.blockfinder.BlockType.*;
-import static xyz.meunier.wav2pzx.blockfinder.PZXBuilder.buildPZXTapeList;
-import static xyz.meunier.wav2pzx.blockfinder.RangeFinder.getAveragePulseLengthsOfRanges;
-import static xyz.meunier.wav2pzx.blockfinder.RangeFinder.getRanges;
+import static xyz.meunier.wav2pzx.generaldecoder.BlockType.*;
+import static xyz.meunier.wav2pzx.generaldecoder.PZXBuilder.buildPZXTapeList;
+import static xyz.meunier.wav2pzx.generaldecoder.RangeFinder.getAveragePulseLengthsOfRanges;
+import static xyz.meunier.wav2pzx.generaldecoder.RangeFinder.getRanges;
 
 public class PZXBuilderTest {
 

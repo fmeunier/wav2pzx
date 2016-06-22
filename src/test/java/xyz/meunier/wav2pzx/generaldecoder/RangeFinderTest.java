@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package xyz.meunier.wav2pzx.blockfinder;
+package xyz.meunier.wav2pzx.generaldecoder;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
@@ -43,7 +43,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.collection.IsMapContaining.hasEntry;
 import static org.junit.Assert.assertThat;
-import static xyz.meunier.wav2pzx.blockfinder.RangeFinder.*;
+import static xyz.meunier.wav2pzx.generaldecoder.RangeFinder.*;
 
 public class RangeFinderTest {
 

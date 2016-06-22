@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package xyz.meunier.wav2pzx.blockfinder;
+package xyz.meunier.wav2pzx.generaldecoder;
 
 /**
  * The block classifications identified on a tape.

@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package xyz.meunier.wav2pzx.blockfinder;
+package xyz.meunier.wav2pzx.generaldecoder;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +34,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
-import static xyz.meunier.wav2pzx.blockfinder.LoaderState.*;
+import static xyz.meunier.wav2pzx.generaldecoder.LoaderState.*;
 
 public class LoaderStateTest {
 

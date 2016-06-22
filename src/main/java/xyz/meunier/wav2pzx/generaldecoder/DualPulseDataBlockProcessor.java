@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package xyz.meunier.wav2pzx.blockfinder;
+package xyz.meunier.wav2pzx.generaldecoder;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
@@ -43,8 +43,8 @@ import static java.util.function.Function.identity;
 import static java.util.logging.Logger.getLogger;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
-import static xyz.meunier.wav2pzx.blockfinder.BlockType.*;
-import static xyz.meunier.wav2pzx.blockfinder.RangeFinder.*;
+import static xyz.meunier.wav2pzx.generaldecoder.BlockType.*;
+import static xyz.meunier.wav2pzx.generaldecoder.RangeFinder.*;
 
 final class DualPulseDataBlockProcessor {
     private static final int SYNC_OR_TAIL_BUFFER_SIZE = 4;

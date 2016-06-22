@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package xyz.meunier.wav2pzx.blockfinder;
+package xyz.meunier.wav2pzx.generaldecoder;
 
 import xyz.meunier.wav2pzx.pulselist.PulseList;
 
@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static xyz.meunier.wav2pzx.blockfinder.LoaderContext.isaPilotCandidate;
+import static xyz.meunier.wav2pzx.generaldecoder.LoaderContext.isaPilotCandidate;
 
 /**
  * As the data block processor can leave an additional block prior to the main pilot block that has one of the

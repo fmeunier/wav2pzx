@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package xyz.meunier.wav2pzx.blockfinder;
+package xyz.meunier.wav2pzx.generaldecoder;
 
 import com.google.common.collect.PeekingIterator;
 import xyz.meunier.wav2pzx.pulselist.PulseList;
@@ -39,8 +39,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterators.peekingIterator;
 import static java.util.Collections.singletonList;
 import static java.util.logging.Logger.getLogger;
-import static xyz.meunier.wav2pzx.blockfinder.HeaderPulseProcessor.processPulseBlock;
-import static xyz.meunier.wav2pzx.blockfinder.LoaderState.INITIAL;
+import static xyz.meunier.wav2pzx.generaldecoder.HeaderPulseProcessor.processPulseBlock;
+import static xyz.meunier.wav2pzx.generaldecoder.LoaderState.INITIAL;
 
 /**
  * LoaderContextImpl represents the extrinsic state of the tape processing state

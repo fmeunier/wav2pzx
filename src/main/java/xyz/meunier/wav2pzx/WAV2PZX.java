@@ -25,8 +25,8 @@
  */
 package xyz.meunier.wav2pzx;
 
-import xyz.meunier.wav2pzx.blockfinder.PZXBuilder;
 import xyz.meunier.wav2pzx.blocks.PZXBlock;
+import xyz.meunier.wav2pzx.generaldecoder.PZXBuilder;
 import xyz.meunier.wav2pzx.input.AudioFileTape;
 import xyz.meunier.wav2pzx.input.TextFileTape;
 import xyz.meunier.wav2pzx.input.triggers.Bistable;

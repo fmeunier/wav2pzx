@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package xyz.meunier.wav2pzx.blockfinder;
+package xyz.meunier.wav2pzx.generaldecoder;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
@@ -38,9 +38,9 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static xyz.meunier.wav2pzx.blockfinder.HeaderPulseProcessor.processPulseBlock;
-import static xyz.meunier.wav2pzx.blockfinder.RangeFinder.getAveragePulseLengthsOfRanges;
-import static xyz.meunier.wav2pzx.blockfinder.RangeFinder.getRanges;
+import static xyz.meunier.wav2pzx.generaldecoder.HeaderPulseProcessor.processPulseBlock;
+import static xyz.meunier.wav2pzx.generaldecoder.RangeFinder.getAveragePulseLengthsOfRanges;
+import static xyz.meunier.wav2pzx.generaldecoder.RangeFinder.getRanges;
 
 public class HeaderPulseProcessorTest {
 

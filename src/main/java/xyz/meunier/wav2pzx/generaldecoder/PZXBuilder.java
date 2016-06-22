@@ -23,7 +23,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package xyz.meunier.wav2pzx.blockfinder;
+package xyz.meunier.wav2pzx.generaldecoder;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.PeekingIterator;
@@ -36,8 +36,8 @@ import java.util.List;
 import java.util.function.BinaryOperator;
 
 import static com.google.common.collect.Iterators.peekingIterator;
-import static xyz.meunier.wav2pzx.blockfinder.BlockType.SYNC_CANDIDATE;
-import static xyz.meunier.wav2pzx.blockfinder.BlockType.TAIL_CANDIDATE;
+import static xyz.meunier.wav2pzx.generaldecoder.BlockType.SYNC_CANDIDATE;
+import static xyz.meunier.wav2pzx.generaldecoder.BlockType.TAIL_CANDIDATE;
 
 /**
  * Utility class for building PZX tape images

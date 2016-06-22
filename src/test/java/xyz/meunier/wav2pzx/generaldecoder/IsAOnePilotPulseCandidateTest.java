@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package xyz.meunier.wav2pzx.blockfinder;
+package xyz.meunier.wav2pzx.generaldecoder;
 
 import com.google.common.collect.Range;
 import org.junit.Test;
@@ -37,7 +37,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static xyz.meunier.wav2pzx.blockfinder.RangeFinder.getRanges;
+import static xyz.meunier.wav2pzx.generaldecoder.RangeFinder.getRanges;
 
 public class IsAOnePilotPulseCandidateTest {
 

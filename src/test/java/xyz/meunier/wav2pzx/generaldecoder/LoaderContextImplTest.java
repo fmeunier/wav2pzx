@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package xyz.meunier.wav2pzx.blockfinder;
+package xyz.meunier.wav2pzx.generaldecoder;
 
 import org.junit.Test;
 import xyz.meunier.wav2pzx.pulselist.PulseList;
@@ -38,8 +38,8 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
-import static xyz.meunier.wav2pzx.blockfinder.BlockType.PILOT;
-import static xyz.meunier.wav2pzx.blockfinder.BlockType.UNKNOWN;
+import static xyz.meunier.wav2pzx.generaldecoder.BlockType.PILOT;
+import static xyz.meunier.wav2pzx.generaldecoder.BlockType.UNKNOWN;
 
 public class LoaderContextImplTest {
 

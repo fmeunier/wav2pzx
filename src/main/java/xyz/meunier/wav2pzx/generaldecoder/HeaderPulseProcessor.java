@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package xyz.meunier.wav2pzx.blockfinder;
+package xyz.meunier.wav2pzx.generaldecoder;
 
 import com.google.common.collect.Range;
 import xyz.meunier.wav2pzx.pulselist.PulseList;
@@ -35,11 +35,11 @@ import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.stream.Collectors.toList;
-import static xyz.meunier.wav2pzx.blockfinder.BlockType.PILOT;
-import static xyz.meunier.wav2pzx.blockfinder.BlockType.UNKNOWN;
-import static xyz.meunier.wav2pzx.blockfinder.LoaderContext.isaPilotCandidate;
-import static xyz.meunier.wav2pzx.blockfinder.RangeFinder.getAveragePulseLengthsOfRanges;
-import static xyz.meunier.wav2pzx.blockfinder.RangeFinder.getRanges;
+import static xyz.meunier.wav2pzx.generaldecoder.BlockType.PILOT;
+import static xyz.meunier.wav2pzx.generaldecoder.BlockType.UNKNOWN;
+import static xyz.meunier.wav2pzx.generaldecoder.LoaderContext.isaPilotCandidate;
+import static xyz.meunier.wav2pzx.generaldecoder.RangeFinder.getAveragePulseLengthsOfRanges;
+import static xyz.meunier.wav2pzx.generaldecoder.RangeFinder.getRanges;
 
 /**
  * This class has helper methods to construct the various kinds of pulse blocks.
