@@ -23,13 +23,13 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package xyz.meunier.wav2pzx;
-
-import static org.junit.Assert.*;
+package xyz.meunier.wav2pzx.input.triggers;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Fredrick Meunier
@@ -52,7 +52,7 @@ public class SchmittTriggerTest {
 	}
 
 	/**
-	 * Test method for {@link xyz.meunier.wav2pzx.SchmittTrigger#getNewLevel(int)}.
+	 * Test method for {@link SchmittTrigger#getNewLevel(int)}.
 	 */
 	@Test
 	public final void testGetNewLevel() {

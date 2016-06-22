@@ -25,7 +25,7 @@
  */
 package xyz.meunier.wav2pzx.blocks;
 
-import xyz.meunier.wav2pzx.PulseList;
+import xyz.meunier.wav2pzx.pulselist.PulseList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +33,8 @@ import java.util.LongSummaryStatistics;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static xyz.meunier.wav2pzx.LoaderContext.*;
 import static xyz.meunier.wav2pzx.blocks.PZXEncodeUtils.addPZXBlockHeader;
+import static xyz.meunier.wav2pzx.romdecoder.LoaderContext.*;
 
 /**
  * This is a specialisation of the PULS PZX data block that is used when we have

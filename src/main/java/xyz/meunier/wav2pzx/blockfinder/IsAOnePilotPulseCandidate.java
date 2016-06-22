@@ -26,7 +26,7 @@
 
 package xyz.meunier.wav2pzx.blockfinder;
 
-import xyz.meunier.wav2pzx.PulseList;
+import xyz.meunier.wav2pzx.pulselist.PulseList;
 
 import java.util.List;
 import java.util.function.Predicate;

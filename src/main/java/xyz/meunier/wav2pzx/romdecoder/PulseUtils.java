@@ -23,14 +23,14 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package xyz.meunier.wav2pzx;
+package xyz.meunier.wav2pzx.romdecoder;
 
 /**
  * Some routines for working with pulses.
  * 
  * @author Fredrick Meunier
  */
-public final class PulseUtils {
+final class PulseUtils {
 
 	// Allow pulses within 5% of each other to be considered equal
 	private static final double ERROR_PERCENTAGE = 0.05;
@@ -45,7 +45,7 @@ public final class PulseUtils {
 	 * @param resolution the feature resolution in terms of the target clock rate
 	 * @return true if the two pulses are probably equal in duration
 	 */
-	public static boolean equalWithinResolution(double pulse1, double pulse2, double resolution) {
+	static boolean equalWithinResolution(double pulse1, double pulse2, double resolution) {
 		double error = Double.max(pulse1, pulse2) * ERROR_PERCENTAGE;
 		return Math.abs(pulse1 - pulse2) < (resolution + error);
 	}

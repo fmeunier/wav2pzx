@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2016, Fredrick Meunier
  * All rights reserved.
  *
@@ -23,11 +23,13 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package xyz.meunier.wav2pzx;
+package xyz.meunier.wav2pzx.input;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import xyz.meunier.wav2pzx.input.triggers.SchmittTrigger;
+import xyz.meunier.wav2pzx.pulselist.PulseList;
 
 import java.util.List;
 

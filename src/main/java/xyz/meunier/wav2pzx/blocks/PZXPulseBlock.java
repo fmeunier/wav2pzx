@@ -25,16 +25,15 @@
  */
 package xyz.meunier.wav2pzx.blocks;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static xyz.meunier.wav2pzx.blocks.PZXEncodeUtils.addPZXBlockHeader;
-
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
-
-import xyz.meunier.wav2pzx.PulseList;
+import xyz.meunier.wav2pzx.pulselist.PulseList;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static xyz.meunier.wav2pzx.blocks.PZXEncodeUtils.addPZXBlockHeader;
 
 /**
  * Represents a PZX pulse block (PULS).

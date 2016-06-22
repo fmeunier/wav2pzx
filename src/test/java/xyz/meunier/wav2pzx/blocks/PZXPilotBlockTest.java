@@ -25,17 +25,17 @@
  */
 package xyz.meunier.wav2pzx.blocks;
 
-import java.util.Arrays;
-import java.util.Collection;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import xyz.meunier.wav2pzx.pulselist.PulseList;
 
-import xyz.meunier.wav2pzx.PulseList;
-import xyz.meunier.wav2pzx.blocks.PZXPilotBlock;
+import java.util.Arrays;
+import java.util.Collection;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertThat;
 
 /**
  *

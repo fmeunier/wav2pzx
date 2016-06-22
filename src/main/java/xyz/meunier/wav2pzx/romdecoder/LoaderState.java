@@ -23,7 +23,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package xyz.meunier.wav2pzx;
+package xyz.meunier.wav2pzx.romdecoder;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,7 +35,7 @@ import java.util.logging.Logger;
  * State is all extrinsic and stored in a supplied LoaderContext object.
  * @author Fredrick Meunier
  */
-public enum LoaderState {
+enum LoaderState {
 
     /**
      * This is the initial state of the loader, searching for a PILOT tone.

@@ -27,7 +27,7 @@
 package xyz.meunier.wav2pzx.blockfinder;
 
 import com.google.common.collect.Range;
-import xyz.meunier.wav2pzx.PulseList;
+import xyz.meunier.wav2pzx.pulselist.PulseList;
 
 import java.util.Collection;
 import java.util.List;

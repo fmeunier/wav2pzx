@@ -29,7 +29,7 @@ package xyz.meunier.wav2pzx.blockfinder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 import org.junit.Test;
-import xyz.meunier.wav2pzx.PulseList;
+import xyz.meunier.wav2pzx.pulselist.PulseList;
 
 import java.util.List;
 import java.util.Map;

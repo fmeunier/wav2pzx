@@ -26,7 +26,7 @@
 package xyz.meunier.wav2pzx.blocks;
 
 import org.junit.Test;
-import xyz.meunier.wav2pzx.PulseList;
+import xyz.meunier.wav2pzx.pulselist.PulseList;
 
 import java.util.ArrayList;
 import java.util.Arrays;

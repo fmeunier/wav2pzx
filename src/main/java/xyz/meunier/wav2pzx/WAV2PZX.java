@@ -27,6 +27,13 @@ package xyz.meunier.wav2pzx;
 
 import xyz.meunier.wav2pzx.blockfinder.PZXBuilder;
 import xyz.meunier.wav2pzx.blocks.PZXBlock;
+import xyz.meunier.wav2pzx.input.AudioFileTape;
+import xyz.meunier.wav2pzx.input.TextFileTape;
+import xyz.meunier.wav2pzx.input.triggers.Bistable;
+import xyz.meunier.wav2pzx.input.triggers.SchmittTrigger;
+import xyz.meunier.wav2pzx.input.triggers.SimpleBistable;
+import xyz.meunier.wav2pzx.pulselist.PulseList;
+import xyz.meunier.wav2pzx.romdecoder.LoaderContextImpl;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.BufferedOutputStream;

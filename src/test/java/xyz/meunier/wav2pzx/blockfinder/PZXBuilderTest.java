@@ -28,12 +28,12 @@ package xyz.meunier.wav2pzx.blockfinder;
 
 import com.google.common.collect.Range;
 import org.junit.Test;
-import xyz.meunier.wav2pzx.PulseList;
-import xyz.meunier.wav2pzx.PulseListBuilder;
 import xyz.meunier.wav2pzx.blocks.PZXBlock;
 import xyz.meunier.wav2pzx.blocks.PZXDataBlock;
 import xyz.meunier.wav2pzx.blocks.PZXHeaderBlock;
 import xyz.meunier.wav2pzx.blocks.PZXPulseBlock;
+import xyz.meunier.wav2pzx.pulselist.PulseList;
+import xyz.meunier.wav2pzx.pulselist.PulseListBuilder;
 
 import java.util.List;
 import java.util.Map;

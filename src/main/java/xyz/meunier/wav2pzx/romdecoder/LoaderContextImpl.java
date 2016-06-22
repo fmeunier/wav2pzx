@@ -23,12 +23,14 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package xyz.meunier.wav2pzx;
+package xyz.meunier.wav2pzx.romdecoder;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
 import xyz.meunier.wav2pzx.blocks.*;
+import xyz.meunier.wav2pzx.databuilder.DataBuilder;
+import xyz.meunier.wav2pzx.pulselist.PulseList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -131,7 +133,7 @@ public final class LoaderContextImpl implements LoaderContext {
      * @param pulseList list of pulses from source tape (cannot be null)
      * @throws NullPointerException if pulseList is null
      */
-    public LoaderContextImpl(PulseList pulseList) {
+    LoaderContextImpl(PulseList pulseList) {
         checkNotNull(pulseList, "pulseList cannot be null");
         this.currentLevel = pulseList.getFirstPulseLevel() == 0 ? 1 : 0; // will be inverted when first pulse is retrieved
         this.pulseIterator = Iterators.peekingIterator(pulseList.getPulseLengths().iterator());
@@ -384,7 +386,7 @@ public final class LoaderContextImpl implements LoaderContext {
      * Get a copy of the current list of identified PZXBlocks 
      * @return the current list of identified PZXBlocks
      */
-    public List<PZXBlock> getPZXTapeList() {
+    List<PZXBlock> getPZXTapeList() {
         return new ArrayList<>(this.loaderResult);
     }
     
@@ -400,7 +402,7 @@ public final class LoaderContextImpl implements LoaderContext {
      * Get a copy of the current list of zero bit pulses in the block being built
      * @return a copy of the current list of zero bit pulses
      */
-    public List<Long> getZeroPulses() {
+    List<Long> getZeroPulses() {
         return new ArrayList<>(zeroPulses);
     }
 
@@ -408,7 +410,7 @@ public final class LoaderContextImpl implements LoaderContext {
      * Get a copy of the current list of one bit pulses in the block being built
      * @return a copy of the current list of zero bit pulses
      */
-    public List<Long> getOnePulses() {
+    List<Long> getOnePulses() {
         return new ArrayList<>(onePulses);
     }
 
@@ -416,7 +418,7 @@ public final class LoaderContextImpl implements LoaderContext {
      * Get a copy of the current list of pilot pulses in the block being built
      * @return a copy of the current list of pilot pulses
      */
-    public List<Long> getPilotPulses() {
+    List<Long> getPilotPulses() {
         return new ArrayList<>(pilotPulses);
     }
     

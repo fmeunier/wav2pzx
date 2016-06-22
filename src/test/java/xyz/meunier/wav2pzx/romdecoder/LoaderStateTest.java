@@ -23,11 +23,12 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package xyz.meunier.wav2pzx;
+package xyz.meunier.wav2pzx.romdecoder;
 
 import org.junit.Test;
+
 import static org.junit.Assert.*;
-import static xyz.meunier.wav2pzx.LoaderState.*;
+import static xyz.meunier.wav2pzx.romdecoder.LoaderState.*;
 
 /**
  *

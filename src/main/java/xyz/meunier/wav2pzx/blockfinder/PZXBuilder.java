@@ -27,9 +27,9 @@ package xyz.meunier.wav2pzx.blockfinder;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.PeekingIterator;
-import xyz.meunier.wav2pzx.DataBuilder;
-import xyz.meunier.wav2pzx.PulseList;
 import xyz.meunier.wav2pzx.blocks.*;
+import xyz.meunier.wav2pzx.databuilder.DataBuilder;
+import xyz.meunier.wav2pzx.pulselist.PulseList;
 
 import java.util.ArrayList;
 import java.util.List;

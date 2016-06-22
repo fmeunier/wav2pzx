@@ -23,11 +23,11 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package xyz.meunier.wav2pzx;
-
-import static org.junit.Assert.*;
+package xyz.meunier.wav2pzx.input.triggers;
 
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Fredrick Meunier
@@ -36,7 +36,7 @@ import org.junit.Test;
 public class SimpleBistableTest {
 
 	/**
-	 * Test method for {@link xyz.meunier.wav2pzx.SimpleBistable#getNewLevel(int)}.
+	 * Test method for {@link SimpleBistable#getNewLevel(int)}.
 	 */
 	@Test
 	public final void testGetNewLevel() {

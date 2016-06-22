@@ -24,7 +24,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package xyz.meunier.wav2pzx;
+package xyz.meunier.wav2pzx.input;
+
+import xyz.meunier.wav2pzx.pulselist.PulseList;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -64,8 +66,9 @@ public final class TextFileTape {
                 .filter(s -> !s.isEmpty())
                 .map(line -> line.split(" : "))
                 .filter(array -> array.length > 1)
-                .filter(array -> array[0].matches("\\d+")) // Throw away negative pulses
-                .map(array -> Long.valueOf(array[0]))
+                .map(array -> array[0])
+                .filter(string -> string.matches("\\d+")) // Throw away negative pulses
+                .map(Long::valueOf)
                 .collect(Collectors.toList());
     }
 

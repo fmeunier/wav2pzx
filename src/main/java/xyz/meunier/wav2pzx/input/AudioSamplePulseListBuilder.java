@@ -23,7 +23,11 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package xyz.meunier.wav2pzx;
+package xyz.meunier.wav2pzx.input;
+
+import xyz.meunier.wav2pzx.input.triggers.Bistable;
+import xyz.meunier.wav2pzx.pulselist.PulseList;
+import xyz.meunier.wav2pzx.pulselist.PulseListBuilder;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -35,7 +39,7 @@ import static java.lang.Math.round;
  *
  * @author Fredrick Meunier
  */
-public final class AudioSamplePulseListBuilder {
+final class AudioSamplePulseListBuilder {
 
     private final PulseListBuilder builder;
     private int lastSampleLevel;
@@ -52,7 +56,7 @@ public final class AudioSamplePulseListBuilder {
      * @param targetHz the sample rate to resample to
      * @param trigger determines when the signal level of a sample should be 0 or 1
      */
-    public AudioSamplePulseListBuilder(float sampleRate, float targetHz, Bistable trigger) {
+    AudioSamplePulseListBuilder(float sampleRate, float targetHz, Bistable trigger) {
         // Assert sampleRate > 0
         checkArgument(sampleRate > 0, "Sample rate must be greater than 0, sample rate: " + sampleRate);
         
@@ -71,14 +75,14 @@ public final class AudioSamplePulseListBuilder {
     /**
      * @return the number of tstates per sample
      */
-    public double getTStatesPerSample() {
+    double getTStatesPerSample() {
         return tStatesPerSample;
     }
 
     /**
      * @return whether this builder has completed and built the tape
      */
-    public boolean isTapeComplete() {
+    boolean isTapeComplete() {
         return tapeComplete;
     }
 
@@ -88,7 +92,7 @@ public final class AudioSamplePulseListBuilder {
      * @throws IllegalStateException if the tape is complete
      * @throws IllegalArgumentException if the sample is out of range
      */
-    public void addSample(int sample) {
+    void addSample(int sample) {
         // State error, tape is already complete so no more pulses
         checkState(!tapeComplete, "Pulse length list has already been marked as complete");
         checkArgument( sample >= 0 & sample <= 255, "Sample out of range, should be 0-255, value: " + sample);

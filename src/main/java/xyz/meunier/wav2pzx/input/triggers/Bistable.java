@@ -23,32 +23,22 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package xyz.meunier.wav2pzx;
+package xyz.meunier.wav2pzx.input.triggers;
 
 /**
- * The Schmitt Trigger switches from a value of 1 to 0 when the sample passes the midpoint
- * by a defined threshold and from 0 to 1 when the sample passes the midpoint by a threshold.
- *
+ * Interface defining the interface for detecting when a sample should be interpreted
+ * as a 1 or 0
  * @author Fredrick Meunier
  */
-public final class SchmittTrigger implements Bistable {
-	
-	// The threshold to pass the zero level by to switch price level
-	private static final int THRESHOLD = 12;
-	
-	// The current level of the output
-	private int currentLevel = 0;
+public interface Bistable {
 
-	@Override
-	public int getNewLevel(int sample) {
-		int currentThreshold = 128;
-		if(currentLevel == 0) {
-			currentThreshold += THRESHOLD;
-		} else {
-			currentThreshold -= THRESHOLD;
-		}
-		currentLevel = (sample < currentThreshold) ? 0 : 1;
-		return currentLevel;
-	}
+	/**
+	 * Evaluate the unsigned byte sample provided and return whether it should be
+	 * considered a logical 0 or 1. Will be called for all samples in the source
+	 * in order.
+	 * @param sample the unsigned byte (0-255) value for the sample
+	 * @return 0 or 1
+	 */
+	int getNewLevel(int sample);
 
 }

@@ -26,7 +26,7 @@
 package xyz.meunier.wav2pzx.blocks;
 
 import com.google.common.primitives.Bytes;
-import xyz.meunier.wav2pzx.PulseList;
+import xyz.meunier.wav2pzx.pulselist.PulseList;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -36,8 +36,8 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static xyz.meunier.wav2pzx.LoaderContext.*;
 import static xyz.meunier.wav2pzx.blocks.PZXEncodeUtils.*;
+import static xyz.meunier.wav2pzx.romdecoder.LoaderContext.*;
 
 /**
  * Represents a PZX data block (DATA). Stores the decoded bytes found on the tape.

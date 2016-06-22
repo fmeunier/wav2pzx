@@ -23,21 +23,32 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package xyz.meunier.wav2pzx;
+package xyz.meunier.wav2pzx.input.triggers;
 
 /**
- * The SimpleBistable switches between a value of 1 and 0 when the sample passes the midpoint.
+ * The Schmitt Trigger switches from a value of 1 to 0 when the sample passes the midpoint
+ * by a defined threshold and from 0 to 1 when the sample passes the midpoint by a threshold.
  *
  * @author Fredrick Meunier
  */
-public final class SimpleBistable implements Bistable {
+public final class SchmittTrigger implements Bistable {
+	
+	// The threshold to pass the zero level by to switch price level
+	private static final int THRESHOLD = 12;
+	
+	// The current level of the output
+	private int currentLevel = 0;
 
-	/* (non-Javadoc)
-	 * @see xyz.meunier.wav2pzx.Bistable#getNewLevel(int)
-	 */
 	@Override
 	public int getNewLevel(int sample) {
-		return sample < 128 ? 0 : 1;
+		int currentThreshold = 128;
+		if(currentLevel == 0) {
+			currentThreshold += THRESHOLD;
+		} else {
+			currentThreshold -= THRESHOLD;
+		}
+		currentLevel = (sample < currentThreshold) ? 0 : 1;
+		return currentLevel;
 	}
 
 }

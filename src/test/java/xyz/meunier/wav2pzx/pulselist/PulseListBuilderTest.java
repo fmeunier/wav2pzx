@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package xyz.meunier.wav2pzx;
+package xyz.meunier.wav2pzx.pulselist;
 
 import org.junit.Before;
 import org.junit.Test;

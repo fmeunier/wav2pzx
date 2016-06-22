@@ -113,7 +113,7 @@ final class RangeFinder {
         Map<Range<Long>, Long> averages = new LinkedHashMap<>();
 
         for(Range<Long> range : ranges) {
-            Long average = round(fullBits.stream().filter(range::contains).collect(averagingLong(l -> l)));
+            Long average = round(fullBits.stream().filter(range::contains).collect(averagingLong(Long::longValue)));
             averages.put(range, average);
         }
         return averages;

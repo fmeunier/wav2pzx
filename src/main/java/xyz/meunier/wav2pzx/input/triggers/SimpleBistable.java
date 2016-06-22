@@ -23,22 +23,21 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package xyz.meunier.wav2pzx;
+package xyz.meunier.wav2pzx.input.triggers;
 
 /**
- * Interface defining the interface for detecting when a sample should be interpreted
- * as a 1 or 0
+ * The SimpleBistable switches between a value of 1 and 0 when the sample passes the midpoint.
+ *
  * @author Fredrick Meunier
  */
-public interface Bistable {
+public final class SimpleBistable implements Bistable {
 
-	/**
-	 * Evaluate the unsigned byte sample provided and return whether it should be
-	 * considered a logical 0 or 1. Will be called for all samples in the source
-	 * in order.
-	 * @param sample the unsigned byte (0-255) value for the sample
-	 * @return 0 or 1
+	/* (non-Javadoc)
+	 * @see xyz.meunier.wav2pzx.input.triggers.Bistable#getNewLevel(int)
 	 */
-	int getNewLevel(int sample);
+	@Override
+	public int getNewLevel(int sample) {
+		return sample < 128 ? 0 : 1;
+	}
 
 }
