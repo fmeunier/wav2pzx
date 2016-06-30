@@ -38,11 +38,10 @@ import static xyz.meunier.wav2pzx.generaldecoder.LoaderContext.isaPilotCandidate
  * As the data block processor can leave an additional block prior to the main pilot block that has one of the
  * associated pilot pulses, we sometimes need to identify such blocks. This class provides a suitable test to do so.
  */
-final class IsAOnePilotPulseCandidate implements Predicate<TapeBlock> {
+final class IsAOnePilotPulseCandidate implements Predicate<PulseList> {
     @Override
-    public boolean test(TapeBlock tapeBlock) {
-        checkNotNull(tapeBlock, "tapeBlock should not be null");
-        PulseList lastPulseList = tapeBlock.getPulseList();
+    public boolean test(PulseList lastPulseList) {
+        checkNotNull(lastPulseList, "lastPulseList should not be null");
         List<Long> pulseLengths = lastPulseList.getPulseLengths();
         return (pulseLengths.size() == 1 && isaPilotCandidate(pulseLengths.get(0)));
     }

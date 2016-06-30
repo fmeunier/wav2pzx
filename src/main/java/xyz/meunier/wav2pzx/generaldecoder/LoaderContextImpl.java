@@ -26,20 +26,16 @@
 
 package xyz.meunier.wav2pzx.generaldecoder;
 
-import com.google.common.collect.PeekingIterator;
+import com.google.common.collect.ImmutableList;
+import javafx.util.Pair;
 import xyz.meunier.wav2pzx.pulselist.PulseList;
-import xyz.meunier.wav2pzx.pulselist.PulseListBuilder;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 import java.util.logging.Level;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Iterators.peekingIterator;
-import static java.util.Collections.singletonList;
 import static java.util.logging.Logger.getLogger;
-import static xyz.meunier.wav2pzx.generaldecoder.HeaderPulseProcessor.processPulseBlock;
 import static xyz.meunier.wav2pzx.generaldecoder.LoaderState.INITIAL;
 
 /**
@@ -50,20 +46,19 @@ import static xyz.meunier.wav2pzx.generaldecoder.LoaderState.INITIAL;
  */
 class LoaderContextImpl implements LoaderContext {
 
-    private static final IsAOnePilotPulseCandidate IS_A_ONE_PILOT_PULSE_CANDIDATE = new IsAOnePilotPulseCandidate();
-
     private final long resolution;
-    // Holds the current pulses under consideration, will be transformed to a
-    // suitable PulseList representing the blocks
-    private PulseListBuilder builder;
+    private int nextIndex;
+    private int firstIndexOfBlock;
+    private int lastIndexOfBlock;
 
     private int currentLevel;
-    private final PeekingIterator<Long> pulseIterator;
 
     private TapeBlockListBuilder tapeBlockListBuilder = new TapeBlockListBuilder();
 
     private long currentPulse;
     private int pilotPulseCount;
+    private ImmutableList<Long> pulseLengths;
+    private int firstPulseLevel;
 
     /**
      * Builder method to construct a series of PZXBlocks that represents the data
@@ -93,86 +88,74 @@ class LoaderContextImpl implements LoaderContext {
     }
 
     void getNextPulse() {
-        this.currentPulse = this.pulseIterator.next();
-        this.currentLevel = invertPulseLevel(this.currentLevel);
+        currentPulse = pulseLengths.get(nextIndex++);
+        currentLevel = invertPulseLevel(currentLevel);
     }
 
     private boolean hasNextPulse() {
-        return this.pulseIterator.hasNext();
+        return nextIndex < pulseLengths.size();
     }
 
     @Override
     public long getResolution() {
-        return this.builder.getResolution();
+        return resolution;
     }
 
     @Override
     public void completeDataBlock() {
-        completeBlock(() -> new DualPulseDataBlockProcessor(builder.build()).processDataBlock());
+        completeBlock(BlockType.DATA);
+    }
+
+    private PulseList buildPulseList() {
+        return new PulseList(pulseLengths.subList(firstIndexOfBlock, lastIndexOfBlock), firstPulseLevel, resolution);
     }
 
     @Override
     public void completeUnknownPulseBlock() {
-        completePulseBlock(() -> builder.build());
+        completeBlock(BlockType.UNKNOWN);
     }
 
     @Override
     public void completePilotPulseBlock() {
-        // For pilots check the previous block for being a one pulse pilot candidate to merge with this block as the
-        // data block processor can leave an additional block prior to the main pilot block that has some of the
-        // associated pilot pulses
-        completePulseBlock(() -> {
-            Optional<TapeBlock> block = tapeBlockListBuilder.removeLastBlockIfTrue(IS_A_ONE_PILOT_PULSE_CANDIDATE);
-            PulseList pulseList = builder.build();
-            if (block.isPresent()) {
-                pulseList = new PulseList(block.get().getPulseList(), pulseList);
-            }
-            return pulseList;
-        });
+        completeBlock(BlockType.PILOT);
     }
 
-    private void completePulseBlock(Supplier<PulseList> supplier) {
-        completeBlock(() -> singletonList(Optional.of(processPulseBlock(supplier.get()))));
-    }
-
-    private void completeBlock(Supplier<List<Optional<TapeBlock>>> supplier) {
-        if (builder.isEmpty()) {
+    private void completeBlock(BlockType blockType) {
+        if (firstIndexOfBlock >= lastIndexOfBlock) {
             tapeBlockListBuilder.add(null);
             return;
         }
-        tapeBlockListBuilder.addAll(supplier.get());
+        tapeBlockListBuilder.add(new Pair<>(blockType, buildPulseList()));
+        firstIndexOfBlock = lastIndexOfBlock;
         resetBlock();
     }
 
     @Override
     public void addPilotPulse() {
-        builder.withNextPulse(this.currentPulse);
+        lastIndexOfBlock++;
         pilotPulseCount++;
     }
 
     @Override
     public void addUnclassifiedPulse() {
-        builder.withNextPulse(this.currentPulse);
+        lastIndexOfBlock++;
     }
 
     @Override
     public void revertCurrentBlock() {
-        final Optional<TapeBlock> lastTapeBlock = tapeBlockListBuilder.removeLastBlock();
+        final Optional<Pair<BlockType, PulseList>> lastTapeBlock = tapeBlockListBuilder.removeLastBlock();
 
         getLogger(LoaderContextImpl.class.getName()).log(Level.FINE, "reverting block: " + lastTapeBlock.toString() + "\n");
 
         // In this case, popping off the last not present block will have done the job
         if (!lastTapeBlock.isPresent()) return;
 
-        PulseList lastBlock = lastTapeBlock.get().getPulseList();
-        PulseList currentBlock = builder.build();
+        PulseList lastBlock = lastTapeBlock.get().getValue();
+        // Preserve any pulses from the last block
+        firstIndexOfBlock -= lastBlock.getPulseLengths().size();
 
         // If the last block was null this block has the same first pulse level that would have had
         resetBlock(lastBlock.getFirstPulseLevel()); // FIXME: Will have lost pilot count if it was present in the last block
-
-        // Preserve any pulses from the last block
-        builder.withNextPulses(lastBlock.getPulseLengths())
-                .withNextPulses(currentBlock.getPulseLengths());
     }
 
     @Override
@@ -182,29 +165,29 @@ class LoaderContextImpl implements LoaderContext {
 
     @Override
     public boolean isaPilotCandidate() {
-        return LoaderContext.isaPilotCandidate(this.currentPulse);
+        return LoaderContext.isaPilotCandidate(currentPulse);
     }
 
     @Override
     public boolean isTooLongToBeAPilot() {
-        return this.currentPulse > MAX_PILOT_LENGTH;
+        return currentPulse > MAX_PILOT_LENGTH;
     }
 
     @Override
     public boolean isaDataCandidate() {
-        return this.currentPulse < MIN_PILOT_LENGTH;
+        return currentPulse < MIN_PILOT_LENGTH;
     }
 
     @Override
     public boolean isaCandidateTailPulse() {
-        return this.currentPulse <= LoaderContext.MAX_TAIL_PULSE;
+        return currentPulse <= LoaderContext.MAX_TAIL_PULSE;
     }
 
     @Override
     public boolean isCurrentAndNextPulseTooLongToBeADataCandidate() {
         // Any two adjacent data pulses must be less than DATA_TOTAL_MAX
-        long nextPulse = this.pulseIterator.hasNext() ? this.pulseIterator.peek() : 0L;
-        return (this.currentPulse + nextPulse) > DATA_TOTAL_MAX;
+        long nextPulse = hasNextPulse() ? pulseLengths.get(this.nextIndex) : 0L;
+        return (currentPulse + nextPulse) > DATA_TOTAL_MAX;
     }
 
     @Override
@@ -215,8 +198,11 @@ class LoaderContextImpl implements LoaderContext {
     LoaderContextImpl(PulseList pulseList) {
         checkNotNull(pulseList, "pulseList cannot be null");
         this.currentLevel = invertPulseLevel(pulseList.getFirstPulseLevel()); // will be inverted when first pulse is retrieved
-        this.pulseIterator = peekingIterator(pulseList.getPulseLengths().iterator());
         this.resolution = pulseList.getResolution();
+        pulseLengths = pulseList.getPulseLengths();
+        nextIndex = 0;
+        firstIndexOfBlock = 0;
+        lastIndexOfBlock = 0;
         resetBlock(pulseList.getFirstPulseLevel());
     }
 
@@ -233,8 +219,22 @@ class LoaderContextImpl implements LoaderContext {
     }
 
     private void resetBlock(int firstPulseLevel) {
-        builder = new PulseListBuilder().withResolution(resolution).withFirstPulseLevel(firstPulseLevel);
+        this.firstPulseLevel = firstPulseLevel;
         pilotPulseCount = 0;
     }
 
+    @Override
+    public String toString() {
+        return "LoaderContextImpl{" +
+                "resolution=" + resolution +
+                ", nextIndex=" + nextIndex +
+                ", firstIndexOfBlock=" + firstIndexOfBlock +
+                ", lastIndexOfBlock=" + lastIndexOfBlock +
+                ", currentLevel=" + currentLevel +
+                ", tapeBlockListBuilder=" + tapeBlockListBuilder +
+                ", currentPulse=" + currentPulse +
+                ", pilotPulseCount=" + pilotPulseCount +
+                ", firstPulseLevel=" + firstPulseLevel +
+                '}';
+    }
 }

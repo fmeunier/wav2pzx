@@ -33,7 +33,6 @@ import xyz.meunier.wav2pzx.pulselist.PulseList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.logging.Level;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -59,7 +58,7 @@ final class DualPulseDataBlockProcessor {
     private int hasCandidateTailPulse;
     private Map<Range<Long>, Long> averages;
     private final ArrayList<Long> newDataBlockPulses = new ArrayList<>();
-    private final List<Optional<TapeBlock>> newTapeBlockList = new ArrayList<>();
+    private final List<TapeBlock> newTapeBlockList = new ArrayList<>();
 
     DualPulseDataBlockProcessor(PulseList pulseList) {
         checkNotNull(pulseList, "pulseList must not be null");
@@ -70,7 +69,7 @@ final class DualPulseDataBlockProcessor {
         resolution = pulseList.getResolution();
     }
 
-    List<Optional<TapeBlock>> processDataBlock() {
+    List<TapeBlock> processDataBlock() {
         // Start 4 pulses in to give space to sync pulses - we expect these to be nearly always be an even number
         // End 4 pulses (+1 if there are an odd number of pulses) from the end to leave spaces for tail pulses
         // Iterate through pairs of collection and add sum of pair as a key to a map.
@@ -91,7 +90,7 @@ final class DualPulseDataBlockProcessor {
         // If we don't have enough bits to make a good population of dual pulses just dump out the source pulses
         if(ranges.isEmpty()) {
             ranges = RangeFinder.getRangesForSinglePulses(pulseLengths);
-            Optional<TapeBlock> newBlock = getNewTapeBlock(UNKNOWN, getSingletonPulseLengthsOfRanges(ranges), pulseList);
+            TapeBlock newBlock = new TapeBlock(UNKNOWN, getSingletonPulseLengthsOfRanges(ranges), pulseList);
             getLogger(LoaderContextImpl.class.getName()).log(Level.INFO, newBlock.toString());
             return singletonList(newBlock);
         }
@@ -101,7 +100,7 @@ final class DualPulseDataBlockProcessor {
 
         // If we have more than two ranges we can't encode this block as a data block - just dump out the source pulses
         if(averages.size() != 2) {
-            Optional<TapeBlock> newBlock = getNewTapeBlock(UNKNOWN, averages, pulseList);
+            TapeBlock newBlock = new TapeBlock(UNKNOWN, averages, pulseList);
             getLogger(LoaderContextImpl.class.getName()).log(Level.INFO, newBlock.toString());
             return singletonList(newBlock);
         }
@@ -187,7 +186,7 @@ final class DualPulseDataBlockProcessor {
     }
 
     private void addTapeBlock(BlockType blockType, Map<Range<Long>, Long> syncRange, PulseList pulseList) {
-        newTapeBlockList.add(getNewTapeBlock(blockType, syncRange, pulseList));
+        newTapeBlockList.add(new TapeBlock(blockType, syncRange, pulseList));
     }
 
     private PulseList newPulseList(Iterable<Long> pulses, int firstPulseLevel) {
@@ -196,11 +195,6 @@ final class DualPulseDataBlockProcessor {
 
     private static int flipPulseLevel(int pulseLevel) {
         return pulseLevel == 0 ? 1 : 0;
-    }
-
-    private static Optional<TapeBlock> getNewTapeBlock(BlockType blockType, Map<Range<Long>, Long> averages,
-                                                       PulseList pulseList) {
-        return Optional.of(new TapeBlock(blockType, averages, pulseList));
     }
 
     private static Map<Range<Long>, Long> getSyncRange(List<Range<Long>> ranges) {

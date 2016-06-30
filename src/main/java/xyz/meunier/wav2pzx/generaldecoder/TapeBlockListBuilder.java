@@ -26,15 +26,20 @@
 
 package xyz.meunier.wav2pzx.generaldecoder;
 
+import com.google.common.collect.PeekingIterator;
+import javafx.util.Pair;
+import xyz.meunier.wav2pzx.pulselist.PulseList;
+
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Iterators.peekingIterator;
 import static java.util.Optional.empty;
 import static java.util.logging.Logger.getLogger;
-import static java.util.stream.Collectors.toList;
+import static xyz.meunier.wav2pzx.generaldecoder.BlockType.DATA;
+import static xyz.meunier.wav2pzx.generaldecoder.HeaderPulseProcessor.processPulseBlock;
+import static xyz.meunier.wav2pzx.generaldecoder.LoaderContext.isaPilotCandidate;
 
 /**
  * Manages the construction of a list of TapeBlocks. Any null or optional not present blocks supplied are omitted from
@@ -42,62 +47,86 @@ import static java.util.stream.Collectors.toList;
  */
 final class TapeBlockListBuilder {
 
-    private Deque<Optional<TapeBlock>> tapeBlocks = new LinkedList<>();
-
-    /**
-     * Add the non-null blocks from the supplied collection to the list under construction.
-     * @param newBlocks the list of blocks to add
-     * @throws NullPointerException if the supplied newBlocks is null
-     */
-    void addAll(Collection<Optional<TapeBlock>> newBlocks) {
-        checkNotNull(newBlocks, "newBlocks cannot be null");
-        newBlocks.stream().filter(Objects::nonNull).forEach(tapeBlocks::add);
-    }
+    private Deque<Optional<Pair<BlockType, PulseList>>> tapeBlocks = new LinkedList<>();
 
     /**
      * Add a block to the list under construction
+     *
      * @param newBlock the block to be added
      */
-    void add(TapeBlock newBlock) {
-        Optional<TapeBlock> newEntry = newBlock == null ? empty() : Optional.of(newBlock);
+    void add(Pair<BlockType, PulseList> newBlock) {
+        Optional<Pair<BlockType, PulseList>> newEntry = newBlock == null ? empty() : Optional.of(newBlock);
         getLogger(TapeBlockListBuilder.class.getName()).log(Level.FINE, newEntry.toString());
         tapeBlocks.add(newEntry);
     }
 
     /**
      * Returns the last added TapeBlock from the list without modifying the list being built.
+     *
      * @return the last added TapeBlock
      */
-    Optional<TapeBlock> peekLastBlock() {
+    Optional<Pair<BlockType, PulseList>> peekLastBlock() {
         return getTapeBlock(() -> tapeBlocks.peekLast());
     }
 
     /**
      * Removes the last added TapeBlock from the list being built and returns it.
+     *
      * @return the last added TapeBlock
      */
-    Optional<TapeBlock> removeLastBlock() {
+    Optional<Pair<BlockType, PulseList>> removeLastBlock() {
         return getTapeBlock(() -> tapeBlocks.removeLast());
     }
 
     /**
      * Builds the list of TapeBlocks
+     *
      * @return the list of present/non-null TapeBlocks that have been provided
      */
     List<TapeBlock> build() {
-        return tapeBlocks.stream().filter(Optional::isPresent).map(Optional::get).collect(toList());
+        List<TapeBlock> tapeBlockList = new ArrayList<>();
+        PeekingIterator<Optional<Pair<BlockType, PulseList>>> iterator = peekingIterator(tapeBlocks.iterator());
+        while (iterator.hasNext()) {
+            iterator.next().ifPresent(pair -> {
+                if (pair.getKey() == DATA)
+                    tapeBlockList.addAll(getDataBlocks(pair.getValue()));
+                else
+                    tapeBlockList.add(getPilotBlock(pair.getValue(), iterator));
+            });
+        }
+
+        return tapeBlockList;
     }
 
-    private Optional<TapeBlock> getTapeBlock(Supplier<Optional<TapeBlock>> supplier) {
+    private Collection<? extends TapeBlock> getDataBlocks(PulseList pulseList) {
+        return new DualPulseDataBlockProcessor(pulseList).processDataBlock();
+    }
+
+    private TapeBlock getPilotBlock(PulseList thisBlockPulses, PeekingIterator<Optional<Pair<BlockType, PulseList>>> iterator) {
+        // For unknown, check the next block for being a pilot if it is a one pulse pilot candidate to merge with this
+        // block as the data block processor can leave an additional block prior to the main pilot block that has some
+        // of the associated pilot pulses
+        PulseList newBlockPulses = thisBlockPulses;
+        if (thisBlockPulses.getPulseLengths().size() == 1 &&
+                isaPilotCandidate(thisBlockPulses.getPulseLengths().get(0)) &&
+                isaPilotBlockNext(iterator)) {
+            newBlockPulses =
+                    new PulseList(thisBlockPulses, iterator.next().orElseThrow(NullPointerException::new).getValue());
+        }
+        return processPulseBlock(newBlockPulses);
+    }
+
+    private boolean isaPilotBlockNext(PeekingIterator<Optional<Pair<BlockType, PulseList>>> iterator) {
+        return iterator.hasNext() && isaFollowingPilotBlock(iterator);
+    }
+
+    private boolean isaFollowingPilotBlock(PeekingIterator<Optional<Pair<BlockType, PulseList>>> iterator) {
+        Optional<Pair<BlockType, PulseList>> nextPair = iterator.peek();
+        return nextPair.isPresent() && nextPair.get().getKey() == BlockType.PILOT;
+    }
+
+    private Optional<Pair<BlockType, PulseList>> getTapeBlock(Supplier<Optional<Pair<BlockType, PulseList>>> supplier) {
         return tapeBlocks.isEmpty() ? empty() : supplier.get();
-    }
-
-    Optional<TapeBlock> removeLastBlockIfTrue(Predicate<TapeBlock> predicate) {
-        checkNotNull(predicate, "predicate cannot be null");
-
-        Optional<TapeBlock> lastBlock = peekLastBlock();
-        if (!lastBlock.isPresent() || !predicate.test(lastBlock.get())) return empty();
-        return removeLastBlock();
     }
 
 }

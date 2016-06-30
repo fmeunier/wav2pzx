@@ -26,10 +26,12 @@
 
 package xyz.meunier.wav2pzx.generaldecoder;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Range;
+import javafx.util.Pair;
 import org.junit.Test;
 import xyz.meunier.wav2pzx.pulselist.PulseList;
 
-import java.util.Collections;
 import java.util.Optional;
 
 import static java.util.Arrays.asList;
@@ -42,8 +44,12 @@ import static org.junit.Assert.assertThat;
 public class TapeBlockListBuilderTest {
 
     private final TapeBlockListBuilder builder = new TapeBlockListBuilder();
-    private final TapeBlock block = new TapeBlock(BlockType.UNKNOWN, Collections.emptyMap(), new PulseList(singletonList(200L), 0, 1));
-    private final TapeBlock block2 = new TapeBlock(BlockType.UNKNOWN, Collections.emptyMap(), new PulseList(singletonList(400L), 0, 1));
+    private final Pair<BlockType, PulseList> pair = new Pair<>(BlockType.UNKNOWN, new PulseList(singletonList(200L), 0, 1));
+    private final Range<Long> range = Range.singleton(200L);
+    private final Pair<BlockType, PulseList> pair2 = new Pair<>(BlockType.UNKNOWN, new PulseList(singletonList(400L), 0, 1));
+    private final Range<Long> range2 = Range.singleton(400L);
+    private final TapeBlock block = new TapeBlock(pair.getKey(), ImmutableMap.of(range, 200L), pair.getValue());
+    private final TapeBlock block2 = new TapeBlock(pair2.getKey(), ImmutableMap.of(range2, 400L), pair2.getValue());
 
     @Test
     public void shouldGetAnEmptyListWhenNoBlocksSupplied() {
@@ -57,50 +63,30 @@ public class TapeBlockListBuilderTest {
 
     @Test
     public void shouldHaveBlockOnListWhenAdded() {
-        builder.add(block);
+        builder.add(pair);
         assertThat(builder.build(), is(singletonList(block)));
     }
 
     @Test
     public void shouldGetLastAddedBlockWhenPeeking() {
-        builder.add(block);
-        assertThat(builder.peekLastBlock(), is(Optional.of(block)));
+        builder.add(pair);
+        assertThat(builder.peekLastBlock(), is(Optional.of(pair)));
         assertThat(builder.build(), is(singletonList(block)));
     }
 
     @Test
     public void shouldGetAndRemoveLastAddedBlockWhenRemoving() {
-        builder.add(block);
-        assertThat(builder.removeLastBlock(), is(Optional.of(block)));
+        builder.add(pair);
+        assertThat(builder.removeLastBlock(), is(Optional.of(pair)));
         assertThat(builder.build(), is(emptyList()));
     }
 
     @Test
     public void shouldGetAllNonNullBlocksInAddedList() {
-        builder.addAll(asList(Optional.of(block), null, Optional.of(block2)));
+        builder.add(pair);
+        builder.add(null);
+        builder.add(pair2);
         assertThat(builder.build(), is(asList(block, block2)));
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void checkConsolidateWithPreviousPilotCandidateThrowsNullPointerExceptionWhenTestIsNull() {
-        builder.removeLastBlockIfTrue(null);
-    }
-
-    @Test
-    public void checkPulseListIsReturnedWhenBuilderIsEmpty() {
-        assertThat(builder.removeLastBlockIfTrue((b)-> true), is(empty()));
-    }
-
-    @Test
-    public void checkConsolidateWithPreviousPilotCandidateReturnsOriginalPulseListWhenTestIsFalse() {
-        builder.add(block2);
-        assertThat(builder.removeLastBlockIfTrue((b)-> false), is(empty()));
-    }
-
-    @Test
-    public void checkConsolidateWithPreviousPilotCandidateReturnsOriginalPulseListWhenTestIsTrue() {
-        builder.add(block2);
-        assertThat(builder.removeLastBlockIfTrue((b)-> true), is(Optional.of(block2)));
     }
 
 }

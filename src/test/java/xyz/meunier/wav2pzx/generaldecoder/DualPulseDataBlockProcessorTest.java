@@ -33,12 +33,10 @@ import xyz.meunier.wav2pzx.pulselist.PulseList;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static com.google.common.collect.Range.singleton;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static java.util.Optional.of;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -89,9 +87,9 @@ public class DualPulseDataBlockProcessorTest {
                 singleton(3200L), 3200L
         );
 
-        List<Optional<TapeBlock>> tapeBlocks = dataBlockProcessor.processDataBlock();
+        List<TapeBlock> tapeBlocks = dataBlockProcessor.processDataBlock();
 
-        assertThat(tapeBlocks, equalTo(singletonList(of(new TapeBlock(UNKNOWN, multiSymbolAverages, pulseList)))));
+        assertThat(tapeBlocks, equalTo(singletonList(new TapeBlock(UNKNOWN, multiSymbolAverages, pulseList))));
     }
 
     @Test
@@ -112,9 +110,9 @@ public class DualPulseDataBlockProcessorTest {
 
         DualPulseDataBlockProcessor dataBlockProcessor = new DualPulseDataBlockProcessor(pulseList);
 
-        List<Optional<TapeBlock>> tapeBlocks = dataBlockProcessor.processDataBlock();
+        List<TapeBlock> tapeBlocks = dataBlockProcessor.processDataBlock();
 
-        assertThat(tapeBlocks, equalTo(singletonList(of(new TapeBlock(UNKNOWN, multiSymbolAverages, pulseList)))));
+        assertThat(tapeBlocks, equalTo(singletonList(new TapeBlock(UNKNOWN, multiSymbolAverages, pulseList))));
     }
 
     @Test
@@ -123,12 +121,11 @@ public class DualPulseDataBlockProcessorTest {
 
         DualPulseDataBlockProcessor dataBlockProcessor = new DualPulseDataBlockProcessor(pulseList);
 
-        List<Optional<TapeBlock>> tapeBlocks = dataBlockProcessor.processDataBlock();
+        List<TapeBlock> tapeBlocks = dataBlockProcessor.processDataBlock();
 
         assertThat(tapeBlocks.size(), is(1));
-        assertThat(tapeBlocks.get(0).isPresent(), is(true));
-        assertThat(tapeBlocks.get(0).get().getBlockType(), is(DATA));
-        assertThat(tapeBlocks.get(0).get().getPulseList().getPulseLengths().stream().distinct().collect(toList()), is(asList(836L, 1643L)));
+        assertThat(tapeBlocks.get(0).getBlockType(), is(DATA));
+        assertThat(tapeBlocks.get(0).getPulseList().getPulseLengths().stream().distinct().collect(toList()), is(asList(836L, 1643L)));
     }
 
     @Test
@@ -137,12 +134,11 @@ public class DualPulseDataBlockProcessorTest {
 
         DualPulseDataBlockProcessor dataBlockProcessor = new DualPulseDataBlockProcessor(pulseList);
 
-        List<Optional<TapeBlock>> tapeBlocks = dataBlockProcessor.processDataBlock();
+        List<TapeBlock> tapeBlocks = dataBlockProcessor.processDataBlock();
 
         assertThat(tapeBlocks.get(0), is(notNullValue()));
-        assertThat(tapeBlocks.get(0).isPresent(), is(true));
-        assertThat(tapeBlocks.get(0).get().getBlockType(), is(SYNC_CANDIDATE));
-        assertThat(tapeBlocks.get(0).get().getPulseList().getPulseLengths(), is(asList(952L, 476L)));
+        assertThat(tapeBlocks.get(0).getBlockType(), is(SYNC_CANDIDATE));
+        assertThat(tapeBlocks.get(0).getPulseList().getPulseLengths(), is(asList(952L, 476L)));
     }
 
     @Test
@@ -151,19 +147,17 @@ public class DualPulseDataBlockProcessorTest {
 
         DualPulseDataBlockProcessor dataBlockProcessor = new DualPulseDataBlockProcessor(pulseList);
 
-        List<Optional<TapeBlock>> tapeBlocks = dataBlockProcessor.processDataBlock();
+        List<TapeBlock> tapeBlocks = dataBlockProcessor.processDataBlock();
 
         if(tapeBlocks.size() < 3) fail("Should identify at least one block prior to the two tail candidates");
         int secondLastBlockIndex = tapeBlocks.size() - 2;
         assertThat(tapeBlocks.get(secondLastBlockIndex), is(notNullValue()));
-        assertThat(tapeBlocks.get(secondLastBlockIndex).isPresent(), is(true));
-        assertThat(tapeBlocks.get(secondLastBlockIndex).get().getBlockType(), is(TAIL_CANDIDATE));
-        assertThat(tapeBlocks.get(secondLastBlockIndex).get().getPulseList().getPulseLengths(), is(singletonList(952L)));
+        assertThat(tapeBlocks.get(secondLastBlockIndex).getBlockType(), is(TAIL_CANDIDATE));
+        assertThat(tapeBlocks.get(secondLastBlockIndex).getPulseList().getPulseLengths(), is(singletonList(952L)));
         int lastBlockIndex = tapeBlocks.size() - 1;
         assertThat(tapeBlocks.get(lastBlockIndex), is(notNullValue()));
-        assertThat(tapeBlocks.get(lastBlockIndex).isPresent(), is(true));
-        assertThat(tapeBlocks.get(lastBlockIndex).get().getBlockType(), is(TAIL_CANDIDATE));
-        assertThat(tapeBlocks.get(lastBlockIndex).get().getPulseList().getPulseLengths(), is(singletonList(1825L)));
+        assertThat(tapeBlocks.get(lastBlockIndex).getBlockType(), is(TAIL_CANDIDATE));
+        assertThat(tapeBlocks.get(lastBlockIndex).getPulseList().getPulseLengths(), is(singletonList(1825L)));
     }
 
 }

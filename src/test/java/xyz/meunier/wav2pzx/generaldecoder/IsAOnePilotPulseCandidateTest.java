@@ -26,35 +26,26 @@
 
 package xyz.meunier.wav2pzx.generaldecoder;
 
-import com.google.common.collect.Range;
 import org.junit.Test;
 import xyz.meunier.wav2pzx.pulselist.PulseList;
 
 import java.util.List;
-import java.util.Map;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static xyz.meunier.wav2pzx.generaldecoder.RangeFinder.getRanges;
 
 public class IsAOnePilotPulseCandidateTest {
 
     private final List<Long> pulseLengthList = singletonList(200L);
     private final PulseList pulseList = new PulseList(pulseLengthList, 0, 1);
-    private final Map<Range<Long>, Long> pulseLengthListAverages = getAveragePulseLengthsOfRanges(pulseLengthList);
-    private final TapeBlock pulseListTapeBlock = new TapeBlock(BlockType.UNKNOWN, pulseLengthListAverages, pulseList);
 
     private final List<Long> pilotPulsesList = asList((long) LoaderContext.PILOT_LENGTH - 50, (long) LoaderContext.PILOT_LENGTH + 50);
     private final PulseList pilotPulses = new PulseList(pilotPulsesList, 1, 1);
-    private final Map<Range<Long>, Long> pilotPulsesAverages = getAveragePulseLengthsOfRanges(pilotPulsesList);
-    private final TapeBlock pilotPulsesTapeBlock = new TapeBlock(BlockType.UNKNOWN, pilotPulsesAverages, pilotPulses);
 
     private final List<Long> pilotPulse = singletonList((long) LoaderContext.PILOT_LENGTH);
     private final PulseList exactPilot = new PulseList(pilotPulse, 1, 1);
-    private final Map<Range<Long>, Long> pilotPulseAverage = getAveragePulseLengthsOfRanges(pilotPulse);
-    private final TapeBlock pilotPulseTapeBlock = new TapeBlock(BlockType.UNKNOWN, pilotPulseAverage, exactPilot);
 
     private final IsAOnePilotPulseCandidate instance = new IsAOnePilotPulseCandidate();
 
@@ -65,21 +56,17 @@ public class IsAOnePilotPulseCandidateTest {
 
     @Test
     public void shouldReturnFalseIfSizeIsTooLarge() {
-        assertThat(instance.test(pilotPulsesTapeBlock), is(false));
+        assertThat(instance.test(pilotPulses), is(false));
     }
 
     @Test
     public void shouldReturnFalseIfPulseIsWrongSize() {
-        assertThat(instance.test(pulseListTapeBlock), is(false));
+        assertThat(instance.test(pulseList), is(false));
     }
 
     @Test
     public void shouldReturnTrueIfSizeIsOneAndPulseIsRightSize() {
-        assertThat(instance.test(pilotPulseTapeBlock), is(true));
-    }
-
-    private static Map<Range<Long>, Long> getAveragePulseLengthsOfRanges(List<Long> pulseLengthList) {
-        return RangeFinder.getAveragePulseLengthsOfRanges(getRanges(pulseLengthList), pulseLengthList);
+        assertThat(instance.test(exactPilot), is(true));
     }
 
 }
