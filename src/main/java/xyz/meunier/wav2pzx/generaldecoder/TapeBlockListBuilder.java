@@ -107,22 +107,14 @@ final class TapeBlockListBuilder {
         // block as the data block processor can leave an additional block prior to the main pilot block that has some
         // of the associated pilot pulses
         PulseList newBlockPulses = thisBlockPulses;
+        Optional<Pair<BlockType, PulseList>> nextPair = iterator.hasNext() ? iterator.peek() : empty();
         if (thisBlockPulses.getPulseLengths().size() == 1 &&
                 isaPilotCandidate(thisBlockPulses.getPulseLengths().get(0)) &&
-                isaPilotBlockNext(iterator)) {
-            newBlockPulses =
-                    new PulseList(thisBlockPulses, iterator.next().orElseThrow(NullPointerException::new).getValue());
+                nextPair.isPresent() && nextPair.get().getKey() == BlockType.PILOT) {
+            iterator.next();
+            newBlockPulses = new PulseList(thisBlockPulses, nextPair.get().getValue());
         }
         return processPulseBlock(newBlockPulses);
-    }
-
-    private boolean isaPilotBlockNext(PeekingIterator<Optional<Pair<BlockType, PulseList>>> iterator) {
-        return iterator.hasNext() && isaFollowingPilotBlock(iterator);
-    }
-
-    private boolean isaFollowingPilotBlock(PeekingIterator<Optional<Pair<BlockType, PulseList>>> iterator) {
-        Optional<Pair<BlockType, PulseList>> nextPair = iterator.peek();
-        return nextPair.isPresent() && nextPair.get().getKey() == BlockType.PILOT;
     }
 
     private Optional<Pair<BlockType, PulseList>> getTapeBlock(Supplier<Optional<Pair<BlockType, PulseList>>> supplier) {
