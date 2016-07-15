@@ -26,11 +26,10 @@
 
 package xyz.meunier.wav2pzx.generaldecoder;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Range;
+import com.google.common.collect.ImmutableList;
 import xyz.meunier.wav2pzx.pulselist.PulseList;
 
-import java.util.Map;
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -41,16 +40,16 @@ import static com.google.common.base.Preconditions.checkNotNull;
 final class TapeBlock {
 
     private final BlockType blockType;
-    private final ImmutableMap<Range, Long> rangeAverages;
+    private final ImmutableList<BitData> bitDataList;
     private final PulseList pulseList;
 
-    TapeBlock(BlockType blockType, Map<Range<Long>, Long> rangeAverages, PulseList pulseList) {
+    TapeBlock(BlockType blockType, List<BitData> bitDataList, PulseList pulseList) {
         checkNotNull(blockType, "blockType cannot be null");
-        checkNotNull(rangeAverages, "ranges cannot be null");
+        checkNotNull(bitDataList, "ranges cannot be null");
         checkNotNull(pulseList, "pulseList cannot be null");
 
         this.blockType = blockType;
-        this.rangeAverages = ImmutableMap.copyOf(rangeAverages);
+        this.bitDataList = ImmutableList.copyOf(bitDataList);
         this.pulseList = pulseList;
     }
 
@@ -66,8 +65,8 @@ final class TapeBlock {
      * Returns a map of pulse length ranges to an idealised pulse length
      * @return the pulse range to idealised pulse length map
      */
-    ImmutableMap<Range, Long> getRangeAverages() {
-        return this.rangeAverages;
+    ImmutableList<BitData> getBitDataList() {
+        return this.bitDataList;
     }
 
     /**
@@ -82,7 +81,7 @@ final class TapeBlock {
     public String toString() {
         return "TapeBlock{" +
                 "blockType=" + blockType +
-                ", rangeAverages=" + rangeAverages +
+                ", bitDataList=" + bitDataList +
                 ", pulseList=" + pulseList +
                 '}';
     }
@@ -95,7 +94,7 @@ final class TapeBlock {
         TapeBlock tapeBlock = (TapeBlock) o;
 
         if (blockType != tapeBlock.blockType) return false;
-        if (rangeAverages != null ? !rangeAverages.equals(tapeBlock.rangeAverages) : tapeBlock.rangeAverages != null)
+        if (bitDataList != null ? !bitDataList.equals(tapeBlock.bitDataList) : tapeBlock.bitDataList != null)
             return false;
         return pulseList != null ? pulseList.equals(tapeBlock.pulseList) : tapeBlock.pulseList == null;
 
@@ -104,7 +103,7 @@ final class TapeBlock {
     @Override
     public int hashCode() {
         int result = blockType != null ? blockType.hashCode() : 0;
-        result = 31 * result + (rangeAverages != null ? rangeAverages.hashCode() : 0);
+        result = 31 * result + (bitDataList != null ? bitDataList.hashCode() : 0);
         result = 31 * result + (pulseList != null ? pulseList.hashCode() : 0);
         return result;
     }

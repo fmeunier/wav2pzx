@@ -26,13 +26,11 @@
 
 package xyz.meunier.wav2pzx.generaldecoder;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Range;
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import xyz.meunier.wav2pzx.pulselist.PulseList;
 
 import java.util.List;
-import java.util.Map;
 
 import static com.google.common.collect.Range.singleton;
 import static java.util.Arrays.asList;
@@ -80,11 +78,11 @@ public class DualPulseDataBlockProcessorTest {
 
         DualPulseDataBlockProcessor dataBlockProcessor = new DualPulseDataBlockProcessor(pulseList);
 
-        Map<Range<Long>, Long> multiSymbolAverages = ImmutableMap.of(
-                singleton(1000L), 1000L,
-                singleton(1100L), 1100L,
-                singleton(3100L), 3100L,
-                singleton(3200L), 3200L
+        List<BitData> multiSymbolAverages = ImmutableList.of(
+                new BitData(singleton(1000L), 1000L),
+                new BitData(singleton(1100L), 1100L),
+                new BitData(singleton(3100L), 3100L),
+                new BitData(singleton(3200L), 3200L)
         );
 
         List<TapeBlock> tapeBlocks = dataBlockProcessor.processDataBlock();
@@ -100,12 +98,12 @@ public class DualPulseDataBlockProcessorTest {
         );
         PulseList pulseList = new PulseList(multiSymbolPulseList, 0, 1);
 
-        Map<Range<Long>, Long> multiSymbolAverages = ImmutableMap.of(
-                singleton(1000L), 1000L,
-                singleton(1100L), 1100L,
-                singleton(3100L), 3100L,
-                singleton(3200L), 3200L,
-                singleton(4000L), 4000L
+        List<BitData> multiSymbolAverages = ImmutableList.of(
+                new BitData(singleton(1000L), 1000L),
+                new BitData(singleton(1100L), 1100L),
+                new BitData(singleton(3100L), 3100L),
+                new BitData(singleton(3200L), 3200L),
+                new BitData(singleton(4000L), 4000L)
         );
 
         DualPulseDataBlockProcessor dataBlockProcessor = new DualPulseDataBlockProcessor(pulseList);
@@ -149,7 +147,7 @@ public class DualPulseDataBlockProcessorTest {
 
         List<TapeBlock> tapeBlocks = dataBlockProcessor.processDataBlock();
 
-        if(tapeBlocks.size() < 3) fail("Should identify at least one block prior to the two tail candidates");
+        if (tapeBlocks.size() < 3) fail("Should identify at least one block prior to the two tail candidates");
         int secondLastBlockIndex = tapeBlocks.size() - 2;
         assertThat(tapeBlocks.get(secondLastBlockIndex), is(notNullValue()));
         assertThat(tapeBlocks.get(secondLastBlockIndex).getBlockType(), is(TAIL_CANDIDATE));

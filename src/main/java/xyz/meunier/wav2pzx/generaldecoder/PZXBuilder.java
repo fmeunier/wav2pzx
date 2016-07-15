@@ -141,7 +141,7 @@ public final class PZXBuilder {
     }
 
     private static long getPulseLength(TapeBlock block, BinaryOperator<Long> operator) {
-        return block.getRangeAverages().values().stream().reduce(operator).orElse(0L) / 2;
+        return block.getBitDataList().stream().map(BitData::getFullPulse).reduce(operator).orElse(0L) / 2;
     }
 
     private static PZXPulseBlock getPzxPulseBlock(PeekingIterator<TapeBlock> iterator, PulseList blockPulseList) {

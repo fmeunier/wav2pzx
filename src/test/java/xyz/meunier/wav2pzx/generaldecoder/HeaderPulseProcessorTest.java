@@ -27,26 +27,24 @@
 package xyz.meunier.wav2pzx.generaldecoder;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Range;
 import org.junit.Test;
 import xyz.meunier.wav2pzx.pulselist.PulseList;
 
 import java.util.List;
-import java.util.Map;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static xyz.meunier.wav2pzx.generaldecoder.HeaderPulseProcessor.processPulseBlock;
-import static xyz.meunier.wav2pzx.generaldecoder.RangeFinder.getAveragePulseLengthsOfRanges;
 import static xyz.meunier.wav2pzx.generaldecoder.RangeFinder.getRanges;
+import static xyz.meunier.wav2pzx.generaldecoder.RangeFinder.getReplacementBitDataOfRanges;
 
 public class HeaderPulseProcessorTest {
 
     private final List<Long> pulseLengthList = singletonList(200L);
     private final PulseList pulseList = new PulseList(pulseLengthList, 0, 1);
-    private final Map<Range<Long>, Long> pulseLengthListAverages = getAveragePulseLengthsOfRanges(getRanges(pulseLengthList), pulseLengthList);
+    private final List<BitData> pulseLengthListAverages = getReplacementBitDataOfRanges(getRanges(pulseLengthList), pulseLengthList);
     private final TapeBlock pulseListTapeBlock = new TapeBlock(BlockType.UNKNOWN, pulseLengthListAverages, pulseList);
 
     private final PulseList pilotPulses = new PulseList(asList((long)LoaderContext.PILOT_LENGTH-50, (long)LoaderContext.PILOT_LENGTH+50), 1, 1);
@@ -67,14 +65,14 @@ public class HeaderPulseProcessorTest {
     @Test
     public void checkProcessPulseBlockReturnsUnknownBlockWithOriginalPulsesForTooManyRanges() {
         ImmutableList<Long> lengths = twoRangePulses.getPulseLengths();
-        Map<Range<Long>, Long> averages = getAveragePulseLengthsOfRanges(getRanges(lengths), lengths);
+        List<BitData> averages = getReplacementBitDataOfRanges(getRanges(lengths), lengths);
         assertThat(processPulseBlock(twoRangePulses), is(new TapeBlock(BlockType.UNKNOWN, averages, twoRangePulses)));
     }
 
     @Test
     public void checkProcessPulseBlockReturnsPilotBlockWithAveragedPulsesForNonPilotPulseList() {
         ImmutableList<Long> lengths = pilotPulses.getPulseLengths();
-        Map<Range<Long>, Long> averages = getAveragePulseLengthsOfRanges(getRanges(lengths), lengths);
+        List<BitData> averages = getReplacementBitDataOfRanges(getRanges(lengths), lengths);
         assertThat(processPulseBlock(pilotPulses), is(new TapeBlock(BlockType.PILOT, averages, exactPilots)));
     }
 

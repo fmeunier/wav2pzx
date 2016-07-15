@@ -31,15 +31,14 @@ import xyz.meunier.wav2pzx.pulselist.PulseList;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.stream.Collectors.toList;
 import static xyz.meunier.wav2pzx.generaldecoder.BlockType.PILOT;
 import static xyz.meunier.wav2pzx.generaldecoder.BlockType.UNKNOWN;
 import static xyz.meunier.wav2pzx.generaldecoder.LoaderContext.isaPilotCandidate;
-import static xyz.meunier.wav2pzx.generaldecoder.RangeFinder.getAveragePulseLengthsOfRanges;
 import static xyz.meunier.wav2pzx.generaldecoder.RangeFinder.getRanges;
+import static xyz.meunier.wav2pzx.generaldecoder.RangeFinder.getReplacementBitDataOfRanges;
 
 /**
  * This class has helper methods to construct the various kinds of pulse blocks.
@@ -63,23 +62,23 @@ final class HeaderPulseProcessor {
 
 //        System.out.println(ranges.toString());
 
-        Map<Range<Long>, Long> averages = getAveragePulseLengthsOfRanges(ranges, pulseLengths);
+        List<BitData> processedBitValues = getReplacementBitDataOfRanges(ranges, pulseLengths);
         BlockType blockType = UNKNOWN;
 
-        // Use average pulse length for range if there is only one (and this is likely a pilot block)
-        Long average = averages.get(ranges.get(0));
-        if (ranges.size() == 1 && isaPilotCandidate(average)) {
+        // Use processedPulse pulse length for range if there is only one (and this is likely a pilot block)
+        Long processedPulse = processedBitValues.get(0).getFullPulse();
+        if (ranges.size() == 1 && isaPilotCandidate(processedPulse)) {
             blockType = PILOT;
 
-//            System.out.println(averages.toString());
+//            System.out.println(processedBitValues.toString());
 
-            // Replace all pulses with the average
-            pulseLengths = pulseLengths.stream().map(p -> average).collect(toList());
+            // Replace all pulses with the processedPulse
+            pulseLengths = pulseLengths.stream().map(p -> processedPulse).collect(toList());
 
             pulseList = new PulseList(pulseLengths, pulseList.getFirstPulseLevel(), pulseList.getResolution());
         }
 
-        return new TapeBlock(blockType, averages, pulseList);
+        return new TapeBlock(blockType, processedBitValues, pulseList);
     }
 
 }

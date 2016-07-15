@@ -26,13 +26,12 @@
 
 package xyz.meunier.wav2pzx.generaldecoder;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 import org.junit.Test;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static com.google.common.collect.Range.closed;
 import static com.google.common.collect.Range.singleton;
@@ -41,7 +40,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.collection.IsMapContaining.hasEntry;
 import static org.junit.Assert.assertThat;
 import static xyz.meunier.wav2pzx.generaldecoder.RangeFinder.*;
 
@@ -77,30 +75,26 @@ public class RangeFinderTest {
 
     @Test
     public void shouldGetAveragePulseCalculatedPerRange() throws Exception {
-        Map<Range<Long>, Long> expectedMap = getAveragePulseLengthsOfRanges(MULTI_SYMBOL_RANGES, MULTI_SYMBOL_PULSE_LIST);
+        List<BitData> calculatedData = getReplacementBitDataOfRanges(MULTI_SYMBOL_RANGES, MULTI_SYMBOL_PULSE_LIST);
 
-        Map<Range<Long>, Long> expectedData = new HashMap<>();
+        List<BitData> expectedData = new ArrayList<>();
 
-        expectedData.put(Range.closed(950L, 1150L), 1050L);
-        expectedData.put(Range.closed(3050L, 3250L), 3150L);
+        expectedData.add(new BitData(Range.closed(950L, 1150L), 1050L));
+        expectedData.add(new BitData(Range.closed(3050L, 3250L), 3150L));
 
-        for (Map.Entry<Range<Long>, Long> entry : expectedData.entrySet()) {
-            assertThat(expectedMap, hasEntry(entry.getKey(), entry.getValue()));
-        }
+        assertThat(calculatedData, is(expectedData));
     }
 
     @Test
     public void shouldGetAZeroAverageIfNoPulsesMatchSuppliedRange() throws Exception {
-        Map<Range<Long>, Long> actualMap = getAveragePulseLengthsOfRanges(MULTI_SYMBOL_RANGES, emptyList());
+        List<BitData> actualMap = getReplacementBitDataOfRanges(MULTI_SYMBOL_RANGES, emptyList());
 
-        Map<Range<Long>, Long> expectedData = new HashMap<>();
+        List<BitData> expectedData = new ArrayList<>();
 
-        expectedData.put(Range.closed(950L, 1150L), 0L);
-        expectedData.put(Range.closed(3050L, 3250L), 0L);
+        expectedData.add(new BitData(Range.closed(950L, 1150L), 0L));
+        expectedData.add(new BitData(Range.closed(3050L, 3250L), 0L));
 
-        for (Map.Entry<Range<Long>, Long> entry : expectedData.entrySet()) {
-            assertThat(actualMap, hasEntry(entry.getKey(), entry.getValue()));
-        }
+        assertThat(actualMap, is(expectedData));
     }
 
     @Test
@@ -113,11 +107,11 @@ public class RangeFinderTest {
     public void shouldGetSuitableRangesForSingletonPulses() throws Exception {
         List<Range<Long>> expectedList = asList(singleton(1000L), singleton(1100L), singleton(3100L), singleton(3200L));
 
-        Map<Range<Long>, Long> expectedMap = ImmutableMap.of(
-                singleton(1000L), 1000L,
-                singleton(1100L), 1100L,
-                singleton(3100L), 3100L,
-                singleton(3200L), 3200L
+        List<BitData> expectedMap = ImmutableList.of(
+                new BitData(singleton(1000L), 1000L),
+                new BitData(singleton(1100L), 1100L),
+                new BitData(singleton(3100L), 3100L),
+                new BitData(singleton(3200L), 3200L)
         );
 
         assertThat(getSingletonPulseLengthsOfRanges(expectedList), is(equalTo(expectedMap)));

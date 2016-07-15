@@ -36,7 +36,6 @@ import xyz.meunier.wav2pzx.pulselist.PulseList;
 import xyz.meunier.wav2pzx.pulselist.PulseListBuilder;
 
 import java.util.List;
-import java.util.Map;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -48,8 +47,8 @@ import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertThat;
 import static xyz.meunier.wav2pzx.generaldecoder.BlockType.*;
 import static xyz.meunier.wav2pzx.generaldecoder.PZXBuilder.buildPZXTapeList;
-import static xyz.meunier.wav2pzx.generaldecoder.RangeFinder.getAveragePulseLengthsOfRanges;
 import static xyz.meunier.wav2pzx.generaldecoder.RangeFinder.getRanges;
+import static xyz.meunier.wav2pzx.generaldecoder.RangeFinder.getReplacementBitDataOfRanges;
 
 public class PZXBuilderTest {
 
@@ -193,7 +192,7 @@ public class PZXBuilderTest {
     private TapeBlock getTapeBlock(BlockType type, PulseList pulseList) {
         List<Long> fullPulses = singletonList(2L);
         List<Range<Long>> ranges = getRanges(fullPulses);
-        Map<Range<Long>, Long> rangeAverages = getAveragePulseLengthsOfRanges(ranges, fullPulses);
+        List<BitData> rangeAverages = getReplacementBitDataOfRanges(ranges, fullPulses);
 
         return new TapeBlock(type, rangeAverages, pulseList);
     }

@@ -26,7 +26,7 @@
 
 package xyz.meunier.wav2pzx.generaldecoder;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 import javafx.util.Pair;
 import org.junit.Test;
@@ -48,8 +48,8 @@ public class TapeBlockListBuilderTest {
     private final Range<Long> range = Range.singleton(200L);
     private final Pair<BlockType, PulseList> pair2 = new Pair<>(BlockType.UNKNOWN, new PulseList(singletonList(400L), 0, 1));
     private final Range<Long> range2 = Range.singleton(400L);
-    private final TapeBlock block = new TapeBlock(pair.getKey(), ImmutableMap.of(range, 200L), pair.getValue());
-    private final TapeBlock block2 = new TapeBlock(pair2.getKey(), ImmutableMap.of(range2, 400L), pair2.getValue());
+    private final TapeBlock block = new TapeBlock(pair.getKey(), ImmutableList.of(new BitData(range, 200L)), pair.getValue());
+    private final TapeBlock block2 = new TapeBlock(pair2.getKey(), ImmutableList.of(new BitData(range2, 400L)), pair2.getValue());
 
     @Test
     public void shouldGetAnEmptyListWhenNoBlocksSupplied() {

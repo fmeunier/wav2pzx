@@ -32,16 +32,13 @@ import xyz.meunier.wav2pzx.pulselist.PulseList;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Collections.singletonList;
-import static java.util.function.Function.identity;
 import static java.util.logging.Logger.getLogger;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 import static xyz.meunier.wav2pzx.generaldecoder.BlockType.*;
 import static xyz.meunier.wav2pzx.generaldecoder.RangeFinder.*;
 
@@ -56,7 +53,7 @@ final class DualPulseDataBlockProcessor {
     private final int firstPulseLevel;
     private final long resolution;
     private int hasCandidateTailPulse;
-    private Map<Range<Long>, Long> averages;
+    private List<BitData> pulseSubstitutions;
     private final ArrayList<Long> newDataBlockPulses = new ArrayList<>();
     private final List<TapeBlock> newTapeBlockList = new ArrayList<>();
 
@@ -96,11 +93,11 @@ final class DualPulseDataBlockProcessor {
         }
 
         // Find average of pulse pairs matching each range in this block
-        averages = getAveragePulseLengthsOfRanges(ranges, fullBits);
+        pulseSubstitutions = getReplacementBitDataOfRanges(ranges, fullBits);
 
         // If we have more than two ranges we can't encode this block as a data block - just dump out the source pulses
-        if(averages.size() != 2) {
-            TapeBlock newBlock = new TapeBlock(UNKNOWN, averages, pulseList);
+        if(pulseSubstitutions.size() != 2) {
+            TapeBlock newBlock = new TapeBlock(UNKNOWN, pulseSubstitutions, pulseList);
             getLogger(LoaderContextImpl.class.getName()).log(Level.INFO, newBlock.toString());
             return singletonList(newBlock);
         }
@@ -115,7 +112,7 @@ final class DualPulseDataBlockProcessor {
             List<Long> bitPulse = new ArrayList<>(2);
             bitPulse.addAll(pulseLengths.subList(i, i + 2));
 
-            if(replaceInRangeBitsWithAverageValues(bitPulse)) {
+            if(replaceInRangeBitsWithProcessedValues(bitPulse)) {
                 newDataBlockPulses.addAll(bitPulse);
             } else {
                 // Finish any open PulseList
@@ -148,7 +145,7 @@ final class DualPulseDataBlockProcessor {
     private void finishDataBlock() {
         // Finish any open PulseList
         if(!newDataBlockPulses.isEmpty()) {
-            addTapeBlock(DATA, averages, newPulseList(newDataBlockPulses, firstPulseLevel));
+            addTapeBlock(DATA, pulseSubstitutions, newPulseList(newDataBlockPulses, firstPulseLevel));
             newDataBlockPulses.clear();
         }
     }
@@ -160,15 +157,15 @@ final class DualPulseDataBlockProcessor {
         }
     }
 
-    private boolean replaceInRangeBitsWithAverageValues(List<Long> bitPulse) {
+    private boolean replaceInRangeBitsWithProcessedValues(List<Long> bitPulse) {
         checkNotNull(bitPulse, "bitPulse must not be null");
         checkArgument(bitPulse.size() == 2, "bitPulse must have two entries");
 
         Long bit = bitPulse.get(0) + bitPulse.get(1);
-        for (Map.Entry<Range<Long>, Long> entry : averages.entrySet()) {
-            if (entry.getKey().contains(bit)) {
+        for (BitData bitData : pulseSubstitutions) {
+            if(bitData.getQualificationRange().contains(bit)) {
                 // Transform bit pulses
-                Long newBit = entry.getValue()/2;
+                Long newBit = bitData.getFullPulse()/2;
                 bitPulse.set(0, newBit);
                 bitPulse.set(1, newBit);
                 return true;
@@ -185,7 +182,7 @@ final class DualPulseDataBlockProcessor {
         addTapeBlock(blockType, getSyncRange(getRangesForSinglePulses(bitPulseList)), newPulseList(bitPulseList, firstPulseLevel));
     }
 
-    private void addTapeBlock(BlockType blockType, Map<Range<Long>, Long> syncRange, PulseList pulseList) {
+    private void addTapeBlock(BlockType blockType, List<BitData> syncRange, PulseList pulseList) {
         newTapeBlockList.add(new TapeBlock(blockType, syncRange, pulseList));
     }
 
@@ -197,8 +194,8 @@ final class DualPulseDataBlockProcessor {
         return pulseLevel == 0 ? 1 : 0;
     }
 
-    private static Map<Range<Long>, Long> getSyncRange(List<Range<Long>> ranges) {
-        return ranges.stream().distinct().collect(toMap(identity(), Range::lowerEndpoint));
+    private static List<BitData> getSyncRange(List<Range<Long>> ranges) {
+        return ranges.stream().distinct().map(r -> new BitData(r, r.lowerEndpoint())).collect(toList());
     }
 
 }

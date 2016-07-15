@@ -106,15 +106,15 @@ final class RangeFinder {
      * @return a map of range to the average length of the matching pulses from the stream
      * @throws NullPointerException if ranges or fullBits was null
      */
-    static Map<Range<Long>, Long> getAveragePulseLengthsOfRanges(Iterable<Range<Long>> ranges, Collection<Long> fullBits) {
+    static List<BitData> getReplacementBitDataOfRanges(Collection<Range<Long>> ranges, Collection<Long> fullBits) {
         checkNotNull(ranges, "ranges was null");
         checkNotNull(fullBits, "fullBits was null");
 
-        Map<Range<Long>, Long> averages = new LinkedHashMap<>();
+        List<BitData> averages = new ArrayList<>();
 
         for(Range<Long> range : ranges) {
             Long average = round(fullBits.stream().filter(range::contains).collect(averagingLong(Long::longValue)));
-            averages.put(range, average);
+            averages.add(new BitData(range, average));
         }
         return averages;
     }
@@ -135,15 +135,15 @@ final class RangeFinder {
      * @return a map of range to the length of the matching pulses from the stream
      * @throws NullPointerException if ranges was null
      */
-    static Map<Range<Long>, Long> getSingletonPulseLengthsOfRanges(Iterable<Range<Long>> ranges) {
+    static List<BitData> getSingletonPulseLengthsOfRanges(Iterable<Range<Long>> ranges) {
         checkNotNull(ranges, "ranges was null");
 
-        Map<Range<Long>, Long> averages = new LinkedHashMap<>();
+        LinkedHashSet<BitData> averages = new LinkedHashSet<>();
 
         for(Range<Long> range : ranges) {
-            averages.put(range, range.lowerEndpoint());
+            averages.add(new BitData(range, range.lowerEndpoint()));
         }
-        return averages;
+        return averages.stream().collect(toList());
     }
 
     private static boolean isaSignificantGapBetweenPulses(Long lastPulse, Long pulse) {
