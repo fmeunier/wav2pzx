@@ -33,7 +33,6 @@ import xyz.meunier.wav2pzx.pulselist.PulseList;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BinaryOperator;
 
 import static com.google.common.collect.Iterators.peekingIterator;
 import static xyz.meunier.wav2pzx.generaldecoder.BlockType.SYNC_CANDIDATE;
@@ -107,8 +106,8 @@ public final class PZXBuilder {
     private static PZXDataBlock getPzxDataBlock(PeekingIterator<TapeBlock> iterator, TapeBlock block) {
         long tailLength = getTailLength(iterator);
 
-        long zeroPulseLength = getPulseLength(block, Long::min);
-        long onePulseLength = getPulseLength(block, Long::max);
+        long zeroPulseLength = block.getZeroBit().getFullPulse() / 2;
+        long onePulseLength = block.getOneBit().getFullPulse() / 2;
         DataBuilder dataBuilder = new DataBuilder();
 
         ImmutableList<Long> pulseLengths = block.getPulseList().getPulseLengths();
@@ -138,10 +137,6 @@ public final class PZXBuilder {
 
     private static boolean isSpecifiedPulsePair(long pulseLength, Long pulse1, Long pulse2) {
         return pulse1 == pulseLength && pulse2 == pulseLength;
-    }
-
-    private static long getPulseLength(TapeBlock block, BinaryOperator<Long> operator) {
-        return block.getBitDataList().stream().map(BitData::getFullPulse).reduce(operator).orElse(0L) / 2;
     }
 
     private static PZXPulseBlock getPzxPulseBlock(PeekingIterator<TapeBlock> iterator, PulseList blockPulseList) {

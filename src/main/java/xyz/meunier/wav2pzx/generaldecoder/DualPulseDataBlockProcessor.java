@@ -165,9 +165,8 @@ final class DualPulseDataBlockProcessor {
         for (BitData bitData : pulseSubstitutions) {
             if(bitData.getQualificationRange().contains(bit)) {
                 // Transform bit pulses
-                Long newBit = bitData.getFullPulse()/2;
-                bitPulse.set(0, newBit);
-                bitPulse.set(1, newBit);
+                bitPulse.clear();
+                bitPulse.addAll(bitData.getPulses());
                 return true;
             }
         }

@@ -164,7 +164,7 @@ public class PZXBuilderTest {
     }
 
     private PZXDataBlock getPzxDataBlock(long tailLength) {
-        return new PZXDataBlock(pulseList, 1L, 1L, tailLength, 1, singletonList((byte)0));
+        return new PZXDataBlock(pulseList, 1L, 0L, tailLength, 1, singletonList((byte)0));
     }
 
     private void testANonCoalescingPilotAndFollowingBlockCombination(BlockType type) {

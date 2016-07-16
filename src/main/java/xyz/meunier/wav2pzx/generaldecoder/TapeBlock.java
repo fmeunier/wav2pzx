@@ -32,6 +32,9 @@ import xyz.meunier.wav2pzx.pulselist.PulseList;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.lang.Short.toUnsignedLong;
+import static xyz.meunier.wav2pzx.generaldecoder.BitData.NullBitData;
+import static xyz.meunier.wav2pzx.generaldecoder.LoaderContext.ONE;
 
 /**
  * TapeBlock is an immutable class representing a block identified on the tape. It has a type, a mapping of ranges of
@@ -42,6 +45,8 @@ final class TapeBlock {
     private final BlockType blockType;
     private final ImmutableList<BitData> bitDataList;
     private final PulseList pulseList;
+    private final BitData zeroBit;
+    private final BitData oneBit;
 
     TapeBlock(BlockType blockType, List<BitData> bitDataList, PulseList pulseList) {
         checkNotNull(blockType, "blockType cannot be null");
@@ -51,30 +56,72 @@ final class TapeBlock {
         this.blockType = blockType;
         this.bitDataList = ImmutableList.copyOf(bitDataList);
         this.pulseList = pulseList;
+
+        if (bitDataList.size() == 2) {
+            // Smallest pulse in a two pulse list is the 0 pulse
+            // Largest pulse in a two pulse list is the 1 pulse
+            this.zeroBit = bitDataList.stream().min(BitData::compare).orElse(NullBitData());
+            this.oneBit = bitDataList.stream().max(BitData::compare).orElse(NullBitData());
+        } else if (bitDataList.size() == 1) {
+            // If we still don't have a decision about whether we have a 0 or 1 pulse, compare it to the ROM 1 pulse to
+            // make a call, if we still don't know just call the 1 pulse we have a 0
+            BitData bitData = bitDataList.get(0);
+            if (bitData.getQualificationRange().contains(toUnsignedLong(ONE))) {
+                this.oneBit = bitData;
+                this.zeroBit = NullBitData();
+            } else {
+                this.zeroBit = bitData;
+                this.oneBit = NullBitData();
+            }
+        } else {
+            this.zeroBit = NullBitData();
+            this.oneBit = NullBitData();
+        }
     }
 
     /**
      * Returns the block type
+     *
      * @return the type of the block
      */
     BlockType getBlockType() {
-        return this.blockType;
+        return blockType;
     }
 
     /**
      * Returns a map of pulse length ranges to an idealised pulse length
+     *
      * @return the pulse range to idealised pulse length map
      */
     ImmutableList<BitData> getBitDataList() {
-        return this.bitDataList;
+        return bitDataList;
     }
 
     /**
      * Returns the list of pulses in the identified block
+     *
      * @return the PulseList from this block
      */
     public PulseList getPulseList() {
-        return this.pulseList;
+        return pulseList;
+    }
+
+    /**
+     * Returns the BitData for the most likely zero bit
+     *
+     * @return the BitData for the zero bit
+     */
+    BitData getZeroBit() {
+        return zeroBit;
+    }
+
+    /**
+     * Returns the BitData for the most likely one bit
+     *
+     * @return the BitData for the one bit
+     */
+    BitData getOneBit() {
+        return oneBit;
     }
 
     @Override

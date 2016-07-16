@@ -26,16 +26,30 @@
 
 package xyz.meunier.wav2pzx.generaldecoder;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
+import java.util.List;
+
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Collections.emptyList;
 
 /**
- * Holds a processed full pulse and the range of raw full pulse lengths that evaluate to this new full pulse
+ * Holds a processed full pulse and the range of raw full pulse lengths that evaluate to this new full pulse. For
+ * pulse blocks this would likely be a single pulse per, for data blocks we expect two pulses per bit.
  */
 public final class BitData {
+    private static final BitData NULL_BIT_DATA = new BitData(Range.lessThan(0L), emptyList());
     private final Range<Long> qualificationRange;
     private final Long fullPulse;
+    private final ImmutableList<Long> pulses;
+
+    /**
+     * @return a null bit data item that will match no pulses and has no pulses
+     */
+    static BitData NullBitData() {
+        return NULL_BIT_DATA;
+    }
 
     /**
      * Makes a new BitData object.
@@ -47,6 +61,21 @@ public final class BitData {
         checkNotNull(fullPulse, "fullPulse was null");
         this.qualificationRange = qualificationRange;
         this.fullPulse = fullPulse;
+        long element = fullPulse / 2;
+        this.pulses = ImmutableList.of(element, element);
+    }
+
+    /**
+     * Makes a new BitData object.
+     * @param qualificationRange the ranges of full pulses that qualify as equal to this pulse
+     * @param pulses a list of pulses for this bit
+     */
+    public BitData(Range<Long> qualificationRange, List<Long> pulses) {
+        checkNotNull(qualificationRange, "qualificationRange was null");
+        checkNotNull(pulses, "pulses was null");
+        this.qualificationRange = qualificationRange;
+        this.fullPulse = pulses.stream().mapToLong(Long::longValue).sum();
+        this.pulses = ImmutableList.copyOf(pulses);
     }
 
     Range<Long> getQualificationRange() {
@@ -55,6 +84,10 @@ public final class BitData {
 
     Long getFullPulse() {
         return fullPulse;
+    }
+
+    public ImmutableList<Long> getPulses() {
+        return pulses;
     }
 
     @Override
@@ -81,6 +114,11 @@ public final class BitData {
         return "BitData{" +
                 "qualificationRange=" + qualificationRange +
                 ", fullPulse=" + fullPulse +
+                ", pulses=" + pulses +
                 '}';
+    }
+
+    static int compare(BitData a, BitData b) {
+        return Long.compare(a.getFullPulse(), b.getFullPulse());
     }
 }
