@@ -42,12 +42,12 @@ public interface LoaderContext {
     /**
      * The minimum length of a pilot pulse
      */
-    long MIN_PILOT_LENGTH = 1600;
+    long MIN_PILOT_LENGTH = 1100;
 
     /**
      * The maximum length of a pilot pulse
      */
-    long MAX_PILOT_LENGTH = 2560;
+    long MAX_PILOT_LENGTH = 3560;
 
     Range<Long> PILOT_CANDIDATE_RANGE = Range.closed(MIN_PILOT_LENGTH, MAX_PILOT_LENGTH);
 

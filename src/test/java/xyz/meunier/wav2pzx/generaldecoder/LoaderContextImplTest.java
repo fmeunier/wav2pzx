@@ -44,7 +44,7 @@ import static xyz.meunier.wav2pzx.generaldecoder.BlockType.UNKNOWN;
 public class LoaderContextImplTest {
 
     private List<Long> pulses = asList(
-            2143L, 2460L, 1667L, 2302L, 2143L, 1984L, 2143L, 2143L, 1984L, 2302L, 1905L, 2381L, 1825L, 2302L, 1984L,
+            2143L, 2420L, 1667L, 2302L, 2143L, 1984L, 2143L, 2143L, 1984L, 2302L, 1905L, 2381L, 1825L, 2302L, 1984L,
             2302L, 1905L, 2302L, 1905L, 2302L, 1905L, 2302L, 1984L, 2222L, 1984L, 2302L, 1905L, 2302L, 1905L, 2302L,
             1905L, 2302L, 1984L, 2222L, 1984L, 2302L, 1905L, 2302L, 1905L, 2302L, 1984L, 2222L, 1984L, 2302L, 1905L,
             2222L, 1984L, 2222L, 1984L, 2222L, 1984L, 2222L, 1984L, 2222L, 1984L, 2302L, 1905L, 2302L, 1905L, 2222L,
@@ -57,7 +57,7 @@ public class LoaderContextImplTest {
     public void buildTapeBlockList() throws Exception {
         List<TapeBlock> result = LoaderContextImpl.buildTapeBlockList(pulseList);
         List<Long> pulses = new ArrayList<>();
-        result.stream().forEach((block) -> pulses.addAll(block.getPulseList().getPulseLengths()));
+        result.forEach((block) -> pulses.addAll(block.getPulseList().getPulseLengths()));
 
         assertThat("Pulses from generated tape should match source", pulses, equalTo(pulses));
     }

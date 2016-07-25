@@ -43,7 +43,7 @@ import static xyz.meunier.wav2pzx.generaldecoder.BlockType.*;
 import static xyz.meunier.wav2pzx.generaldecoder.RangeFinder.*;
 
 final class DualPulseDataBlockProcessor {
-    private static final int SYNC_OR_TAIL_BUFFER_SIZE = 4;
+    private static final int SYNC_OR_TAIL_BUFFER_SIZE = 10;
     private static final int SYNC_AND_TAIL_TOTAL_LIMIT = SYNC_OR_TAIL_BUFFER_SIZE * 2;
     private static final int MINIMUM_DATA_BLOCK_PULSE_COUNT = SYNC_AND_TAIL_TOTAL_LIMIT + 1;
     private static final int THREE_BYTES_OF_PULSES = 24;
@@ -76,16 +76,16 @@ final class DualPulseDataBlockProcessor {
         int limit = pulseLengths.size() > MINIMUM_DATA_BLOCK_PULSE_COUNT + THREE_BYTES_OF_PULSES ?
                 getPulseLengthsSizeWithoutSyncAndTailArea() : 0;
 
-        ArrayList<Long> fullBits = new ArrayList<>(limit/2);
-        for(int i = SYNC_OR_TAIL_BUFFER_SIZE; i < limit; i+=2) {
-            Long bit = pulseLengths.get(i) + pulseLengths.get(i+1);
+        ArrayList<Long> fullBits = new ArrayList<>(limit / 2);
+        for (int i = SYNC_OR_TAIL_BUFFER_SIZE; i < limit; i += 2) {
+            Long bit = pulseLengths.get(i) + pulseLengths.get(i + 1);
             fullBits.add(bit);
         }
 
         List<Range<Long>> ranges = getRanges(fullBits.stream().distinct().collect(toList()));
 
         // If we don't have enough bits to make a good population of dual pulses just dump out the source pulses
-        if(ranges.isEmpty()) {
+        if (ranges.isEmpty()) {
             ranges = RangeFinder.getRangesForSinglePulses(pulseLengths);
             TapeBlock newBlock = new TapeBlock(UNKNOWN, getSingletonPulseLengthsOfRanges(ranges), pulseList);
             getLogger(LoaderContextImpl.class.getName()).log(Level.INFO, newBlock.toString());
@@ -93,10 +93,10 @@ final class DualPulseDataBlockProcessor {
         }
 
         // Find average of pulse pairs matching each range in this block
-        pulseSubstitutions = getReplacementBitDataOfRanges(ranges, fullBits);
+        pulseSubstitutions = getZeroAndOnePulsePairs(ranges, fullBits);
 
         // If we have more than two ranges we can't encode this block as a data block - just dump out the source pulses
-        if(pulseSubstitutions.size() != 2) {
+        if (pulseSubstitutions.size() != 2) {
             TapeBlock newBlock = new TapeBlock(UNKNOWN, pulseSubstitutions, pulseList);
             getLogger(LoaderContextImpl.class.getName()).log(Level.INFO, newBlock.toString());
             return singletonList(newBlock);
@@ -112,14 +112,14 @@ final class DualPulseDataBlockProcessor {
             List<Long> bitPulse = new ArrayList<>(2);
             bitPulse.addAll(pulseLengths.subList(i, i + 2));
 
-            if(replaceInRangeBitsWithProcessedValues(bitPulse)) {
+            if (replaceInRangeBitsWithProcessedValues(bitPulse)) {
                 newDataBlockPulses.addAll(bitPulse);
             } else {
                 // Finish any open PulseList
-                finishDataBlock();
+                finishBlock(i);
 
                 // Add pulses to new PulseList
-                if(isInSyncCandidateArea(i)) {
+                if (isInSyncCandidateArea(i)) {
                     // SYNC bit candidates at the beginning of the block
                     addTapeBlockForSinglePulses(SYNC_CANDIDATE, bitPulse, firstPulseLevel);
                 } else {
@@ -138,20 +138,34 @@ final class DualPulseDataBlockProcessor {
         return newTapeBlockList;
     }
 
+    private void finishBlock(int index) {
+        // Data blocks should have at least 2 bytes of data
+        if (!newDataBlockPulses.isEmpty() && newDataBlockPulses.size() < (2*8*2)) {
+            if (isInSyncCandidateArea(index)) {
+                addTapeBlockForSinglePulses(SYNC_CANDIDATE, newDataBlockPulses, firstPulseLevel);
+            } else {
+                addTapeBlock(UNKNOWN, pulseSubstitutions, newPulseList(newDataBlockPulses, firstPulseLevel));
+            }
+            newDataBlockPulses.clear();
+            return;
+        }
+        finishDataBlock();
+    }
+
     private int getPulseLengthsSizeWithoutSyncAndTailArea() {
         return (pulseLengths.size() - SYNC_AND_TAIL_TOTAL_LIMIT) - hasCandidateTailPulse;
     }
 
     private void finishDataBlock() {
         // Finish any open PulseList
-        if(!newDataBlockPulses.isEmpty()) {
+        if (!newDataBlockPulses.isEmpty()) {
             addTapeBlock(DATA, pulseSubstitutions, newPulseList(newDataBlockPulses, firstPulseLevel));
             newDataBlockPulses.clear();
         }
     }
 
     private void processCandidateTailPulse() {
-        if(hasCandidateTailPulse == 1) {
+        if (hasCandidateTailPulse == 1) {
             int size = pulseLengths.size();
             addTapeBlockForSinglePulses(TAIL_CANDIDATE, pulseLengths.subList(size - 1, size), flipPulseLevel(firstPulseLevel));
         }
@@ -163,7 +177,7 @@ final class DualPulseDataBlockProcessor {
 
         Long bit = bitPulse.get(0) + bitPulse.get(1);
         for (BitData bitData : pulseSubstitutions) {
-            if(bitData.getQualificationRange().contains(bit)) {
+            if (bitData.getQualificationRange().contains(bit)) {
                 // Transform bit pulses
                 bitPulse.clear();
                 bitPulse.addAll(bitData.getPulses());
@@ -194,7 +208,7 @@ final class DualPulseDataBlockProcessor {
     }
 
     private static List<BitData> getSyncRange(List<Range<Long>> ranges) {
-        return ranges.stream().distinct().map(r -> new BitData(r, r.lowerEndpoint())).collect(toList());
+        return ranges.stream().distinct().map(r -> new BitData(r, singletonList(r.lowerEndpoint()))).collect(toList());
     }
 
 }

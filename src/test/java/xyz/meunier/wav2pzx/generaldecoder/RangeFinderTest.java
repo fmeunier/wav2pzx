@@ -45,8 +45,20 @@ import static xyz.meunier.wav2pzx.generaldecoder.RangeFinder.*;
 
 public class RangeFinderTest {
 
-    private final List<Long> MULTI_SYMBOL_PULSE_LIST = asList(1000L, 1100L, 3100L, 3200L);
-    private final List<Range<Long>> MULTI_SYMBOL_RANGES = asList(closed(950L, 1150L), closed(3050L, 3250L));
+    private final List<Long> SINGLE_SYMBOL_PULSE_LIST = asList(1000L, 1100L);
+    private final List<Range<Long>> SINGLE_SYMBOL_RANGES = singletonList(closed(950L, 1150L));
+    private final List<Long> DUAL_SYMBOL_PULSE_LIST = asList(1000L, 1100L, 3100L, 3200L);
+    private final List<Range<Long>> DUAL_SYMBOL_RANGES = asList(closed(950L, 1150L), closed(3050L, 3250L));
+    private final List<Long> TRIPLE_SYMBOL_PULSE_LIST = asList(1000L, 1100L, 2000L, 2100L, 3100L, 3200L);
+    private final List<Range<Long>> TRIPLE_SYMBOL_RANGES =
+            asList(closed(950L, 1150L), closed(1950L, 2150L), closed(3050L, 3250L));
+    // Focus on the case I have in BCs Quest for tires
+    private final List<Long> BCS_QUEST_PULSES = asList(
+            1659L, 1659L, 1501L, 1501L, 1659L, 1659L, 1659L, 1659L, 1659L, 1659L, 1659L, 1501L, 1580L, 1580L,
+            1580L, 1580L, 1580L, 1580L, 1580L, 1580L, 2212L, 2370L, 1738L, 2212L, 2370L, 1738L, 2212L, 2370L,
+            1738L, 1580L, 1580L, 2212L, 2370L, 1738L, 2212L, 1738L, 2212L, 2370L, 2370L, 1738L
+    );
+    private List<Range<Long>> BCS_QUEST_RANGES = asList(closed(1500L, 1800L), closed(2200L, 2400L));
 
     @Test(expected = NullPointerException.class)
     public void shouldGetNullPointerExceptionWithNullArgument() throws Exception {
@@ -70,29 +82,29 @@ public class RangeFinderTest {
 
     @Test
     public void shouldSplitRangeWithASignificantGap() throws Exception {
-        assertThat(getRanges(MULTI_SYMBOL_PULSE_LIST), is(MULTI_SYMBOL_RANGES));
+        assertThat(getRanges(DUAL_SYMBOL_PULSE_LIST), is(DUAL_SYMBOL_RANGES));
     }
 
     @Test
     public void shouldGetAveragePulseCalculatedPerRange() throws Exception {
-        List<BitData> calculatedData = getReplacementBitDataOfRanges(MULTI_SYMBOL_RANGES, MULTI_SYMBOL_PULSE_LIST);
+        List<BitData> calculatedData = getReplacementBitDataOfRanges(DUAL_SYMBOL_RANGES, DUAL_SYMBOL_PULSE_LIST);
 
         List<BitData> expectedData = new ArrayList<>();
 
-        expectedData.add(new BitData(Range.closed(950L, 1150L), 1050L));
-        expectedData.add(new BitData(Range.closed(3050L, 3250L), 3150L));
+        expectedData.add(new BitData(Range.closed(950L, 1150L), singletonList(1050L)));
+        expectedData.add(new BitData(Range.closed(3050L, 3250L), singletonList(3150L)));
 
         assertThat(calculatedData, is(expectedData));
     }
 
     @Test
     public void shouldGetAZeroAverageIfNoPulsesMatchSuppliedRange() throws Exception {
-        List<BitData> actualMap = getReplacementBitDataOfRanges(MULTI_SYMBOL_RANGES, emptyList());
+        List<BitData> actualMap = getReplacementBitDataOfRanges(DUAL_SYMBOL_RANGES, emptyList());
 
         List<BitData> expectedData = new ArrayList<>();
 
-        expectedData.add(new BitData(Range.closed(950L, 1150L), 0L));
-        expectedData.add(new BitData(Range.closed(3050L, 3250L), 0L));
+        expectedData.add(new BitData(Range.closed(950L, 1150L), singletonList(0L)));
+        expectedData.add(new BitData(Range.closed(3050L, 3250L), singletonList(0L)));
 
         assertThat(actualMap, is(expectedData));
     }
@@ -100,21 +112,72 @@ public class RangeFinderTest {
     @Test
     public void shouldGetOneRangeForEachSourcePulse() throws Exception {
         List<Range<Long>> expectedList = asList(singleton(1000L), singleton(1100L), singleton(3100L), singleton(3200L));
-        assertThat(getRangesForSinglePulses(MULTI_SYMBOL_PULSE_LIST), is(equalTo(expectedList)));
+        assertThat(getRangesForSinglePulses(DUAL_SYMBOL_PULSE_LIST), is(equalTo(expectedList)));
     }
 
     @Test
     public void shouldGetSuitableRangesForSingletonPulses() throws Exception {
         List<Range<Long>> expectedList = asList(singleton(1000L), singleton(1100L), singleton(3100L), singleton(3200L));
 
-        List<BitData> expectedMap = ImmutableList.of(
-                new BitData(singleton(1000L), 1000L),
-                new BitData(singleton(1100L), 1100L),
-                new BitData(singleton(3100L), 3100L),
-                new BitData(singleton(3200L), 3200L)
+        List<BitData> expectedBitDataList = ImmutableList.of(
+                new BitData(singleton(1000L), singletonList(1000L)),
+                new BitData(singleton(1100L), singletonList(1100L)),
+                new BitData(singleton(3100L), singletonList(3100L)),
+                new BitData(singleton(3200L), singletonList(3200L))
         );
 
-        assertThat(getSingletonPulseLengthsOfRanges(expectedList), is(equalTo(expectedMap)));
+        assertThat(getSingletonPulseLengthsOfRanges(expectedList), is(equalTo(expectedBitDataList)));
     }
 
+    // TODO: Test assymmetric pulse handling in getZeroAndOnePulsePairs()
+    // Collection of 1 or 3 range pulses should come back as averages for symmetric pulses
+    @Test
+    public void shouldGetAverageSymmetricPulsesFromOneRangePulseList() throws Exception {
+        List<BitData> pulsePairs = getZeroAndOnePulsePairs(SINGLE_SYMBOL_RANGES, SINGLE_SYMBOL_PULSE_LIST);
+
+        List<BitData> expectedBitDataList = ImmutableList.of(
+                new BitData(SINGLE_SYMBOL_RANGES.get(0), singletonList(1050L))
+        );
+
+        assertThat(pulsePairs, is(equalTo(expectedBitDataList)));
+    }
+
+    @Test
+    public void shouldGetAverageSymmetricPulsesFromThreeRangePulseList() {
+        List<BitData> pulsePairs = getZeroAndOnePulsePairs(TRIPLE_SYMBOL_RANGES, TRIPLE_SYMBOL_PULSE_LIST);
+
+        List<BitData> expectedData = new ArrayList<>();
+
+        expectedData.add(new BitData(Range.closed(950L, 1150L), singletonList(1050L)));
+        expectedData.add(new BitData(Range.closed(1950L, 2150L), singletonList(2050L)));
+        expectedData.add(new BitData(Range.closed(3050L, 3250L), singletonList(3150L)));
+
+        assertThat(pulsePairs, is(equalTo(expectedData)));
+    }
+
+    // Collection of 2 range pulses should come back as averages for symmetric pulses
+    @Test
+    public void shouldGetAverageSymmetricPulsesFromTwoRangePulseList() {
+        List<BitData> pulsePairs = getZeroAndOnePulsePairs(DUAL_SYMBOL_RANGES, DUAL_SYMBOL_PULSE_LIST);
+
+        List<BitData> expectedData = new ArrayList<>();
+
+        expectedData.add(new BitData(Range.closed(950L, 1150L), singletonList(1050L)));
+        expectedData.add(new BitData(Range.closed(3050L, 3250L), singletonList(3150L)));
+
+        assertThat(pulsePairs, is(equalTo(expectedData)));
+    }
+
+    // Collection of 2 range pulses should come back as distributed asymmetric pulses
+    @Test
+    public void shouldGetAverageAsymmetricPulsesFromTwoRangePulseList() {
+        List<BitData> pulsePairs = getZeroAndOnePulsePairs(BCS_QUEST_RANGES, BCS_QUEST_PULSES);
+
+        List<BitData> expectedData = new ArrayList<>();
+
+        expectedData.add(new BitData(Range.closed(1500L, 1800L), asList(815L, 815L)));
+        expectedData.add(new BitData(Range.closed(2200L, 2400L), asList(763L, 1526L)));
+
+        assertThat(pulsePairs, is(equalTo(expectedData)));
+    }
 }

@@ -50,7 +50,7 @@ final class TapeBlock {
 
     TapeBlock(BlockType blockType, List<BitData> bitDataList, PulseList pulseList) {
         checkNotNull(blockType, "blockType cannot be null");
-        checkNotNull(bitDataList, "ranges cannot be null");
+        checkNotNull(bitDataList, "bitDataList cannot be null");
         checkNotNull(pulseList, "pulseList cannot be null");
 
         this.blockType = blockType;
@@ -130,6 +130,8 @@ final class TapeBlock {
                 "blockType=" + blockType +
                 ", bitDataList=" + bitDataList +
                 ", pulseList=" + pulseList +
+                ", zeroBit=" + zeroBit +
+                ", oneBit=" + oneBit +
                 '}';
     }
 

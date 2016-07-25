@@ -106,24 +106,23 @@ public final class PZXBuilder {
     private static PZXDataBlock getPzxDataBlock(PeekingIterator<TapeBlock> iterator, TapeBlock block) {
         long tailLength = getTailLength(iterator);
 
-        long zeroPulseLength = block.getZeroBit().getFullPulse() / 2;
-        long onePulseLength = block.getOneBit().getFullPulse() / 2;
+        List<Long> zeroPulseLengths = block.getZeroBit().getPulses();
+        List<Long> onePulseLengths = block.getOneBit().getPulses();
         DataBuilder dataBuilder = new DataBuilder();
 
         ImmutableList<Long> pulseLengths = block.getPulseList().getPulseLengths();
         for (int i = 0; i < pulseLengths.size(); i += 2) {
-            Long pulse1 = pulseLengths.get(i);
-            Long pulse2 = pulseLengths.get(i + 1);
-            if (isSpecifiedPulsePair(zeroPulseLength, pulse1, pulse2)) {
+            ImmutableList<Long> pulses = pulseLengths.subList(i, i + 2);
+            if (isSpecifiedPulseSequence(zeroPulseLengths, pulses)) {
                 dataBuilder.addBit(0);
-            } else if (isSpecifiedPulsePair(onePulseLength, pulse1, pulse2)) {
+            } else if (isSpecifiedPulseSequence(onePulseLengths, pulses)) {
                 dataBuilder.addBit(1);
             }
             // FIXME: Some kind of error, fall back to PulseBlock?
         }
 
         int numBitsInLastByte = dataBuilder.getNumBitsInCurrentByte();
-        return new PZXDataBlock(block.getPulseList(), zeroPulseLength, onePulseLength, tailLength,
+        return new PZXDataBlock(block.getPulseList(), zeroPulseLengths, onePulseLengths, tailLength,
                 numBitsInLastByte, dataBuilder.getData());
     }
 
@@ -135,12 +134,12 @@ public final class PZXBuilder {
         return tailLength;
     }
 
-    private static boolean isSpecifiedPulsePair(long pulseLength, Long pulse1, Long pulse2) {
-        return pulse1 == pulseLength && pulse2 == pulseLength;
+    private static boolean isSpecifiedPulseSequence(List<Long> pulseLength, List<Long> pulses) {
+        return pulseLength.equals(pulses);
     }
 
     private static PZXPulseBlock getPzxPulseBlock(PeekingIterator<TapeBlock> iterator, PulseList blockPulseList) {
-        if (iterator.hasNext() && iterator.peek().getBlockType() == SYNC_CANDIDATE) {
+        while (iterator.hasNext() && iterator.peek().getBlockType() == SYNC_CANDIDATE) {
             // Make a new PulseList with this block and the next one
             blockPulseList = new PulseList(blockPulseList, iterator.next().getPulseList());
         }

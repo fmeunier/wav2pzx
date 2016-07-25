@@ -46,25 +46,28 @@ import static xyz.meunier.wav2pzx.generaldecoder.BlockType.*;
 public class DualPulseDataBlockProcessorTest {
 
     private final List<Long> HEADER_DATA_PULSES = asList(
-            952L, 476L, 952L, 794L, 794L, 873L, 794L, 873L, 794L, 873L, 794L, 873L, 794L, 794L, 873L, 794L, 873L, 794L,
-            873L, 794L, 794L, 873L, 794L, 873L, 794L, 873L, 794L, 873L, 794L, 873L, 794L, 794L, 873L, 794L, 873L, 794L,
-            1349L, 1825L, 1032L, 635L, 952L, 714L, 1429L, 1825L, 1667L, 1667L, 1032L, 714L, 1349L, 1905L, 1032L, 635L,
-            1508L, 1825L, 1032L, 635L, 1508L, 1746L, 1032L, 714L, 1429L, 1825L, 1032L, 635L, 1508L, 1825L, 952L, 714L,
-            1429L, 1825L, 1032L, 714L, 1429L, 1825L, 1032L, 635L, 952L, 794L, 1349L, 1905L, 952L, 714L, 952L, 714L,
-            1429L, 1825L, 1032L, 714L, 952L, 714L, 873L, 794L, 1429L, 1825L, 1032L, 635L, 952L, 714L, 952L, 794L, 1349L,
-            1905L, 952L, 714L, 952L, 714L, 873L, 794L, 1429L, 1825L, 1032L, 635L, 1508L, 1825L, 952L, 714L, 1429L,
-            1905L, 952L, 714L, 1429L, 1825L, 952L, 714L, 952L, 794L, 1429L, 1825L, 952L, 714L, 952L, 714L, 873L, 794L,
-            873L, 794L, 1429L, 1825L, 1032L, 635L, 1587L, 1746L, 1587L, 1746L, 1032L, 714L, 873L, 794L, 873L, 794L,
-            873L, 873L, 714L, 873L, 794L, 873L, 794L, 873L, 794L, 873L, 794L, 873L, 794L, 873L, 794L, 873L, 794L, 873L,
-            794L, 873L, 794L, 873L, 794L, 873L, 794L, 873L, 794L, 873L, 794L, 873L, 794L, 794L, 1429L, 1825L, 1032L,
-            714L, 952L, 714L, 873L, 873L, 794L, 873L, 794L, 873L, 794L, 873L, 794L, 794L, 1429L, 1746L, 1746L, 1587L,
-            1667L, 1746L, 1587L, 1746L, 1587L, 1746L, 1032L, 714L, 952L, 714L, 873L, 873L, 794L, 873L, 794L, 873L, 794L,
-            873L, 794L, 873L, 794L, 794L, 1429L, 1825L, 1032L, 714L, 952L, 714L, 873L, 794L, 873L, 873L, 794L, 873L,
-            794L, 873L, 794L, 873L, 794L, 873L, 794L, 873L, 794L, 794L, 873L, 873L, 794L, 873L, 794L, 873L, 794L, 873L,
-            794L, 873L, 794L, 873L, 794L, 873L, 794L, 794L, 1429L, 1825L, 1111L, 556L, 1587L, 1825L, 952L, 714L, 1508L,
-            1825L, 1587L, 1746L, 1032L, 714L, 873L, 794L, 873L, 794L, 873L, 873L, 794L, 873L, 794L, 873L, 794L, 794L,
-            1429L, 1825L, 1032L, 635L, 952L, 714L, 1429L, 1825L, 1667L, 1667L, 1587L, 1746L, 1032L, 714L, 1349L, 1984L,
-            952L, 714L, 952L, 1825L);
+             952L,  476L,  952L,  794L,  794L,  873L,  794L,  873L,  794L,  873L,  794L,  873L,  794L,  794L,
+             873L,  794L,  873L,  794L,  873L,  794L,  794L,  873L,  794L,  873L,  794L,  873L,  794L,  873L,
+             794L,  873L,  794L,  794L,  873L,  794L,  873L,  794L, 1349L, 1825L, 1032L,  635L,  952L,  714L,
+            1429L, 1825L, 1667L, 1667L, 1032L,  714L, 1349L, 1905L, 1032L,  635L, 1508L, 1825L, 1032L,  635L,
+            1508L, 1746L, 1032L,  714L, 1429L, 1825L, 1032L,  635L, 1508L, 1825L,  952L,  714L, 1429L, 1825L,
+            1032L,  714L, 1429L, 1825L, 1032L,  635L,  952L,  794L, 1349L, 1905L,  952L,  714L,  952L,  714L,
+            1429L, 1825L, 1032L,  714L,  952L,  714L,  873L,  794L, 1429L, 1825L, 1032L,  635L,  952L,  714L,
+             952L,  794L, 1349L, 1905L,  952L,  714L,  952L,  714L,  873L,  794L, 1429L, 1825L, 1032L,  635L,
+            1508L, 1825L,  952L,  714L, 1429L, 1905L,  952L,  714L, 1429L, 1825L,  952L,  714L,  952L,  794L,
+            1429L, 1825L,  952L,  714L,  952L,  714L,  873L,  794L,  873L,  794L, 1429L, 1825L, 1032L,  635L,
+            1587L, 1746L, 1587L, 1746L, 1032L,  714L,  873L,  794L,  873L,  794L,  873L,  873L,  714L,  873L,
+             794L,  873L,  794L,  873L,  794L,  873L,  794L,  873L,  794L,  873L,  794L,  873L,  794L,  873L,
+             794L,  873L,  794L,  873L,  794L,  873L,  794L,  873L,  794L,  873L,  794L,  873L,  794L,  794L,
+            1429L, 1825L, 1032L,  714L,  952L,  714L,  873L,  873L,  794L,  873L,  794L,  873L,  794L,  873L,
+             794L,  794L, 1429L, 1746L, 1746L, 1587L, 1667L, 1746L, 1587L, 1746L, 1587L, 1746L, 1032L,  714L,
+             952L,  714L,  873L,  873L,  794L,  873L,  794L,  873L,  794L,  873L,  794L,  873L,  794L,  794L,
+            1429L, 1825L, 1032L,  714L,  952L,  714L,  873L,  794L,  873L,  873L,  794L,  873L,  794L,  873L,
+             794L,  873L,  794L,  873L,  794L,  873L,  794L,  794L,  873L,  873L,  794L,  873L,  794L,  873L,
+             794L,  873L,  794L,  873L,  794L,  873L,  794L,  873L,  794L,  794L, 1429L, 1825L, 1111L,  556L,
+            1587L, 1825L,  952L,  714L, 1508L, 1825L, 1587L, 1746L, 1032L,  714L,  873L,  794L,  873L,  794L,
+             873L,  873L,  794L,  873L,  794L,  873L,  794L,  794L, 1429L, 1825L, 1032L,  635L,  952L,  714L,
+            1429L, 1825L, 1667L, 1667L, 1587L, 1746L, 1032L,  714L, 1349L, 1984L,  952L,  714L,  952L, 1825L);
 
     @Test(expected = NullPointerException.class)
     public void checkNullPulseListIsRejected() throws Exception {
@@ -79,10 +82,10 @@ public class DualPulseDataBlockProcessorTest {
         DualPulseDataBlockProcessor dataBlockProcessor = new DualPulseDataBlockProcessor(pulseList);
 
         List<BitData> multiSymbolAverages = ImmutableList.of(
-                new BitData(singleton(1000L), 1000L),
-                new BitData(singleton(1100L), 1100L),
-                new BitData(singleton(3100L), 3100L),
-                new BitData(singleton(3200L), 3200L)
+                new BitData(singleton(1000L), singletonList(1000L)),
+                new BitData(singleton(1100L), singletonList(1100L)),
+                new BitData(singleton(3100L), singletonList(3100L)),
+                new BitData(singleton(3200L), singletonList(3200L))
         );
 
         List<TapeBlock> tapeBlocks = dataBlockProcessor.processDataBlock();
@@ -99,11 +102,11 @@ public class DualPulseDataBlockProcessorTest {
         PulseList pulseList = new PulseList(multiSymbolPulseList, 0, 1);
 
         List<BitData> multiSymbolAverages = ImmutableList.of(
-                new BitData(singleton(1000L), 1000L),
-                new BitData(singleton(1100L), 1100L),
-                new BitData(singleton(3100L), 3100L),
-                new BitData(singleton(3200L), 3200L),
-                new BitData(singleton(4000L), 4000L)
+                new BitData(singleton(1000L), singletonList(1000L)),
+                new BitData(singleton(1100L), singletonList(1100L)),
+                new BitData(singleton(3100L), singletonList(3100L)),
+                new BitData(singleton(3200L), singletonList(3200L)),
+                new BitData(singleton(4000L), singletonList(4000L))
         );
 
         DualPulseDataBlockProcessor dataBlockProcessor = new DualPulseDataBlockProcessor(pulseList);
@@ -123,7 +126,7 @@ public class DualPulseDataBlockProcessorTest {
 
         assertThat(tapeBlocks.size(), is(1));
         assertThat(tapeBlocks.get(0).getBlockType(), is(DATA));
-        assertThat(tapeBlocks.get(0).getPulseList().getPulseLengths().stream().distinct().collect(toList()), is(asList(836L, 1643L)));
+        assertThat(tapeBlocks.get(0).getPulseList().getPulseLengths().stream().distinct().collect(toList()), is(asList(837L, 1644L)));
     }
 
     @Test
@@ -158,4 +161,28 @@ public class DualPulseDataBlockProcessorTest {
         assertThat(tapeBlocks.get(lastBlockIndex).getPulseList().getPulseLengths(), is(singletonList(1825L)));
     }
 
+    @Test
+    public void checkShortDatablocksBecomeUnknownBlocks() throws Exception {
+        // Focus on the case I have in BCs Quest for tires, the sync pulses were being encoded as a two pulse data block
+        // when it should have been a sync candidate to be integrated into the pilot tones block
+        List<Long> bcsQuestPulses = asList(
+                1027L,  632L, 1027L,  948L, 1027L,  948L, 1027L,  948L, 1027L, 1027L,  869L,  790L,  790L,  790L,  790L,
+                 711L,  869L,  790L,  790L,  790L,  790L,  790L,  790L,  790L,  790L,  790L,  790L,  790L,  790L,  790L,
+                 790L,  790L,  869L,  711L,  869L,  711L,  869L,  711L,  869L,  711L,  869L,  711L,  869L,  711L,  869L,
+                 711L,  869L,  711L,  869L,  711L,  948L, 1264L, 1185L, 1185L, 1027L,  711L, 1027L, 1185L, 1185L, 1185L,
+                1027L,  711L, 1027L, 1185L, 1185L, 1185L, 1027L,  711L,  869L,  711L,  869L,  711L, 1027L, 1185L, 1185L,
+                1185L, 1027L,  711L, 1027L, 1185L, 1027L,  711L, 1027L, 1185L, 1185L, 1185L, 1185L, 1185L, 1027L,  711L,
+                1027L, 1185L
+        );
+
+        PulseList pulseList = new PulseList(bcsQuestPulses, 1, 1);
+
+        DualPulseDataBlockProcessor dataBlockProcessor = new DualPulseDataBlockProcessor(pulseList);
+
+        List<TapeBlock> tapeBlocks = dataBlockProcessor.processDataBlock();
+
+        assertThat(tapeBlocks.size(), is(6));
+        assertThat(tapeBlocks.get(0).getBlockType(), is(SYNC_CANDIDATE));
+        assertThat(tapeBlocks.get(0).getPulseList().getPulseLengths(), is(asList(801L, 801L)));
+    }
 }

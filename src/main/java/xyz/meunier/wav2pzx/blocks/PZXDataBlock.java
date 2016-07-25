@@ -25,6 +25,7 @@
  */
 package xyz.meunier.wav2pzx.blocks;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Bytes;
 import xyz.meunier.wav2pzx.pulselist.PulseList;
 
@@ -36,6 +37,9 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableList.copyOf;
+import static com.google.common.primitives.Longs.asList;
+import static java.lang.Long.valueOf;
 import static xyz.meunier.wav2pzx.blocks.PZXEncodeUtils.*;
 import static xyz.meunier.wav2pzx.romdecoder.LoaderContext.*;
 
@@ -76,30 +80,30 @@ public final class PZXDataBlock implements PZXBlock {
     private final boolean isHeader;
 
     // The length of the zero pulse identified in the source file
-    private final short zeroPulseLength;
+    private final ImmutableList<Long> zeroPulseLengths;
 
     // The length of the one pulse identified in the source file
-    private final short onePulseLength;
+    private final ImmutableList<Long> onePulseLengths;
 
     /**
      * Constructs a new PZXDataBlock.
      * @param newPulses the original tape pulses that have been decoded into this block
-     * @param zeroPulseLength the length of the zero pulses in the block
-     * @param onePulseLength the length of the one pulses in the block
+     * @param zeroPulseLengths the lengths of the zero pulses in the block
+     * @param onePulseLengths the lengths of the one pulses in the block
      * @param tailLength the length of the tail pulse in the block
      * @param numBitsInLastByte the number of bits used in the last byte of the data collection
      * @param data the decoded data from the tape image
      * @throws NullPointerException if newPulses or data is null
      * @throws IllegalArgumentException if data is empty
      */
-    public PZXDataBlock(PulseList newPulses, long zeroPulseLength, long onePulseLength, long tailLength,
+    public PZXDataBlock(PulseList newPulses, List<Long> zeroPulseLengths, List<Long> onePulseLengths, long tailLength,
                         int numBitsInLastByte, Collection<Byte> data) {
         checkNotNull(newPulses, "newPulses must not be null");
         checkNotNull(data, "data must not be null");
         checkArgument(!data.isEmpty(), "data array must not be empty");
         this.pulses = newPulses;
-        this.zeroPulseLength = (short)zeroPulseLength;
-        this.onePulseLength = (short)onePulseLength;
+        this.zeroPulseLengths = copyOf(zeroPulseLengths);
+        this.onePulseLengths = copyOf(onePulseLengths);
         this.tailLength = (short)tailLength;
         this.numBitsInLastByte = numBitsInLastByte;
         this.data = Bytes.toArray(data);
@@ -118,7 +122,8 @@ public final class PZXDataBlock implements PZXBlock {
      * @throws IllegalArgumentException if data is empty
      */
     public PZXDataBlock(PulseList newPulses, int numBitsInLastByte, Collection<Byte> data) {
-        this(newPulses, ZERO, ONE, TAIL, numBitsInLastByte, data);
+        this(newPulses, asList(valueOf(ZERO), valueOf(ZERO)), asList(valueOf(ONE), valueOf(ONE)), TAIL,
+                numBitsInLastByte, data);
     }
 
     // Calculates the checksum for the data according to the algorithm in the 
@@ -179,23 +184,27 @@ public final class PZXDataBlock implements PZXBlock {
         // use standard duration tail pulse after last bit of the block if we found one
         putUnsignedLittleEndianShort(tailLength == 0 ? 0 : tailLength, output);
         
-        putUnsignedByte((byte)2, output); // number of pulses encoding bit equal to 0.
-        putUnsignedByte((byte)2, output); // number of pulses encoding bit equal to 1.
+        putUnsignedByte((byte)zeroPulseLengths.size(), output); // number of pulses encoding bit equal to 0.
+        putUnsignedByte((byte)onePulseLengths.size(), output); // number of pulses encoding bit equal to 1.
         
         // sequence of pulse durations encoding bit equal to 0.
-        putUnsignedLittleEndianShort(zeroPulseLength, output);
-        putUnsignedLittleEndianShort(zeroPulseLength, output);
-        
+        putPulseList(zeroPulseLengths, output);
+
         // sequence of pulse durations encoding bit equal to 1.
-        putUnsignedLittleEndianShort(onePulseLength, output);
-        putUnsignedLittleEndianShort(onePulseLength, output);
-        
+        putPulseList(onePulseLengths, output);
+
         // data stream
         output.addAll(Bytes.asList(data));
         
         return addPZXBlockHeader("DATA", output);
     }
-    
+
+    private void putPulseList(List<Long> pulseLengths, Collection<Byte> output) {
+        for (Long pulseLength : pulseLengths) {
+            putUnsignedLittleEndianShort(pulseLength.shortValue(), output);
+        }
+    }
+
     @Override
     public String getSummary() {
         StringBuilder retval = new StringBuilder();
@@ -276,8 +285,8 @@ public final class PZXDataBlock implements PZXBlock {
 
     @Override
     public String toString() {
-        return "PZXDataBlock{" + pulses.toString() + ", zeroPulseLength=" + zeroPulseLength + ", onePulseLength="
-                + onePulseLength + ", tailLength=" + tailLength + ", numBitsInLastByte=" + numBitsInLastByte
+        return "PZXDataBlock{" + pulses.toString() + ", zeroPulseLengths=" + zeroPulseLengths + ", onePulseLengths="
+                + onePulseLengths + ", tailLength=" + tailLength + ", numBitsInLastByte=" + numBitsInLastByte
                 + ", calculatedChecksum=" + String.format("0x%x", calculatedChecksum) + ", suppliedChecksum="
                 + String.format("0x%x", suppliedChecksum) + ", isHeader=" + isHeader + ", data.length="
                 + data.length + '}';
@@ -289,9 +298,11 @@ public final class PZXDataBlock implements PZXBlock {
         result = 31 * result + (int) tailLength;
         result = 31 * result + Arrays.hashCode(data);
         result = 31 * result + numBitsInLastByte;
+        result = 31 * result + (int) calculatedChecksum;
         result = 31 * result + (int) suppliedChecksum;
-        result = 31 * result + (int) zeroPulseLength;
-        result = 31 * result + (int) onePulseLength;
+        result = 31 * result + (isHeader ? 1 : 0);
+        result = 31 * result + zeroPulseLengths.hashCode();
+        result = 31 * result + onePulseLengths.hashCode();
         return result;
     }
 
@@ -304,12 +315,13 @@ public final class PZXDataBlock implements PZXBlock {
 
         if (tailLength != that.tailLength) return false;
         if (numBitsInLastByte != that.numBitsInLastByte) return false;
+        if (calculatedChecksum != that.calculatedChecksum) return false;
         if (suppliedChecksum != that.suppliedChecksum) return false;
-        if (zeroPulseLength != that.zeroPulseLength) return false;
-        if (onePulseLength != that.onePulseLength) return false;
+        if (isHeader != that.isHeader) return false;
         if (!pulses.equals(that.pulses)) return false;
-        return Arrays.equals(data, that.data);
-
+        if (!Arrays.equals(data, that.data)) return false;
+        if (!zeroPulseLengths.equals(that.zeroPulseLengths)) return false;
+        return onePulseLengths.equals(that.onePulseLengths);
     }
 
     /**

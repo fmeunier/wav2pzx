@@ -38,6 +38,7 @@ import xyz.meunier.wav2pzx.pulselist.PulseListBuilder;
 import java.util.List;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.EnumSet.complementOf;
 import static java.util.EnumSet.of;
@@ -47,8 +48,7 @@ import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertThat;
 import static xyz.meunier.wav2pzx.generaldecoder.BlockType.*;
 import static xyz.meunier.wav2pzx.generaldecoder.PZXBuilder.buildPZXTapeList;
-import static xyz.meunier.wav2pzx.generaldecoder.RangeFinder.getRanges;
-import static xyz.meunier.wav2pzx.generaldecoder.RangeFinder.getReplacementBitDataOfRanges;
+import static xyz.meunier.wav2pzx.generaldecoder.RangeFinder.*;
 
 public class PZXBuilderTest {
 
@@ -97,8 +97,20 @@ public class PZXBuilderTest {
     }
 
     @Test
+    public void shouldCoalescePilotBlockWithAllFollowingSyncCandidates() throws Exception {
+        List<TapeBlock> blockList = asList(getTapeBlock(PILOT, pulseList), getTapeBlock(SYNC_CANDIDATE, pulseList),
+                getTapeBlock(SYNC_CANDIDATE, pulseList));
+
+        List<PZXBlock> pzxBlocks = buildPZXTapeList(blockList);
+
+        assertThat(pzxBlocks, is(notNullValue()));
+        assertThat(pzxBlocks, is(asList(pzxHeaderBlock,
+                new PZXPulseBlock(new PulseList(new PulseList(pulseList, pulseList), pulseList)))));
+    }
+
+    @Test
     public void shouldNotCoalescePilotBlockWithFollowingOtherBlock() throws Exception {
-        complementOf(of(SYNC_CANDIDATE, DATA)).stream()
+        complementOf(of(SYNC_CANDIDATE, DATA))
                 .forEach(this::testANonCoalescingPilotAndFollowingBlockCombination);
 
         // Also test handling of DATA block following PILOT block
@@ -121,7 +133,7 @@ public class PZXBuilderTest {
 
     @Test
     public void shouldNotCoalesceDataBlockWithFollowingOtherBlock() throws Exception {
-        complementOf(of(TAIL_CANDIDATE, DATA)).stream()
+        complementOf(of(TAIL_CANDIDATE, DATA))
                 .forEach(this::testANonCoalescingDataAndFollowingBlockCombination);
 
         // Also test handling of DATA block following DATA block
@@ -164,7 +176,7 @@ public class PZXBuilderTest {
     }
 
     private PZXDataBlock getPzxDataBlock(long tailLength) {
-        return new PZXDataBlock(pulseList, 1L, 0L, tailLength, 1, singletonList((byte)0));
+        return new PZXDataBlock(pulseList, asList(1L,1L), emptyList(), tailLength, 1, singletonList((byte)0));
     }
 
     private void testANonCoalescingPilotAndFollowingBlockCombination(BlockType type) {
@@ -192,9 +204,11 @@ public class PZXBuilderTest {
     private TapeBlock getTapeBlock(BlockType type, PulseList pulseList) {
         List<Long> fullPulses = singletonList(2L);
         List<Range<Long>> ranges = getRanges(fullPulses);
-        List<BitData> rangeAverages = getReplacementBitDataOfRanges(ranges, fullPulses);
+        List<BitData> rangeAverages =
+                BlockType.DATA == type ?
+                    getZeroAndOnePulsePairs(ranges, fullPulses) :
+                    getReplacementBitDataOfRanges(ranges, fullPulses);
 
         return new TapeBlock(type, rangeAverages, pulseList);
     }
-
 }
