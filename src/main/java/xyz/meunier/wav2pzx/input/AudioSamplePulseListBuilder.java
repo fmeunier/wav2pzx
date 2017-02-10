@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Fredrick Meunier
+ * Copyright (c) 2017, Fredrick Meunier
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,11 +27,9 @@ package xyz.meunier.wav2pzx.input;
 
 import xyz.meunier.wav2pzx.input.triggers.Bistable;
 import xyz.meunier.wav2pzx.pulselist.PulseList;
-import xyz.meunier.wav2pzx.pulselist.PulseListBuilder;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-import static java.lang.Math.round;
 
 /**
  * The aim of this class is to take a series of samples from an external source
@@ -41,14 +39,9 @@ import static java.lang.Math.round;
  */
 final class AudioSamplePulseListBuilder {
 
-    private final PulseListBuilder builder;
-    private int lastSampleLevel;
-    private boolean gotFirstSample;
-    private double currentPulseDuration;
     private final double tStatesPerSample;
-    private boolean tapeComplete;
-    private PulseList pulseList;
     private final Bistable bistable;
+    private SamplePulseGenerator samplePulseGenerator;
 
     /**
      * Construct a new AudioSamplePulseListBuilder.
@@ -66,10 +59,9 @@ final class AudioSamplePulseListBuilder {
         checkArgument(targetHz >= sampleRate, "Target Hz must be greater than or equal to sample rate, target Hz:" + targetHz + " sample rate: " + sampleRate);
 
         tStatesPerSample = targetHz / sampleRate;
-        builder = new PulseListBuilder().withResolution((int)round(tStatesPerSample));
-        gotFirstSample = false;
-        tapeComplete = false;
         bistable = trigger;
+
+        samplePulseGenerator = new SamplePulseGenerator();
     }
 
     /**
@@ -83,7 +75,7 @@ final class AudioSamplePulseListBuilder {
      * @return whether this builder has completed and built the tape
      */
     boolean isTapeComplete() {
-        return tapeComplete;
+        return samplePulseGenerator.isTapeComplete();
     }
 
     /**
@@ -94,30 +86,12 @@ final class AudioSamplePulseListBuilder {
      */
     void addSample(int sample) {
         // State error, tape is already complete so no more pulses
-        checkState(!tapeComplete, "Pulse length list has already been marked as complete");
+        checkState(!samplePulseGenerator.isTapeComplete(), "Pulse length list has already been marked as complete");
         checkArgument( sample >= 0 & sample <= 255, "Sample out of range, should be 0-255, value: " + sample);
         
         int newLevel = bistable.getNewLevel(sample);
         
-        // Record the level of the first sample, later pulses only record the duration
-        // as they are defined by the edge between the levels
-        if( !gotFirstSample ) {
-            gotFirstSample = true;
-            builder.withFirstPulseLevel(newLevel);
-            lastSampleLevel = newLevel;
-            currentPulseDuration = tStatesPerSample;
-            return;
-        }
-        
-        if (newLevel == lastSampleLevel) {
-            // Continue current pulse
-            currentPulseDuration += tStatesPerSample;
-        } else {
-            // Close current pulse and start accumulating new pulse
-            builder.withNextPulse(round(currentPulseDuration));
-            currentPulseDuration = tStatesPerSample;
-            lastSampleLevel = newLevel;
-        }
+        samplePulseGenerator.addSample(newLevel, tStatesPerSample);
     }
 
     /**
@@ -126,18 +100,6 @@ final class AudioSamplePulseListBuilder {
      * @throws IllegalStateException if we haven't yet processed any samples from the tape
      */
     public PulseList build() {
-        // State error, haven't received first pulse so we don't know the first pulse level
-        checkState(gotFirstSample, "First pulse not yet received");
-                
-        if(tapeComplete) {
-            return pulseList;
-        }
-        
-        // Close current pulse and mark list as being complete
-        builder.withNextPulse(round(currentPulseDuration));
-        tapeComplete = true;
-        pulseList = builder.build();
-        
-        return pulseList;
+        return samplePulseGenerator.build();
     }
 }
