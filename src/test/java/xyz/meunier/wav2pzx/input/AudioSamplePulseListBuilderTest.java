@@ -31,10 +31,9 @@ import org.junit.Test;
 import xyz.meunier.wav2pzx.input.triggers.SchmittTrigger;
 import xyz.meunier.wav2pzx.pulselist.PulseList;
 
-import java.util.List;
-
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.hamcrest.number.IsCloseTo.closeTo;
 import static org.junit.Assert.assertThat;
 
@@ -111,25 +110,13 @@ public class AudioSamplePulseListBuilderTest {
     }
 
     /**
-     * Test of finishPulseList method, of class AudioSamplePulseListBuilder.
-     */
-    @Test
-    public void testFinishPulseList() {
-        System.out.println("finishPulseList");
-
-    }
-
-    /**
      * Test of getPulseList method, of class AudioSamplePulseListBuilder.
      */
     @Test
     public void testGetPulseList() {
         PulseList pulseList = instance1.build();
-        List<Long> result = pulseList.getPulseLengths();
 
-        assertThat(result.get(0), is(238L));
-        assertThat(result.get(1), is(238L));
-        assertThat(result.get(2), is(79L));
+        assertThat(pulseList.getPulseLengths(), contains(238L, 238L, 79L));
     }
 
     /**
